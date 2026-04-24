@@ -16,6 +16,7 @@ import { ScoringDetail, buildScoringRows } from "@/components/molecules/scoring-
 import { ActivityTimeline } from "@/components/molecules/activity-timeline";
 import { RefreshButton } from "./refresh-button";
 import { IngestBootstrapper } from "./ingest-bootstrapper";
+import { WorkHistorySection } from "./work-history";
 
 export const dynamic = "force-dynamic";
 
@@ -150,6 +151,8 @@ export default async function DashboardPage() {
               })}
             />
           </section>
+
+          <WorkHistorySection />
 
           {profileUrl && (
             <Card className="mt-6">
