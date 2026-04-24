@@ -334,6 +334,39 @@ describe("computeScore", () => {
     expect(thinSample.craft).toBe(noSample.craft);
   });
 
+  it("core contributor to high-star external repo earns recognition", () => {
+    // sebmarkbage → facebook/react: 500 commits, 50 merged PRs, 230k stars
+    const core = computeScore({
+      contributions: [
+        { ...emptyContrib, repoFullName: "facebook/react", repoStars: 230_000, commits: 500, mergedPrs: 50, isAuthor: false, primaryLanguage: "JavaScript", lastCommitAt: now - 30 * MS_DAY },
+      ],
+      months: monthsRange("2020-01", "2026-03"),
+      now,
+    });
+    const trivial = computeScore({
+      contributions: [
+        { ...emptyContrib, repoFullName: "facebook/react", repoStars: 230_000, commits: 2, mergedPrs: 1, isAuthor: false, primaryLanguage: "JavaScript", lastCommitAt: now - 30 * MS_DAY },
+      ],
+      months: monthsRange("2020-01", "2026-03"),
+      now,
+    });
+    expect(core.recognition).toBeGreaterThan(50);
+    expect(trivial.recognition).toBe(0);
+    expect(core.evidence.map((e) => e.craftTags ?? []).flat()).toContain("core contributor");
+  });
+
+  it("low-signal repo is still filtered even for core contributor", () => {
+    const r = computeScore({
+      contributions: [
+        { ...emptyContrib, repoFullName: "firstcontributions/first-contributions", repoStars: 54_000, commits: 80, mergedPrs: 10, isAuthor: false, primaryLanguage: "Markdown" },
+      ],
+      months: monthsRange("2024-01", "2026-03"),
+      now,
+    });
+    expect(r.recognition).toBe(0);
+    expect(r.evidence).toHaveLength(0);
+  });
+
   it("external-repo craft data does not affect craft score", () => {
     const r = computeScore({
       contributions: [

@@ -49,10 +49,23 @@ function effectiveIsAuthor(c: ContributionInput): boolean {
   return true;
 }
 
+// Heavy committers to external repos — e.g. React core at facebook/react,
+// Next.js core at vercel/next.js. They don't own the repo but their work
+// *is* the repo. Deserves partial star credit proportional to commit share.
+const CORE_CONTRIB_MIN_COMMITS = 50;
+const CORE_CONTRIB_MIN_PRS = 5;
+const CORE_SHARE_DENOM = 200; // commits at which core contrib share saturates
+
+function isCoreContributor(c: ContributionInput): boolean {
+  if (effectiveIsAuthor(c)) return false;
+  return c.commits >= CORE_CONTRIB_MIN_COMMITS || c.mergedPrs >= CORE_CONTRIB_MIN_PRS;
+}
+
 /** Meaningful-contribution gate (blocklist + engagement threshold). */
 function isMeaningful(c: ContributionInput): boolean {
   if (LOW_SIGNAL_REPO.test(c.repoFullName)) return false;
   if (effectiveIsAuthor(c)) return c.commits > 0 || c.repoStars >= 5;
+  if (isCoreContributor(c)) return true;
   return c.mergedPrs >= 2 && c.commits >= 3;
 }
 
@@ -91,6 +104,16 @@ function recognitionScore(contributions: ContributionInput[], nowMs: number): nu
     if (effectiveIsAuthor(c)) {
       const fresh = freshnessMultiplier(c.pushedAt ?? c.lastCommitAt, nowMs);
       total += c.repoStars * fresh;
+    } else if (isCoreContributor(c) && c.repoStars >= 100) {
+      // Core contributor to an external repo — heavy committers to
+      // facebook/react, vercel/next.js, etc. Get star credit proportional
+      // to their commit share (capped). Freshness weighted.
+      const share = Math.min(
+        1,
+        (c.commits + c.mergedPrs * 3) / CORE_SHARE_DENOM,
+      );
+      const fresh = freshnessMultiplier(c.lastCommitAt, nowMs);
+      total += Math.min(c.repoStars, 200_000) * share * fresh;
     } else if (c.mergedPrs >= 2 && c.commits >= 3 && c.repoStars >= 100) {
       total += Math.min(c.repoStars, 5000) * Math.log1p(c.mergedPrs);
     }
@@ -203,6 +226,14 @@ function buildEvidence(contributions: ContributionInput[]): EvidenceEntry[] {
         const starWeight = Math.log1p(c.repoStars) * 12;
         const craftBonus = c.craft ? repoCraftScore(c.craft) * 0.15 : 0;
         weight = starWeight + commitWeight + craftBonus;
+      } else if (isCoreContributor(c)) {
+        // Being a core contributor to a high-star external repo is strong
+        // signal — rank it comparably to authoring a mid-tier repo.
+        const share = Math.min(1, (c.commits + c.mergedPrs * 3) / CORE_SHARE_DENOM);
+        const starWeight = Math.log1p(c.repoStars) * 10 * share;
+        const prWeight = c.mergedPrs * 6;
+        weight = starWeight + commitWeight + prWeight;
+        craftTags.push("core contributor");
       } else {
         const prWeight = c.mergedPrs * 6;
         const starBonus = Math.log1p(Math.min(c.repoStars, 20_000)) * 2;
