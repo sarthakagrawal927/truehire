@@ -295,8 +295,11 @@ export async function ingestGitHubUser(params: {
   return profile;
 }
 
-const TEST_FILE = /(?:^|\/)(?:tests?|__tests__|spec|e2e)(?:\/|$)|\.(?:test|spec)\.(?:ts|tsx|js|jsx|py|go|rb|rs)$|^(?:vitest|jest|playwright|cypress)\.config\./i;
-const PACKAGE_MANIFEST = /^(?:package\.json|pyproject\.toml|Cargo\.toml|go\.mod|Gemfile|composer\.json|pom\.xml|build\.gradle)$/i;
+const TEST_DIR = /^(?:tests?|__tests__|spec|e2e|t)$/i;
+const TEST_FILE = /\.(?:test|spec)\.(?:ts|tsx|js|jsx|py|go|rb|rs|c|cpp|java|kt)$|^(?:vitest|jest|playwright|cypress|karma|mocha|pytest)\.config\./i;
+const PACKAGE_MANIFEST = /^(?:package\.json|pyproject\.toml|Cargo\.toml|go\.mod|Gemfile|composer\.json|pom\.xml|build\.gradle(?:\.kts)?|Makefile|CMakeLists\.txt|configure\.ac|meson\.build|mix\.exs|deno\.json)$/i;
+// Non-GitHub-Actions CI file names
+const CI_FILE = /^(?:\.travis\.yml|\.circleci|\.drone\.yml|\.woodpecker(?:\.yml|\.yaml)?|Jenkinsfile|azure-pipelines\.yml|appveyor\.yml|bitbucket-pipelines\.yml|\.gitlab-ci\.yml|\.buildkite)$/i;
 
 async function fetchCraftSignals(
   rest: Octokit,
@@ -313,8 +316,9 @@ async function fetchCraftSignals(
       .then((r) => extractTotalCountFromLinkHeader(r.headers.link) ?? r.data.length)
       .catch(() => 0),
     rest.repos
-      .listContributors({ owner, repo, per_page: 10, anon: "false" })
-      .then((r) => Array.isArray(r.data) ? r.data.length : 0)
+      .listContributors({ owner, repo, per_page: 1, anon: "false" })
+      .then((r) => extractTotalCountFromLinkHeader(r.headers.link) ??
+        (Array.isArray(r.data) ? r.data.length : 0))
       .catch(() => 0),
     rest.repos
       .listCommits({ owner, repo, author: login, per_page: 50 })
@@ -329,26 +333,28 @@ async function fetchCraftSignals(
   let hasLicense = false;
   let hasManifest = false;
 
+  let sawGithubDir = false;
   if (Array.isArray(contentsRes?.data)) {
     for (const entry of contentsRes.data) {
       const name = entry.name;
-      if (name === ".github" && entry.type === "dir") hasCi = true;
+      if (name === ".github" && entry.type === "dir") sawGithubDir = true;
+      if (CI_FILE.test(name)) hasCi = true;
       if (/^README(\.|$)/i.test(name)) {
         hasReadme = true;
         readmeSize = Math.max(readmeSize, entry.size ?? 0);
       }
       if (/^LICENSE(\.|$)|^COPYING$/i.test(name)) hasLicense = true;
       if (PACKAGE_MANIFEST.test(name)) hasManifest = true;
-      if (TEST_FILE.test(name) || /^(?:tests?|__tests__|spec|e2e)$/i.test(name)) hasTests = true;
+      if (TEST_FILE.test(name) || TEST_DIR.test(name)) hasTests = true;
     }
   }
 
-  // Double-check for .github/workflows (CI config specifically)
-  if (hasCi) {
+  // If a `.github` dir exists, verify it contains workflows (GH Actions).
+  if (sawGithubDir && !hasCi) {
     const wf = await rest.repos
       .getContent({ owner, repo, path: ".github/workflows" })
       .catch(() => null);
-    if (!Array.isArray(wf?.data) || wf.data.length === 0) hasCi = false;
+    if (Array.isArray(wf?.data) && wf.data.length > 0) hasCi = true;
   }
 
   // Contributors count excludes the owner → "collaborators" per type.

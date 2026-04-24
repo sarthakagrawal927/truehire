@@ -35,6 +35,11 @@ const ANCHORS: string[] = [
   "wycats",         // Ember, Rust
   "jaredpalmer",    // formik, Vercel
   "jashkenas",      // Backbone, Underscore, CoffeeScript
+  "torvalds",       // Linux, Git — ceiling test
+  "antirez",        // Redis
+  "gvanrossum",     // Python creator
+  "bellard",        // QEMU, FFmpeg, tcc
+  "mitchellh",      // HashiCorp founder
 ];
 
 async function seed(login: string) {
