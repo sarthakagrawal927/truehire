@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, Loader2 } from "lucide-react";
 
@@ -29,13 +29,13 @@ export function IngestBootstrapper({
   const [currentPct, setCurrentPct] = useState<number>(2);
   const [completed, setCompleted] = useState<Record<string, boolean>>({});
   const [error, setError] = useState<string | null>(null);
-  const started = useRef(false);
   const router = useRouter();
 
   useEffect(() => {
-    if (hasScore || started.current) return;
-    started.current = true;
-
+    if (hasScore) return;
+    // Opening a new EventSource per mount is safe — an existing running
+    // ingest on the server short-circuits via `canRefresh`, and Vercel's
+    // serverless model doesn't hold concurrent streams from the same user.
     const es = new EventSource("/api/refresh/stream");
 
     es.addEventListener("phase", (ev) => {
