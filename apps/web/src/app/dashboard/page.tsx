@@ -101,10 +101,10 @@ export default async function DashboardPage() {
               <CardBody>
                 <ScoreBreakdown
                   rows={[
-                    { label: "Depth", value: score!.depth, weight: 0.25 },
+                    { label: "Depth", value: score!.depth, weight: 0.2 },
                     { label: "Breadth", value: score!.breadth, weight: 0.15 },
-                    { label: "Recognition", value: score!.recognition, weight: 0.2 },
-                    { label: "Craft", value: score!.craft, weight: 0.25 },
+                    { label: "Recognition", value: score!.recognition, weight: 0.3 },
+                    { label: "Craft", value: score!.craft, weight: 0.2 },
                     { label: "Specialization", value: score!.specialization, weight: 0.15 },
                   ]}
                 />

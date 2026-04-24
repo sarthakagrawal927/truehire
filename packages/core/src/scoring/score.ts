@@ -7,24 +7,28 @@ import type {
   ScoreInput,
 } from "./types";
 
-// Weights sum to 1.0. Craft joins the composite so engineering discipline is
-// explicitly rewarded and star-popularity alone can't carry a profile.
+// Weights sum to 1.0. Recognition carries the most weight (the PRD premise:
+// costly, publicly verifiable signals). Craft complements it rather than
+// replaces it.
 const W = {
-  depth: 0.25,
+  depth: 0.2,
   breadth: 0.15,
-  recognition: 0.2,
-  craft: 0.25,
+  recognition: 0.3,
+  craft: 0.2,
   specialization: 0.15,
 };
 
-const DEPTH_CAP_MONTHS = 60;
-const BREADTH_CAP_REPOS = 50;
-const RECOGNITION_CAP = 6;
+const DEPTH_CAP_MONTHS = 48;
+const BREADTH_CAP_REPOS = 40;
+const RECOGNITION_CAP = 5.5;
 
-const DEPTH_HALF_LIFE_MONTHS = 24;
-// Stars on authored repos decay if the repo is abandoned. Half-life 36m means
-// a 5-year-dead repo's star weight drops to ~38% of a currently-maintained one.
-const FRESHNESS_HALF_LIFE_MONTHS = 36;
+// Depth half-life: recent months worth more, but a 2-year-old contribution
+// shouldn't be worth only half. 30-month half-life keeps legacy contributors
+// meaningfully represented while still rewarding active output.
+const DEPTH_HALF_LIFE_MONTHS = 30;
+// Stars on authored repos decay when the repo goes unmaintained. 48-month
+// half-life: a 4-year-dead repo still counts ~50%, an 8-year-dead one ~25%.
+const FRESHNESS_HALF_LIFE_MONTHS = 48;
 const MS_PER_MONTH = 30 * 24 * 3_600_000;
 
 const clamp = (v: number, lo = 0, hi = 100) => Math.max(lo, Math.min(hi, v));

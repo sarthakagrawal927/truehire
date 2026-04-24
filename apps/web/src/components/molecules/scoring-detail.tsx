@@ -86,9 +86,9 @@ export function buildScoringRows(score: {
     {
       label: "Depth",
       value: score.depth,
-      weight: 0.25,
+      weight: 0.2,
       formula:
-        "log₁(Σ recency-weighted months active) / log₁(60) × 100 · half-life 24 months",
+        "log₁(Σ recency-weighted months active) / log₁(48) × 100 · half-life 30 months",
       improve: [
         "Commit even once/month — gaps pull this down more than volume ever compensates.",
         "Old contributions decay: work older than 2 years is worth half a recent month.",
@@ -110,9 +110,9 @@ export function buildScoringRows(score: {
     {
       label: "Recognition",
       value: score.recognition,
-      weight: 0.2,
+      weight: 0.3,
       formula:
-        "log₁₀(Σ authored-repo stars × freshness + external-PR credit to 100★+ repos) / 6 × 100",
+        "log₁₀(authored stars × freshness + core-contrib stars × share + PR credit to 100★+ repos) / 5.5 × 100",
       improve: [
         "Keep authored repos fresh — a 5-year-dead star ≈ 38% of a live one.",
         "Merged PRs into high-star production repos (React, Next.js, Kubernetes) move this most.",
@@ -122,9 +122,9 @@ export function buildScoringRows(score: {
     {
       label: "Craft",
       value: score.craft,
-      weight: 0.25,
+      weight: 0.2,
       formula:
-        "avg over top-10 authored repos: CI (22) + tests (22) + README (15) + LICENSE (8) + releases (≤15) + collaborators (≤18)",
+        "avg over top-10 repos (authored + core-contrib): CI 18 + tests 18 + README 12 + LICENSE 6 + releases ≤14 + collabs ≤14 + commit-msg quality ≤18",
       improve: [
         "Add GitHub Actions / any CI to your main authored repos — biggest single bump.",
         "Add a test directory or vitest/jest/playwright config — even a sanity-check suite counts.",
