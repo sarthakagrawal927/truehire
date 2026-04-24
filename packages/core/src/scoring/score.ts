@@ -134,14 +134,31 @@ function craftScore(contributions: ContributionInput[], nowMs: number): number {
 /** 0-100 craft score for a single repo. */
 function repoCraftScore(s: CraftSignals): number {
   let pts = 0;
-  if (s.hasCi) pts += 22;
-  if (s.hasTests) pts += 22;
-  if (s.hasReadme && s.readmeSize >= 800) pts += 15;
+  if (s.hasCi) pts += 18;
+  if (s.hasTests) pts += 18;
+  if (s.hasReadme && s.readmeSize >= 800) pts += 12;
   else if (s.hasReadme) pts += 6;
-  if (s.hasLicense) pts += 8;
-  pts += Math.min(15, s.releases * 3);
-  pts += Math.min(18, s.collaborators * 6);
+  if (s.hasLicense) pts += 6;
+  pts += Math.min(14, s.releases * 3);
+  pts += Math.min(14, s.collaborators * 5);
+  pts += commitQualityPoints(s); // 0..18
   return clamp(pts);
+}
+
+/**
+ * Up to 18 pts based on recent commit message quality. Long, meaningful
+ * messages correlate with engineering discipline; "wip", "update", "asdf"
+ * commits drag this down. Sample is the last ~50 commits by this author.
+ */
+function commitQualityPoints(s: CraftSignals): number {
+  const sampled = s.sampledCommits ?? 0;
+  if (sampled < 5) return 0; // not enough signal
+  const avgLen = s.avgCommitMsgLen ?? 0;
+  const meaningful = s.meaningfulMsgRatio ?? 0;
+  // avgLen: 20 chars ≈ low, 60+ ≈ high. Map linearly, cap.
+  const lenPts = clamp(((Math.min(avgLen, 80) - 15) / 65) * 9, 0, 9);
+  const ratioPts = clamp(meaningful * 9, 0, 9);
+  return Math.round(lenPts + ratioPts);
 }
 
 function specializationScore(languages: ScoreBreakdown["languages"]): number {

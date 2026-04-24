@@ -265,7 +265,7 @@ export async function ingestGitHubUser(params: {
   await Promise.all(
     batch.map(async (c) => {
       try {
-        c.craft = await fetchCraftSignals(rest, c.repoFullName);
+        c.craft = await fetchCraftSignals(rest, c.repoFullName, login);
       } catch {
         c.craft = null;
       }
@@ -297,11 +297,12 @@ const PACKAGE_MANIFEST = /^(?:package\.json|pyproject\.toml|Cargo\.toml|go\.mod|
 async function fetchCraftSignals(
   rest: Octokit,
   fullName: string,
+  login: string,
 ): Promise<CraftSignals> {
   const [owner, repo] = fullName.split("/");
 
-  // Run file listing + releases count + contributors count in parallel.
-  const [contentsRes, releasesRes, contributorsRes] = await Promise.all([
+  // Run file listing + releases count + contributors count + commit sample in parallel.
+  const [contentsRes, releasesRes, contributorsRes, commitsRes] = await Promise.all([
     rest.repos.getContent({ owner, repo, path: "" }).catch(() => null),
     rest.repos
       .listReleases({ owner, repo, per_page: 1 })
@@ -311,6 +312,10 @@ async function fetchCraftSignals(
       .listContributors({ owner, repo, per_page: 10, anon: "false" })
       .then((r) => Array.isArray(r.data) ? r.data.length : 0)
       .catch(() => 0),
+    rest.repos
+      .listCommits({ owner, repo, author: login, per_page: 50 })
+      .then((r) => r.data)
+      .catch(() => []),
   ]);
 
   let hasCi = false;
@@ -348,6 +353,8 @@ async function fetchCraftSignals(
   // A repo with no manifest is usually throwaway — dampen tests signal if no code
   if (!hasManifest && !hasTests) hasTests = false;
 
+  const commitQuality = computeCommitQuality(commitsRes);
+
   return {
     hasCi,
     hasTests,
@@ -356,7 +363,33 @@ async function fetchCraftSignals(
     readmeSize,
     releases: releasesRes,
     collaborators,
+    avgCommitMsgLen: commitQuality.avgLen,
+    meaningfulMsgRatio: commitQuality.meaningful,
+    sampledCommits: commitQuality.sampled,
   };
+}
+
+const TRIVIAL_MSG =
+  /^(?:wip|tmp|temp|asdf|test|fix|update|updates?|minor(?:\s+update)?|typo|fix(?:ed)?\s+typo|stuff|things|merge\s+branch|initial\s+commit|init|commit|save|progress|work|y|\.{2,}|[a-z]{1,3}|updated?\s+readme)\s*$/i;
+const MEANINGFUL_VERB =
+  /^(?:feat|fix|refactor|docs?|test|perf|chore|style|ci|build|revert|add(?:s|ed)?|remove[sd]?|implement|introduce|handle|prevent|enable|disable|migrate|rename|move|extract|inline|bump|upgrade|downgrade|close|resolve)[\s(:\-]/i;
+
+function computeCommitQuality(commits: Array<{ commit?: { message?: string } }>) {
+  const msgs = commits
+    .map((c) => (c.commit?.message ?? "").split("\n")[0].trim())
+    .filter((m) => m.length > 0);
+  const sampled = msgs.length;
+  if (sampled === 0) {
+    return { avgLen: 0, meaningful: 0, sampled: 0 };
+  }
+  const totalLen = msgs.reduce((s, m) => s + m.length, 0);
+  const avgLen = Math.round(totalLen / sampled);
+  const meaningfulCount = msgs.filter(
+    (m) =>
+      !TRIVIAL_MSG.test(m) &&
+      (MEANINGFUL_VERB.test(m) || m.length >= 30),
+  ).length;
+  return { avgLen, meaningful: meaningfulCount / sampled, sampled };
 }
 
 function extractTotalCountFromLinkHeader(

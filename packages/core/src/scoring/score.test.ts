@@ -286,6 +286,54 @@ describe("computeScore", () => {
     expect(disciplined.overall).toBeGreaterThan(sloppy.overall);
   });
 
+  it("commit message quality lifts craft when messages are substantive", () => {
+    const baseCraft = {
+      hasCi: true, hasTests: true, hasReadme: true, readmeSize: 2000,
+      hasLicense: true, releases: 2, collaborators: 1,
+    };
+    const verbose = computeScore({
+      contributions: [
+        { ...emptyContrib, repoFullName: "u/app", commits: 100, isAuthor: true, primaryLanguage: "TypeScript", pushedAt: now - 10 * MS_DAY,
+          craft: { ...baseCraft, avgCommitMsgLen: 72, meaningfulMsgRatio: 0.9, sampledCommits: 50 } },
+      ],
+      months: monthsRange("2025-01", "2026-03"),
+      now,
+    });
+    const wip = computeScore({
+      contributions: [
+        { ...emptyContrib, repoFullName: "u/app", commits: 100, isAuthor: true, primaryLanguage: "TypeScript", pushedAt: now - 10 * MS_DAY,
+          craft: { ...baseCraft, avgCommitMsgLen: 8, meaningfulMsgRatio: 0.05, sampledCommits: 50 } },
+      ],
+      months: monthsRange("2025-01", "2026-03"),
+      now,
+    });
+    expect(verbose.craft).toBeGreaterThan(wip.craft);
+  });
+
+  it("commit quality under sample threshold is ignored (0 contribution)", () => {
+    const baseCraft = {
+      hasCi: true, hasTests: true, hasReadme: true, readmeSize: 2000,
+      hasLicense: true, releases: 2, collaborators: 1,
+    };
+    const thinSample = computeScore({
+      contributions: [
+        { ...emptyContrib, repoFullName: "u/app", commits: 100, isAuthor: true, primaryLanguage: "TypeScript", pushedAt: now - 10 * MS_DAY,
+          craft: { ...baseCraft, avgCommitMsgLen: 72, meaningfulMsgRatio: 0.9, sampledCommits: 2 } },
+      ],
+      months: monthsRange("2025-01", "2026-03"),
+      now,
+    });
+    const noSample = computeScore({
+      contributions: [
+        { ...emptyContrib, repoFullName: "u/app", commits: 100, isAuthor: true, primaryLanguage: "TypeScript", pushedAt: now - 10 * MS_DAY,
+          craft: baseCraft },
+      ],
+      months: monthsRange("2025-01", "2026-03"),
+      now,
+    });
+    expect(thinSample.craft).toBe(noSample.craft);
+  });
+
   it("external-repo craft data does not affect craft score", () => {
     const r = computeScore({
       contributions: [
