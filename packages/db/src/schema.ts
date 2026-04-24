@@ -197,6 +197,12 @@ export const scores = sqliteTable(
       .references(() => users.id, { onDelete: "cascade" }),
     computedAt: integer("computed_at", { mode: "timestamp_ms" }).notNull(),
     overall: integer("overall").notNull(),
+    // signal1 = weighted composite of Depth/Breadth/Recognition/Craft/Spec (0-100).
+    //           overall = signal1 + bonus(signal2). Kept separately so we can
+    //           display each signal's own score cleanly.
+    signal1: integer("signal1").notNull().default(0),
+    // signal2 = employer verification (0-100), bonus applied to overall.
+    signal2: integer("signal2").notNull().default(0),
     depth: integer("depth").notNull(),
     breadth: integer("breadth").notNull(),
     recognition: integer("recognition").notNull(),

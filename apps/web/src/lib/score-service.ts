@@ -1,6 +1,7 @@
 import { db, schema } from "@truehire/db";
-import { eq, desc } from "drizzle-orm";
+import { and, eq, desc } from "drizzle-orm";
 import { computeScore, ingestGitHubUser } from "@truehire/core";
+import { computeSignal2, signal2OverallBonus } from "./verify-service";
 
 const INGEST_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 
@@ -35,6 +36,45 @@ export async function getGitHubAccessToken(userId: string): Promise<string | nul
     .where(eq(schema.accounts.userId, userId))
     .limit(1);
   return rows[0]?.token ?? null;
+}
+
+export async function getPublicWorkHistory(userId: string) {
+  const history = await db
+    .select()
+    .from(schema.workHistory)
+    .where(eq(schema.workHistory.userId, userId));
+  if (history.length === 0) return [];
+  const verifications = await db
+    .select()
+    .from(schema.employerVerifications);
+  const latestByWh = new Map<string, typeof verifications[number]>();
+  // status priority: confirmed > pending > disputed > denied > expired, then recency
+  const rank: Record<string, number> = {
+    confirmed: 0, pending: 1, disputed: 2, denied: 3, expired: 4,
+  };
+  for (const v of verifications) {
+    const prev = latestByWh.get(v.workHistoryId);
+    if (!prev ||
+        rank[v.status] < rank[prev.status] ||
+        (rank[v.status] === rank[prev.status] &&
+          v.requestedAt.getTime() > prev.requestedAt.getTime())) {
+      latestByWh.set(v.workHistoryId, v);
+    }
+  }
+  return history
+    .map((h) => {
+      const v = latestByWh.get(h.id) ?? null;
+      return {
+        company: h.company,
+        title: h.title,
+        startDate: h.startDate,
+        endDate: h.endDate,
+        status: v?.status ?? null,
+        verifierDomain: v?.verifierDomain ?? null,
+        respondedAt: v?.respondedAt?.getTime() ?? null,
+      };
+    })
+    .sort((a, b) => (a.startDate < b.startDate ? 1 : -1));
 }
 
 export async function getActivityMonths(userId: string) {
@@ -106,11 +146,16 @@ export async function refreshUserScore(params: {
       contributions: result.contributions,
       months: result.months,
     });
+    const signal2 = await computeSignal2ForUser(tx, userId);
+    const signal1 = breakdown.overall;
+    const overall = Math.min(100, signal1 + signal2OverallBonus(signal2));
 
     await tx.insert(schema.scores).values({
       userId,
       computedAt: new Date(),
-      overall: breakdown.overall,
+      overall,
+      signal1,
+      signal2,
       depth: breakdown.depth,
       breadth: breakdown.breadth,
       recognition: breakdown.recognition,
@@ -136,6 +181,53 @@ export async function refreshUserScore(params: {
         claimed: true,
       })
       .where(eq(schema.users.id, userId));
+  });
+}
+
+type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+async function computeSignal2ForUser(tx: Tx | typeof db, userId: string): Promise<number> {
+  const history = await tx
+    .select({
+      id: schema.workHistory.id,
+      startDate: schema.workHistory.startDate,
+      endDate: schema.workHistory.endDate,
+    })
+    .from(schema.workHistory)
+    .where(eq(schema.workHistory.userId, userId));
+  if (history.length === 0) return 0;
+
+  const confirmed = await tx
+    .select({ workHistoryId: schema.employerVerifications.workHistoryId })
+    .from(schema.employerVerifications)
+    .where(eq(schema.employerVerifications.status, "confirmed"));
+  const confirmedSet = new Set(confirmed.map((r) => r.workHistoryId));
+
+  return computeSignal2({
+    workHistory: history,
+    confirmedVerifications: history
+      .map((h) => h.id)
+      .filter((id) => confirmedSet.has(id)),
+  });
+}
+
+/**
+ * Recompute + persist just the Signal 2 slice of a user's score without
+ * re-running the expensive GitHub ingest. Called after a verification is
+ * confirmed/denied so the profile reflects the new state immediately.
+ */
+export async function recomputeSignal2OnVerificationChange(userId: string) {
+  const latest = await getLatestScore(userId);
+  if (!latest) return; // user hasn't had Signal 1 computed yet; nothing to blend into.
+  const signal2 = await computeSignal2ForUser(db, userId);
+  const signal1 = latest.signal1 || latest.overall; // fallback for legacy rows
+  const overall = Math.min(100, signal1 + signal2OverallBonus(signal2));
+  await db.insert(schema.scores).values({
+    ...latest,
+    computedAt: new Date(),
+    overall,
+    signal1,
+    signal2,
   });
 }
 

@@ -16,8 +16,10 @@ import { Stat } from "@/components/molecules/stat";
 import {
   getActivityMonths,
   getLatestScore,
+  getPublicWorkHistory,
   getUserByUsername,
 } from "@/lib/score-service";
+import { PublicWorkHistory } from "@/components/molecules/work-history-public";
 import type { EvidenceEntry } from "@truehire/core";
 import { CopyProfileLink } from "./copy-profile-link";
 
@@ -29,7 +31,8 @@ async function loadProfile(handleRaw: string) {
   if (!user) return null;
   const score = await getLatestScore(user.id);
   const months = await getActivityMonths(user.id);
-  return { user, score, months };
+  const work = await getPublicWorkHistory(user.id);
+  return { user, score, months, work };
 }
 
 export async function generateMetadata(props: {
@@ -72,7 +75,7 @@ export default async function ProfilePage(props: { params: Promise<Params> }) {
 
   const data = await loadProfile(clean);
   if (!data) notFound();
-  const { user, score, months } = data;
+  const { user, score, months, work } = data;
 
   const hasScore = !!score;
   const evidence: EvidenceEntry[] = hasScore ? JSON.parse(score.evidenceJson) : [];
@@ -152,8 +155,19 @@ export default async function ProfilePage(props: { params: Promise<Params> }) {
             <Card className="flex flex-col items-center justify-center p-8">
               <ScoreRing score={score.overall} />
               <div className="mt-5 text-center">
+                {score.signal2 > 0 && (
+                  <div className="num mb-2 flex items-center justify-center gap-2 text-[11px] text-[var(--muted)]">
+                    <span>S1: {score.signal1 || score.overall}</span>
+                    <span className="text-[var(--muted-2)]">·</span>
+                    <span className="text-[var(--verified)]">
+                      S2: {score.signal2} (+{Math.round(score.signal2 * 0.15)})
+                    </span>
+                  </div>
+                )}
                 <div className="text-[11px] uppercase tracking-[0.14em] text-[var(--muted)]">
-                  TrueHire signal 1 · public work
+                  {score.signal2 > 0
+                    ? "Signals 1 + 2 · blended"
+                    : "TrueHire signal 1 · public work"}
                 </div>
                 <div className="mt-1 text-[13px] text-[var(--muted)]">
                   Derived weekly. Evidence below.
@@ -227,6 +241,26 @@ export default async function ProfilePage(props: { params: Promise<Params> }) {
               )}
             </div>
           </Card>
+
+          {/* Signal 2 — work history */}
+          {work.length > 0 && (
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle>Employment — Signal 2</CardTitle>
+                <Badge tone="outline">
+                  {work.filter((w) => w.status === "confirmed").length} verified
+                </Badge>
+              </CardHeader>
+              <CardBody>
+                <PublicWorkHistory entries={work} />
+                <p className="mt-4 text-[11px] text-[var(--muted-2)]">
+                  Verified entries are confirmed by an HR email at the company
+                  domain, then cryptographically signed. Self-claimed entries
+                  are shown for transparency and contribute zero to the score.
+                </p>
+              </CardBody>
+            </Card>
+          )}
 
           {/* Methodology — every number's formula, openable */}
           <section className="mt-10">

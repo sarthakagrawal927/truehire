@@ -167,6 +167,58 @@ export async function latestVerificationForWorkHistory(workHistoryId: string) {
   )[0] ?? null;
 }
 
+export type Signal2Input = {
+  workHistory: Array<{
+    id: string;
+    startDate: string;
+    endDate: string | null;
+  }>;
+  confirmedVerifications: string[]; // workHistory IDs w/ confirmed verif
+};
+
+/**
+ * Signal 2 — employer verification. 0..100.
+ *
+ * Per confirmed role: 25 base + up to 20 bonus from tenure (4 pts per year,
+ * capped at 5 years). A candidate with 1 confirmed 3y role scores ~37; two
+ * 4y roles ≈ 82; three 4y+ roles hit 100.
+ *
+ * Unverified or pending roles contribute zero — the signal is *cryptographic
+ * proof* of tenure, not a candidate self-claim.
+ */
+export function computeSignal2(input: Signal2Input): number {
+  const byId = new Map(input.workHistory.map((w) => [w.id, w]));
+  let score = 0;
+  for (const whId of input.confirmedVerifications) {
+    const wh = byId.get(whId);
+    if (!wh) continue;
+    const tenureYears = tenureFromDates(wh.startDate, wh.endDate);
+    score += 25 + Math.min(20, tenureYears * 4);
+  }
+  return Math.max(0, Math.min(100, Math.round(score)));
+}
+
+function tenureFromDates(startYM: string, endYM: string | null): number {
+  const [sy, sm] = startYM.split("-").map(Number);
+  if (!sy || !sm) return 0;
+  const now = endYM
+    ? (() => {
+        const [ey, em] = endYM.split("-").map(Number);
+        return { y: ey, m: em };
+      })()
+    : (() => {
+        const d = new Date();
+        return { y: d.getUTCFullYear(), m: d.getUTCMonth() + 1 };
+      })();
+  const months = (now.y - sy) * 12 + (now.m - sm);
+  return Math.max(0, months / 12);
+}
+
+/** Bonus applied to overall score from Signal 2. Capped at 15 pts. */
+export function signal2OverallBonus(signal2: number): number {
+  return Math.round(signal2 * 0.15);
+}
+
 function timingSafeEqual(a: string, b: string) {
   if (a.length !== b.length) return false;
   let diff = 0;
