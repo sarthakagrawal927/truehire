@@ -252,13 +252,17 @@ export async function ingestGitHubUser(params: {
 
   progress({ type: "authored", message: "Reading repo craft signals", pct: 94 });
 
-  // Fetch craft signals for authored non-fork repos that have real engagement.
-  // Skip forks + trivial-commit repos to stay inside rate limits on big accounts.
-  const craftCandidates = Array.from(repoAgg.values()).filter(
-    (c) => c.isAuthor && !c.isFork && (c.commits >= 3 || c.repoStars >= 5),
-  );
-  // Cap at 25 to keep ingest under ~90s for large accounts; we only score from
-  // the top 10 anyway, so taking the most-commits 25 covers the signal.
+  // Fetch craft signals for (a) authored non-fork repos with real engagement
+  // and (b) top external "core-contributor" repos where the user has sunk
+  // serious work. Both contribute to the Craft score (the latter scaled by
+  // commit share so the user inherits proportional credit).
+  const craftCandidates = Array.from(repoAgg.values()).filter((c) => {
+    if (c.isAuthor && !c.isFork) return c.commits >= 3 || c.repoStars >= 5;
+    // core contributor: treat like authored for craft-fetch purposes
+    if (!c.isAuthor && (c.commits >= 50 || c.mergedPrs >= 5)) return true;
+    return false;
+  });
+  // Cap at 25 to keep ingest under ~90s for large accounts.
   craftCandidates.sort((a, b) => b.commits - a.commits);
   const batch = craftCandidates.slice(0, 25);
 

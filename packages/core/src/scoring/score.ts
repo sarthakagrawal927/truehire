@@ -123,19 +123,22 @@ function recognitionScore(contributions: ContributionInput[], nowMs: number): nu
 }
 
 /**
- * Craft — engineering discipline on authored repos. Per-repo score of
- * CI/tests/docs/releases/collaborators, averaged over the top-N (by size)
- * authored repos and freshness-weighted. External repos don't count; you
- * don't get to claim "well-tested code" because React has tests.
+ * Craft — engineering discipline on the repos the user works in. Authored
+ * repos count at full weight. Core-contributor repos (external, but the
+ * user has real skin in them) count scaled by commit share — a React core
+ * committer earns partial credit for React's tests/CI/docs because they
+ * built and maintain them.
  */
 function craftScore(contributions: ContributionInput[], nowMs: number): number {
-  const authored = contributions.filter(
-    (c) => effectiveIsAuthor(c) && isMeaningful(c) && c.craft,
+  const candidates = contributions.filter(
+    (c) =>
+      isMeaningful(c) &&
+      c.craft &&
+      (effectiveIsAuthor(c) || isCoreContributor(c)),
   );
-  if (authored.length === 0) return 0;
+  if (candidates.length === 0) return 0;
 
-  // Sort by most substantial first; take top 10.
-  const top = authored
+  const top = candidates
     .slice()
     .sort((a, b) => b.commits - a.commits)
     .slice(0, 10);
@@ -145,8 +148,13 @@ function craftScore(contributions: ContributionInput[], nowMs: number): number {
   for (const c of top) {
     const s = repoCraftScore(c.craft!);
     const fresh = freshnessMultiplier(c.pushedAt ?? c.lastCommitAt, nowMs);
-    // larger repos carry more weight in the average
-    const weight = Math.log1p(c.commits) * fresh;
+    const baseWeight = Math.log1p(c.commits) * fresh;
+    // Authored: full weight. Core contrib: scaled by commit share so a
+    // 100-commit React committer gets proportional, not total, credit.
+    const ownership = effectiveIsAuthor(c)
+      ? 1
+      : Math.min(1, (c.commits + c.mergedPrs * 3) / CORE_SHARE_DENOM);
+    const weight = baseWeight * ownership;
     total += s * weight;
     totalWeight += weight;
   }

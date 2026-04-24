@@ -367,7 +367,24 @@ describe("computeScore", () => {
     expect(r.evidence).toHaveLength(0);
   });
 
-  it("external-repo craft data does not affect craft score", () => {
+  it("core contributor inherits craft proportional to share", () => {
+    const coreCraft = {
+      hasCi: true, hasTests: true, hasReadme: true, readmeSize: 8000,
+      hasLicense: true, releases: 200, collaborators: 200,
+      avgCommitMsgLen: 60, meaningfulMsgRatio: 0.85, sampledCommits: 50,
+    };
+    const heavyCore = computeScore({
+      contributions: [
+        { ...emptyContrib, repoFullName: "facebook/react", repoStars: 230_000, commits: 1000, mergedPrs: 50, isAuthor: false, primaryLanguage: "JavaScript", lastCommitAt: now - 30 * MS_DAY, craft: coreCraft },
+      ],
+      months: monthsRange("2020-01", "2026-03"),
+      now,
+    });
+    // heavy core contributor to a high-craft repo should have meaningful Craft
+    expect(heavyCore.craft).toBeGreaterThan(60);
+  });
+
+  it("trivial external contribution ignores craft data", () => {
     const r = computeScore({
       contributions: [
         {
