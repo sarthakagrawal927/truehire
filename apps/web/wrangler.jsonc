@@ -1,0 +1,29 @@
+/**
+ * Cloudflare Workers config for TrueHire (via @opennextjs/cloudflare).
+ *
+ * Deploy flow:
+ *   pnpm --filter web cf:build      # next build → opennext transform
+ *   pnpm --filter web cf:preview    # local wrangler dev of built worker
+ *   pnpm --filter web cf:deploy     # wrangler deploy
+ *
+ * Secrets are set via `wrangler secret put <NAME>`. Do NOT put secret values
+ * in `vars` — only non-sensitive config belongs there.
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "truehire",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2025-09-23",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "binding": "ASSETS",
+    "directory": ".open-next/assets"
+  },
+  "observability": { "enabled": true },
+
+  // Non-secret defaults. Secrets (AUTH_SECRET, AUTH_GITHUB_SECRET,
+  // DATABASE_AUTH_TOKEN, GITHUB_API_TOKEN) are provisioned via `wrangler secret put`.
+  "vars": {
+    "NEXT_PUBLIC_APP_URL": "https://truehire.dev"
+  }
+}

@@ -1,0 +1,155 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────
+   TrueHire design tokens — dark-first, evidence-forward.
+   Minimal color, mono numerics, Stripe/Linear aesthetic.
+   ───────────────────────────────────────────── */
+
+:root {
+  /* palette: warm near-black, paper-white, single signal accent */
+  --background: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #fafaf9;
+  --border: #eae8e4;
+  --border-strong: #d6d3ce;
+  --foreground: #0b0b0c;
+  --muted: #6b6a67;
+  --muted-2: #a3a29f;
+
+  /* signal accents — used sparingly */
+  --accent: #0d0d0e;        /* primary action */
+  --accent-contrast: #ffffff;
+  --verified: #18794e;      /* green "verified" */
+  --verified-bg: #e7f2eb;
+  --warn: #a45600;
+  --score-track: #eae8e4;
+  --score-fill: #0b0b0c;
+}
+
+.dark {
+  /* stepped surfaces for visual depth */
+  --background: #08080b;
+  --surface: #121216;
+  --surface-2: #191920;
+  --border: #26262e;
+  --border-strong: #3a3a43;
+  --foreground: #f4f3ef;
+  --muted: #9593a0;
+  --muted-2: #646470;
+
+  --accent: #f4f3ef;
+  --accent-contrast: #08080b;
+  --verified: #3dd68c;
+  --verified-bg: #10291f;
+  --warn: #f5b764;
+  --score-track: #26262e;
+  --score-fill: #f4f3ef;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-2: var(--muted-2);
+  --color-accent: var(--accent);
+  --color-accent-contrast: var(--accent-contrast);
+  --color-verified: var(--verified);
+  --color-verified-bg: var(--verified-bg);
+  --color-warn: var(--warn);
+  --color-score-track: var(--score-track);
+  --color-score-fill: var(--score-fill);
+
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, "Inter", "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono:
+    ui-monospace, "JetBrains Mono", "SF Mono", "Menlo", "Consolas", monospace;
+  --font-display: var(--font-sans);
+
+  /* radii — restrained, not bubbly */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+}
+
+html {
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    /* stepped surfaces for visual depth — each step ~ +4 lightness */
+    --background: #08080b;
+    --surface: #121216;
+    --surface-2: #191920;
+    --border: #26262e;
+    --border-strong: #3a3a43;
+    --foreground: #f4f3ef;
+    --muted: #9593a0;
+    --muted-2: #646470;
+    --accent: #f4f3ef;
+    --accent-contrast: #08080b;
+    --verified: #3dd68c;
+    --verified-bg: #10291f;
+    --warn: #f5b764;
+    --score-track: #26262e;
+    --score-fill: #f4f3ef;
+  }
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-feature-settings:
+    "cv11", "ss01", "ss03";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* tabular numerics across the app — credential products must align numbers */
+.num, .tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "cv11" 1;
+}
+
+/* subtle dotted grid backdrop used on hero */
+.dot-grid {
+  background-image: radial-gradient(
+    currentColor 0.8px,
+    transparent 0.8px
+  );
+  background-size: 22px 22px;
+  color: color-mix(in srgb, var(--muted) 22%, transparent);
+}
+
+/* focus ring */
+:where(button, a, [role="button"], input, select, textarea):focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* bar animations for score + activity charts */
+@keyframes th-rise {
+  from { transform: scaleY(0); opacity: 0; }
+  to   { transform: scaleY(1); opacity: 1; }
+}
+.th-rise {
+  animation: th-rise 0.5s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  transform-origin: bottom;
+}
+
+@keyframes th-fill {
+  from { stroke-dashoffset: var(--dash, 100); }
+  to   { stroke-dashoffset: 0; }
+}
