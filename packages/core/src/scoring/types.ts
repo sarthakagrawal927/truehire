@@ -9,22 +9,38 @@ export type ContributionInput = {
   isAuthor: boolean;
   firstCommitAt: number | null; // ms epoch
   lastCommitAt: number | null;
+
+  // Populated only for authored repos (we don't care about craft of external repos).
+  isFork?: boolean;
+  pushedAt?: number | null; // ms epoch, freshness
+  craft?: CraftSignals | null;
+};
+
+export type CraftSignals = {
+  hasCi: boolean;           // .github/workflows
+  hasTests: boolean;        // tests dir OR test file OR vitest/jest/playwright config
+  hasReadme: boolean;       // README.md present and non-trivial
+  hasLicense: boolean;
+  readmeSize: number;       // bytes
+  releases: number;         // tag / release count
+  collaborators: number;    // non-owner contributors
 };
 
 export type MonthBucket = { month: string; commits: number }; // "YYYY-MM"
 
 export type ScoreInput = {
   contributions: ContributionInput[];
-  months: MonthBucket[]; // distinct months with any activity
-  now?: number; // injectable for tests, ms epoch
+  months: MonthBucket[];
+  now?: number;
 };
 
 export type ScoreBreakdown = {
-  overall: number; // 0-100 weighted composite
-  depth: number; // 0-100
-  breadth: number; // 0-100
-  recognition: number; // 0-100
-  specialization: number; // 0-100
+  overall: number;
+  depth: number;
+  breadth: number;
+  recognition: number;
+  craft: number;
+  specialization: number;
   totals: {
     commits: number;
     stars: number;
@@ -42,5 +58,6 @@ export type EvidenceEntry = {
   mergedPrs: number;
   isAuthor: boolean;
   primaryLanguage: string | null;
-  weight: number; // used for sort + UI "weight bar"
+  weight: number;
+  craftTags?: string[]; // e.g. ["CI","tests","docs"] — for UI
 };

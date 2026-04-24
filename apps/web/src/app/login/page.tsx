@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Github, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { Card, CardBody } from "@/components/atoms/card";
 import { SignInButton } from "./sign-in-button";
 import { redirect } from "next/navigation";

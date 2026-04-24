@@ -77,6 +77,7 @@ export function buildScoringRows(score: {
   depth: number;
   breadth: number;
   recognition: number;
+  craft: number;
   specialization: number;
   totalRepos: number;
   monthsActive: number;
@@ -85,37 +86,50 @@ export function buildScoringRows(score: {
     {
       label: "Depth",
       value: score.depth,
-      weight: 0.3,
+      weight: 0.25,
       formula:
-        "log₁(Σ recency-weighted months active) / log₁(60) × 100, half-life 24 months",
+        "log₁(Σ recency-weighted months active) / log₁(60) × 100 · half-life 24 months",
       improve: [
-        "Commit even once/month — gaps in history pull this down more than volume ever compensates.",
-        "Old contributions decay: anything older than 2 years is worth half a recent month.",
-        "Consistency beats burst — five spread months score higher than fifty commits in one week.",
+        "Commit even once/month — gaps pull this down more than volume ever compensates.",
+        "Old contributions decay: work older than 2 years is worth half a recent month.",
+        "Consistency beats burst — five spread months beat fifty commits in one week.",
       ],
     },
     {
       label: "Breadth",
       value: score.breadth,
-      weight: 0.2,
+      weight: 0.15,
       formula:
-        "log₁(count of repos with ≥3 commits OR ≥1 merged PR) / log₁(50) × 100",
+        "log₁(distinct meaningful repos) / log₁(50) × 100 · external repos need ≥2 merged PRs AND ≥3 commits",
       improve: [
-        "Land even one merged PR in an external repo — that crosses the ‘meaningful’ threshold.",
-        "Author small public tools or CLIs — each new repo you keep committing to counts.",
-        `You have ${score.totalRepos} repo${score.totalRepos === 1 ? "" : "s"} on record — adding 3–5 more meaningful ones moves this ~10 points.`,
+        "Land ≥2 merged PRs in an external repo — single-PR repos don't count.",
+        "Author public tools with real commit history — each repo crossing the bar adds breadth.",
+        `You have ${score.totalRepos} repo${score.totalRepos === 1 ? "" : "s"} on record — adding a few more meaningful ones moves this ~10 points.`,
       ],
     },
     {
       label: "Recognition",
       value: score.recognition,
-      weight: 0.35,
+      weight: 0.2,
       formula:
-        "log₁₀(Σ stars on authored repos + merged PR credit to 100★+ repos) / 6 × 100",
+        "log₁₀(Σ authored-repo stars × freshness + external-PR credit to 100★+ repos) / 6 × 100",
       improve: [
-        "Merged PRs into high-star repos (React, Kubernetes, Rust, Next.js) move this most.",
-        "Stars on YOUR authored repos count directly — a single viral side project adds serious points.",
-        "PRs to <100★ repos don’t count here — target projects with real adoption.",
+        "Keep authored repos fresh — a 5-year-dead star ≈ 38% of a live one.",
+        "Merged PRs into high-star production repos (React, Next.js, Kubernetes) move this most.",
+        "Trivial PRs (<2) to external repos add zero — target depth in real projects.",
+      ],
+    },
+    {
+      label: "Craft",
+      value: score.craft,
+      weight: 0.25,
+      formula:
+        "avg over top-10 authored repos: CI (22) + tests (22) + README (15) + LICENSE (8) + releases (≤15) + collaborators (≤18)",
+      improve: [
+        "Add GitHub Actions / any CI to your main authored repos — biggest single bump.",
+        "Add a test directory or vitest/jest/playwright config — even a sanity-check suite counts.",
+        "Write a substantive README (>800 chars). LICENSE + release tags stack small bonuses.",
+        "Invite collaborators or attract contributors — solo repos lose the team signal.",
       ],
     },
     {
@@ -123,11 +137,11 @@ export function buildScoringRows(score: {
       value: score.specialization,
       weight: 0.15,
       formula:
-        "piecewise on dominant-language share of weighted activity; below 20% share = 0",
+        "piecewise on dominant-language share of weighted activity · below 20% share = 0",
       improve: [
-        "Pick a primary language and double down — being 70% Rust beats being 30% in each of four stacks.",
+        "Pick a primary language and double down — 70% Rust beats 30% in each of four stacks.",
         "Merged PRs weigh 5× commits here — language of your PRs matters most.",
-        "Small polyglot hobby repos dilute this. Keep them, but ship the depth elsewhere.",
+        "Polyglot hobby repos dilute this. Keep them, ship depth elsewhere.",
       ],
     },
   ];

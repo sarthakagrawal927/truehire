@@ -1,8 +1,9 @@
 import Link from "next/link";
 import {
-  Github, ShieldCheck, GitBranch, Award, Coins, Activity, ArrowRight,
+  ShieldCheck, GitBranch, Award, Coins, Activity, ArrowRight,
   Star, GitPullRequest, Code2, Sparkles,
 } from "lucide-react";
+import { GithubIcon as Github } from "@/components/atoms/github-icon";
 import { Button } from "@/components/atoms/button";
 import { Badge } from "@/components/atoms/badge";
 import { Card, CardBody } from "@/components/atoms/card";

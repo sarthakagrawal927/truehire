@@ -2,7 +2,8 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Activity, ArrowUpRight, Clock, Github, ShieldCheck } from "lucide-react";
+import { Activity, ArrowUpRight, Clock, ShieldCheck } from "lucide-react";
+import { GithubIcon as Github } from "@/components/atoms/github-icon";
 import { Badge } from "@/components/atoms/badge";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/atoms/card";
 import { ScoreRing } from "@/components/molecules/score-ring";
@@ -168,9 +169,10 @@ export default async function ProfilePage(props: { params: Promise<Params> }) {
               <CardBody>
                 <ScoreBreakdown
                   rows={[
-                    { label: "Depth", value: score.depth, weight: 0.3 },
-                    { label: "Breadth", value: score.breadth, weight: 0.2 },
-                    { label: "Recognition", value: score.recognition, weight: 0.35 },
+                    { label: "Depth", value: score.depth, weight: 0.25 },
+                    { label: "Breadth", value: score.breadth, weight: 0.15 },
+                    { label: "Recognition", value: score.recognition, weight: 0.2 },
+                    { label: "Craft", value: score.craft, weight: 0.25 },
                     { label: "Specialization", value: score.specialization, weight: 0.15 },
                   ]}
                 />
@@ -247,6 +249,7 @@ export default async function ProfilePage(props: { params: Promise<Params> }) {
                 depth: score.depth,
                 breadth: score.breadth,
                 recognition: score.recognition,
+                craft: score.craft,
                 specialization: score.specialization,
                 totalRepos: score.totalRepos,
                 monthsActive: score.monthsActive,

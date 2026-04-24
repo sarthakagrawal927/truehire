@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { Button } from "@/components/atoms/button";
-import { Github } from "lucide-react";
+import { GithubIcon as Github } from "@/components/atoms/github-icon";
 
 export async function SiteHeader() {
   const session = await auth();

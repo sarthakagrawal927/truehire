@@ -1,6 +1,10 @@
 import { Octokit } from "@octokit/rest";
 import { graphql } from "@octokit/graphql";
-import type { ContributionInput, MonthBucket } from "../scoring/types";
+import type {
+  ContributionInput,
+  CraftSignals,
+  MonthBucket,
+} from "../scoring/types";
 
 export type IngestResult = {
   contributions: ContributionInput[];
@@ -204,10 +208,9 @@ export async function ingestGitHubUser(params: {
     }
   }
 
-  progress({ type: "authored", message: "Topping up authored repos", pct: 92 });
+  progress({ type: "authored", message: "Topping up authored repos", pct: 88 });
 
-  // Top up authored-repo stars from REST (some repos may only appear via
-  // owned-repo listing if the user committed outside the window).
+  // Top up authored-repo metadata + mark isFork.
   try {
     const authored = await rest.paginate(rest.repos.listForUser, {
       username: login,
@@ -215,15 +218,17 @@ export async function ingestGitHubUser(params: {
       per_page: 100,
     });
     for (const r of authored) {
-      if (r.fork) continue; // forks don't count as authored
       const key = r.full_name;
+      const pushedAt = r.pushed_at ? new Date(r.pushed_at).getTime() : null;
       const existing = repoAgg.get(key);
       if (existing) {
         existing.repoStars = Math.max(existing.repoStars, r.stargazers_count ?? 0);
         existing.isAuthor = true;
+        existing.isFork = !!r.fork;
+        existing.pushedAt = pushedAt;
         existing.primaryLanguage = existing.primaryLanguage ?? r.language ?? null;
-      } else if ((r.stargazers_count ?? 0) >= 5) {
-        // surface authored repos even without commits-in-window, if they've got traction
+      } else if (!r.fork && (r.stargazers_count ?? 0) >= 5) {
+        // Surface authored repos with traction even without commits in window
         repoAgg.set(key, {
           repoFullName: key,
           repoStars: r.stargazers_count ?? 0,
@@ -233,6 +238,8 @@ export async function ingestGitHubUser(params: {
           deletions: 0,
           mergedPrs: 0,
           isAuthor: true,
+          isFork: false,
+          pushedAt,
           firstCommitAt: null,
           lastCommitAt: null,
           _starSync: true,
@@ -240,8 +247,30 @@ export async function ingestGitHubUser(params: {
       }
     }
   } catch {
-    // non-fatal — scoring still works without top-up
+    /* non-fatal */
   }
+
+  progress({ type: "authored", message: "Reading repo craft signals", pct: 94 });
+
+  // Fetch craft signals for authored non-fork repos that have real engagement.
+  // Skip forks + trivial-commit repos to stay inside rate limits on big accounts.
+  const craftCandidates = Array.from(repoAgg.values()).filter(
+    (c) => c.isAuthor && !c.isFork && (c.commits >= 3 || c.repoStars >= 5),
+  );
+  // Cap at 25 to keep ingest under ~90s for large accounts; we only score from
+  // the top 10 anyway, so taking the most-commits 25 covers the signal.
+  craftCandidates.sort((a, b) => b.commits - a.commits);
+  const batch = craftCandidates.slice(0, 25);
+
+  await Promise.all(
+    batch.map(async (c) => {
+      try {
+        c.craft = await fetchCraftSignals(rest, c.repoFullName);
+      } catch {
+        c.craft = null;
+      }
+    }),
+  );
 
   const months: MonthBucket[] = Array.from(monthBuckets.entries())
     .map(([month, commits]) => ({ month, commits }))
@@ -260,4 +289,80 @@ export async function ingestGitHubUser(params: {
     stats: { repos: contributions.length, months: months.length },
   });
   return profile;
+}
+
+const TEST_FILE = /(?:^|\/)(?:tests?|__tests__|spec|e2e)(?:\/|$)|\.(?:test|spec)\.(?:ts|tsx|js|jsx|py|go|rb|rs)$|^(?:vitest|jest|playwright|cypress)\.config\./i;
+const PACKAGE_MANIFEST = /^(?:package\.json|pyproject\.toml|Cargo\.toml|go\.mod|Gemfile|composer\.json|pom\.xml|build\.gradle)$/i;
+
+async function fetchCraftSignals(
+  rest: Octokit,
+  fullName: string,
+): Promise<CraftSignals> {
+  const [owner, repo] = fullName.split("/");
+
+  // Run file listing + releases count + contributors count in parallel.
+  const [contentsRes, releasesRes, contributorsRes] = await Promise.all([
+    rest.repos.getContent({ owner, repo, path: "" }).catch(() => null),
+    rest.repos
+      .listReleases({ owner, repo, per_page: 1 })
+      .then((r) => extractTotalCountFromLinkHeader(r.headers.link) ?? r.data.length)
+      .catch(() => 0),
+    rest.repos
+      .listContributors({ owner, repo, per_page: 10, anon: "false" })
+      .then((r) => Array.isArray(r.data) ? r.data.length : 0)
+      .catch(() => 0),
+  ]);
+
+  let hasCi = false;
+  let hasTests = false;
+  let hasReadme = false;
+  let readmeSize = 0;
+  let hasLicense = false;
+  let hasManifest = false;
+
+  if (Array.isArray(contentsRes?.data)) {
+    for (const entry of contentsRes.data) {
+      const name = entry.name;
+      if (name === ".github" && entry.type === "dir") hasCi = true;
+      if (/^README(\.|$)/i.test(name)) {
+        hasReadme = true;
+        readmeSize = Math.max(readmeSize, entry.size ?? 0);
+      }
+      if (/^LICENSE(\.|$)|^COPYING$/i.test(name)) hasLicense = true;
+      if (PACKAGE_MANIFEST.test(name)) hasManifest = true;
+      if (TEST_FILE.test(name) || /^(?:tests?|__tests__|spec|e2e)$/i.test(name)) hasTests = true;
+    }
+  }
+
+  // Double-check for .github/workflows (CI config specifically)
+  if (hasCi) {
+    const wf = await rest.repos
+      .getContent({ owner, repo, path: ".github/workflows" })
+      .catch(() => null);
+    if (!Array.isArray(wf?.data) || wf.data.length === 0) hasCi = false;
+  }
+
+  // Contributors count excludes the owner → "collaborators" per type.
+  const collaborators = Math.max(0, contributorsRes - 1);
+
+  // A repo with no manifest is usually throwaway — dampen tests signal if no code
+  if (!hasManifest && !hasTests) hasTests = false;
+
+  return {
+    hasCi,
+    hasTests,
+    hasReadme,
+    hasLicense,
+    readmeSize,
+    releases: releasesRes,
+    collaborators,
+  };
+}
+
+function extractTotalCountFromLinkHeader(
+  link: string | undefined,
+): number | null {
+  if (!link) return null;
+  const m = link.match(/[?&]page=(\d+)[^>]*>; rel="last"/);
+  return m ? Number(m[1]) : null;
 }

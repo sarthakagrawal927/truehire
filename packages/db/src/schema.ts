@@ -154,6 +154,10 @@ export const contributions = sqliteTable(
     deletions: integer("deletions").notNull().default(0),
     mergedPrs: integer("merged_prs").notNull().default(0),
     isAuthor: integer("is_author", { mode: "boolean" }).notNull().default(false),
+    isFork: integer("is_fork", { mode: "boolean" }).notNull().default(false),
+    pushedAt: integer("pushed_at", { mode: "timestamp_ms" }),
+    // JSON-encoded CraftSignals for authored repos, null for external/unscanned
+    craftJson: text("craft_json"),
     // weighted contribution value used in Recognition score
     weightedScore: real("weighted_score").notNull().default(0),
   },
@@ -196,6 +200,7 @@ export const scores = sqliteTable(
     depth: integer("depth").notNull(),
     breadth: integer("breadth").notNull(),
     recognition: integer("recognition").notNull(),
+    craft: integer("craft").notNull().default(0),
     specialization: integer("specialization").notNull(),
     // JSON payloads — kept as text for portability
     languagesJson: text("languages_json").notNull().default("[]"),

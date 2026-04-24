@@ -1,7 +1,7 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { Github } from "lucide-react";
+import { GithubIcon as Github } from "@/components/atoms/github-icon";
 import { Button } from "@/components/atoms/button";
 
 export function SignInButton({ callbackUrl = "/dashboard" }: { callbackUrl?: string }) {

@@ -36,6 +36,7 @@ describe("computeScore", () => {
     expect(r.depth).toBe(0);
     expect(r.breadth).toBe(0);
     expect(r.recognition).toBe(0);
+    expect(r.craft).toBe(0);
     expect(r.specialization).toBe(0);
   });
 
@@ -210,4 +211,139 @@ describe("computeScore", () => {
     const sum = r.languages.reduce((s, l) => s + l.share, 0);
     expect(sum).toBeCloseTo(1, 5);
   });
+
+  it("forks owned by the user are treated as non-authored", () => {
+    const r = computeScore({
+      contributions: [
+        // User "forked" linux to their namespace but didn't really author it
+        { ...emptyContrib, repoFullName: "u/linux", repoStars: 180_000, commits: 1, isAuthor: true, isFork: true, primaryLanguage: "C" },
+      ],
+      months: monthsRange("2025-01", "2026-03"),
+      now,
+    });
+    // Fork shouldn't count as authored → no recognition, no credit
+    expect(r.recognition).toBe(0);
+    expect(r.totals.stars).toBe(0);
+    expect(r.evidence).toHaveLength(0);
+  });
+
+  it("applies freshness decay on authored star recognition", () => {
+    const fresh = computeScore({
+      contributions: [
+        { ...emptyContrib, repoFullName: "u/lib", repoStars: 5_000, commits: 200, isAuthor: true, primaryLanguage: "TypeScript", pushedAt: now - 30 * MS_DAY },
+      ],
+      months: monthsRange("2020-01", "2026-03"),
+      now,
+    });
+    const stale = computeScore({
+      contributions: [
+        { ...emptyContrib, repoFullName: "u/lib", repoStars: 5_000, commits: 200, isAuthor: true, primaryLanguage: "TypeScript", pushedAt: now - 365 * 5 * MS_DAY },
+      ],
+      months: monthsRange("2020-01", "2026-03"),
+      now,
+    });
+    expect(fresh.recognition).toBeGreaterThan(stale.recognition);
+  });
+
+  it("craft rewards CI + tests + docs on authored repos", () => {
+    const disciplined = computeScore({
+      contributions: [
+        {
+          ...emptyContrib,
+          repoFullName: "u/app",
+          commits: 300,
+          isAuthor: true,
+          primaryLanguage: "TypeScript",
+          pushedAt: now - 15 * MS_DAY,
+          craft: {
+            hasCi: true, hasTests: true, hasReadme: true, readmeSize: 2000,
+            hasLicense: true, releases: 5, collaborators: 3,
+          },
+        },
+      ],
+      months: monthsRange("2025-01", "2026-03"),
+      now,
+    });
+    const sloppy = computeScore({
+      contributions: [
+        {
+          ...emptyContrib,
+          repoFullName: "u/app",
+          commits: 300,
+          isAuthor: true,
+          primaryLanguage: "TypeScript",
+          pushedAt: now - 15 * MS_DAY,
+          craft: {
+            hasCi: false, hasTests: false, hasReadme: false, readmeSize: 0,
+            hasLicense: false, releases: 0, collaborators: 0,
+          },
+        },
+      ],
+      months: monthsRange("2025-01", "2026-03"),
+      now,
+    });
+    expect(disciplined.craft).toBeGreaterThan(sloppy.craft);
+    expect(disciplined.overall).toBeGreaterThan(sloppy.overall);
+  });
+
+  it("external-repo craft data does not affect craft score", () => {
+    const r = computeScore({
+      contributions: [
+        {
+          ...emptyContrib,
+          repoFullName: "vercel/next.js",
+          repoStars: 120_000, commits: 10, mergedPrs: 4, isAuthor: false,
+          primaryLanguage: "TypeScript",
+          craft: {
+            hasCi: true, hasTests: true, hasReadme: true, readmeSize: 8000,
+            hasLicense: true, releases: 200, collaborators: 200,
+          },
+        },
+      ],
+      months: monthsRange("2024-01", "2026-03"),
+      now,
+    });
+    expect(r.craft).toBe(0); // only authored repos count toward craft
+  });
+
+  it("calibrates within target band for a real active engineer profile", () => {
+    // Approximates sarthakagrawal927 — 7y active, ~97 authored repos, low stars,
+    // mixed craft (3 disciplined recent repos, many bare older ones), mostly
+    // internal PRs (invisible from public scoring). Target band: 50-70.
+    const recentDisciplined = Array.from({ length: 3 }, (_, i) => ({
+      ...emptyContrib,
+      repoFullName: `u/polished-${i}`,
+      repoStars: 1, commits: 120, isAuthor: true, primaryLanguage: "TypeScript",
+      pushedAt: now - 30 * MS_DAY,
+      craft: {
+        hasCi: true, hasTests: true, hasReadme: true, readmeSize: 2000,
+        hasLicense: true, releases: 2, collaborators: 1,
+      },
+    }));
+    const recentBare = Array.from({ length: 12 }, (_, i) => ({
+      ...emptyContrib,
+      repoFullName: `u/side-${i}`,
+      repoStars: 1, commits: 30, isAuthor: true,
+      primaryLanguage: i % 2 === 0 ? "TypeScript" : "Go",
+      pushedAt: now - 60 * MS_DAY,
+      craft: { hasCi: false, hasTests: false, hasReadme: true, readmeSize: 200, hasLicense: false, releases: 0, collaborators: 0 },
+    }));
+    const older = Array.from({ length: 80 }, (_, i) => ({
+      ...emptyContrib,
+      repoFullName: `u/old-${i}`,
+      repoStars: 1, commits: 10, isAuthor: true,
+      primaryLanguage: "JavaScript",
+      pushedAt: now - (365 * 2 + i) * MS_DAY,
+      craft: { hasCi: false, hasTests: false, hasReadme: true, readmeSize: 100, hasLicense: false, releases: 0, collaborators: 0 },
+    }));
+    const r = computeScore({
+      contributions: [...recentDisciplined, ...recentBare, ...older],
+      months: monthsRange("2019-01", "2026-04"),
+      now,
+    });
+    expect(r.overall).toBeGreaterThanOrEqual(45);
+    expect(r.overall).toBeLessThanOrEqual(75);
+  });
 });
+
+const MS_DAY = 24 * 3_600_000;

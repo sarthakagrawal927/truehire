@@ -16,13 +16,13 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@octokit/rest": "^21.0.2",
-    "@octokit/graphql": "^8.1.2",
+    "@octokit/graphql": "^9.0.3",
+    "@octokit/rest": "^22.0.1",
     "@truehire/db": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^20",
-    "typescript": "^5.7.2",
-    "vitest": "^2.1.8"
+    "@types/node": "^25.6.0",
+    "typescript": "^6.0.3",
+    "vitest": "^3.2.4"
   }
 }

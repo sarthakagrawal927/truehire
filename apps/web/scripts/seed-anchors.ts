@@ -98,6 +98,9 @@ async function seed(login: string) {
           deletions: c.deletions,
           mergedPrs: c.mergedPrs,
           isAuthor: c.isAuthor,
+          isFork: c.isFork ?? false,
+          pushedAt: c.pushedAt ? new Date(c.pushedAt) : null,
+          craftJson: c.craft ? JSON.stringify(c.craft) : null,
           weightedScore: 0,
         })),
       );
@@ -122,6 +125,7 @@ async function seed(login: string) {
       depth: breakdown.depth,
       breadth: breakdown.breadth,
       recognition: breakdown.recognition,
+      craft: breakdown.craft,
       specialization: breakdown.specialization,
       languagesJson: JSON.stringify(breakdown.languages),
       evidenceJson: JSON.stringify(breakdown.evidence),
