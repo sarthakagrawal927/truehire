@@ -107,12 +107,45 @@ describe("computeScore", () => {
       ...emptyContrib,
       repoFullName: `u/r${i}`,
       commits: 20,
+      isAuthor: true,
       primaryLanguage: "TypeScript",
     }));
     const few = many.slice(0, 2);
     const a = computeScore({ contributions: many, months: monthsRange("2024-01", "2026-03"), now });
     const b = computeScore({ contributions: few, months: monthsRange("2024-01", "2026-03"), now });
     expect(a.breadth).toBeGreaterThan(b.breadth);
+  });
+
+  it("ignores low-signal tutorial/meme repos entirely", () => {
+    const r = computeScore({
+      contributions: [
+        // 54k stars, single trivial PR — exactly the "first-contributions" pattern
+        { ...emptyContrib, repoFullName: "firstcontributions/first-contributions", repoStars: 54_000, commits: 0, mergedPrs: 1, isAuthor: false, primaryLanguage: "Markdown" },
+        { ...emptyContrib, repoFullName: "github-education-resources/GitHubGraduation-2022", repoStars: 1_400, commits: 1, mergedPrs: 1, isAuthor: false, primaryLanguage: null },
+        { ...emptyContrib, repoFullName: "Hacktoberfest-Nepal/Your-First-PR", repoStars: 11, commits: 0, mergedPrs: 1, isAuthor: false },
+        // Real authored project
+        { ...emptyContrib, repoFullName: "u/real-project", repoStars: 20, commits: 103, isAuthor: true, primaryLanguage: "TypeScript" },
+      ],
+      months: monthsRange("2024-01", "2026-03"),
+      now,
+    });
+    expect(r.evidence.map((e) => e.repoFullName)).not.toContain("firstcontributions/first-contributions");
+    expect(r.evidence.map((e) => e.repoFullName)).not.toContain("github-education-resources/GitHubGraduation-2022");
+    expect(r.evidence.map((e) => e.repoFullName)).not.toContain("Hacktoberfest-Nepal/Your-First-PR");
+    expect(r.evidence[0]?.repoFullName).toBe("u/real-project");
+  });
+
+  it("single trivial PR to an external repo adds nothing", () => {
+    const r = computeScore({
+      contributions: [
+        { ...emptyContrib, repoFullName: "vercel/next.js", repoStars: 120_000, commits: 1, mergedPrs: 1, isAuthor: false, primaryLanguage: "TypeScript" },
+      ],
+      months: monthsRange("2025-01", "2025-02"),
+      now,
+    });
+    expect(r.recognition).toBe(0);
+    expect(r.breadth).toBe(0);
+    expect(r.evidence).toHaveLength(0);
   });
 
   it("specialization rewards concentration", () => {

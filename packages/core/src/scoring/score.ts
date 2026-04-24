@@ -24,6 +24,28 @@ const logScale = (value: number, cap: number) =>
   value <= 0 ? 0 : clamp((Math.log1p(value) / Math.log1p(cap)) * 100);
 
 /**
+ * Blocklist of repo-name patterns that are known "bucket-list" / tutorial /
+ * first-PR / meme-list repos. These accumulate massive star counts from
+ * educational value, but a single trivial PR into them is zero signal about
+ * engineering ability. We strip them completely from both scoring and
+ * evidence rails.
+ */
+const LOW_SIGNAL_REPO = /(?:^|\/)(?:first[-_]?contributions?|your[-_]?first[-_]?pr|hacktoberfest|good[-_]?first[-_]?issue|30[-_]?days[-_]?of|100[-_]?days[-_]?of|365[-_]?days|github[-_]?graduation|coding[-_]?interview|tech[-_]?interview|awesome[-_]?[a-z0-9-]+|morethanfaang|system[-_]?design[-_]?primer|build[-_]?your[-_]?own|every[-_]?programmer|project[-_]?based[-_]?learning|developer[-_]?roadmap|free[-_]?programming|public[-_]?apis)/i;
+
+/**
+ * A contribution "meaningfully" engages with a repo only if the candidate
+ * clearly did real work. Owned repos always count (even a freshly-pushed one
+ * proves authorship). External repos require a non-trivial footprint — a
+ * single docs-typo PR to a 50k-star tutorial repo shouldn't rival shipping a
+ * feature to a real codebase.
+ */
+function isMeaningful(c: ContributionInput): boolean {
+  if (LOW_SIGNAL_REPO.test(c.repoFullName)) return false;
+  if (c.isAuthor) return c.commits > 0 || c.repoStars >= 5;
+  return c.mergedPrs >= 2 && c.commits >= 3;
+}
+
+/**
  * Depth — sustained output over time, with recency-weighted month count.
  * A burst of activity last month should not beat 3 years of consistent commits.
  */
@@ -51,9 +73,7 @@ function depthScore(months: MonthBucket[], nowMs: number): number {
  * real commits and external repos with merged PRs both count.
  */
 function breadthScore(contributions: ContributionInput[]): number {
-  const meaningful = contributions.filter(
-    (c) => c.commits >= 3 || c.mergedPrs >= 1,
-  );
+  const meaningful = contributions.filter(isMeaningful);
   return logScale(meaningful.length, BREADTH_CAP_REPOS);
 }
 
@@ -65,10 +85,12 @@ function breadthScore(contributions: ContributionInput[]): number {
 function recognitionScore(contributions: ContributionInput[]): number {
   let total = 0;
   for (const c of contributions) {
+    if (LOW_SIGNAL_REPO.test(c.repoFullName)) continue;
     if (c.isAuthor) {
       total += c.repoStars;
-    } else if (c.mergedPrs > 0 && c.repoStars >= 100) {
-      // credit for landing PRs in respected projects, scaled by # merged
+    } else if (c.mergedPrs >= 2 && c.commits >= 3 && c.repoStars >= 100) {
+      // External repos need real engagement (2+ PRs, 3+ commits) AND be a
+      // serious project (100+ stars) before they count.
       total += Math.min(c.repoStars, 5000) * Math.log1p(c.mergedPrs);
     }
   }
@@ -112,14 +134,21 @@ function aggregateLanguages(contributions: ContributionInput[]) {
 
 function buildEvidence(contributions: ContributionInput[]): EvidenceEntry[] {
   return contributions
+    .filter(isMeaningful)
     .map((c) => {
-      // Weight: reward authorship + stars + merged PRs. Log-scaled stars so
-      // one viral repo doesn't own the rail.
-      const starWeight = Math.log1p(c.repoStars) * 8;
+      // For authored repos, stars are earned — count full weight.
+      // For external repos, stars are NOT the candidate's achievement; credit
+      // mostly via merged-PR count, with a modest high-star bonus.
       const commitWeight = Math.log1p(c.commits) * 3;
-      const prWeight = c.mergedPrs * 4;
-      const authorBonus = c.isAuthor ? starWeight * 0.5 : 0;
-      const weight = starWeight + commitWeight + prWeight + authorBonus;
+      let weight: number;
+      if (c.isAuthor) {
+        const starWeight = Math.log1p(c.repoStars) * 12;
+        weight = starWeight + commitWeight;
+      } else {
+        const prWeight = c.mergedPrs * 6;
+        const starBonus = Math.log1p(Math.min(c.repoStars, 20_000)) * 2;
+        weight = prWeight + commitWeight + starBonus;
+      }
       return {
         repoFullName: c.repoFullName,
         stars: c.repoStars,
