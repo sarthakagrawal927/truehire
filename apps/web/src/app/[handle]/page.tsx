@@ -7,6 +7,7 @@ import { Badge } from "@/components/atoms/badge";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/atoms/card";
 import { ScoreRing } from "@/components/molecules/score-ring";
 import { ScoreBreakdown } from "@/components/molecules/score-breakdown";
+import { ScoringDetail, buildScoringRows } from "@/components/molecules/scoring-detail";
 import { EvidenceRow } from "@/components/molecules/evidence-row";
 import { LanguageBar } from "@/components/molecules/language-bar";
 import { ActivityTimeline } from "@/components/molecules/activity-timeline";
@@ -62,9 +63,10 @@ export async function generateMetadata(props: {
 
 export default async function ProfilePage(props: { params: Promise<Params> }) {
   const { handle } = await props.params;
-  // profiles live under /@username. Bare /<word> routes are reserved for app pages.
-  if (!handle.startsWith("@")) notFound();
-  const clean = handle.slice(1);
+  // Accept both /@username (canonical) and /username. Next.js on some
+  // runtimes strips the leading `@` from the dynamic segment; rather than
+  // fight that, we normalise both forms.
+  const clean = handle.startsWith("@") ? handle.slice(1) : handle;
   if (!/^[a-zA-Z0-9-]{1,39}$/.test(clean)) notFound();
 
   const data = await loadProfile(clean);
@@ -224,13 +226,41 @@ export default async function ProfilePage(props: { params: Promise<Params> }) {
             </div>
           </Card>
 
-          <div className="mt-8 flex items-center justify-between text-[12px] text-[var(--muted-2)]">
+          {/* Methodology — every number's formula, openable */}
+          <section className="mt-10">
+            <div className="mb-4">
+              <div className="text-[11px] uppercase tracking-[0.14em] text-[var(--muted)]">
+                Scoring methodology
+              </div>
+              <h2 className="mt-1 text-[22px] font-semibold tracking-tight">
+                Exactly how each number was computed.
+              </h2>
+              <p className="mt-2 max-w-2xl text-[13px] text-[var(--muted)]">
+                No ML, no black box. Each component is a transparent formula on
+                verifiable GitHub data. Tap any row to see the math.
+              </p>
+            </div>
+            <ScoringDetail
+              overall={score.overall}
+              rows={buildScoringRows({
+                overall: score.overall,
+                depth: score.depth,
+                breadth: score.breadth,
+                recognition: score.recognition,
+                specialization: score.specialization,
+                totalRepos: score.totalRepos,
+                monthsActive: score.monthsActive,
+              })}
+            />
+          </section>
+
+          <div className="mt-10 flex items-center justify-between text-[12px] text-[var(--muted-2)]">
             <span>
-              Every number on this profile is derived from verifiable GitHub data.
-              Nothing is self-written.
+              Every number is derived from verifiable GitHub data. Nothing is
+              self-written.
             </span>
             <Link href="/#how" className="hover:text-[var(--foreground)]">
-              Methodology →
+              Full methodology →
             </Link>
           </div>
         </>

@@ -9,7 +9,7 @@ export function CopyProfileLink({ username }: { username: string }) {
 
   const handle = async () => {
     const base = window.location.origin;
-    const url = `${base}/@${username}`;
+    const url = `${base}/${username}`;
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);

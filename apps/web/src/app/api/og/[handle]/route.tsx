@@ -132,7 +132,7 @@ export async function GET(
               </>
             )}
           </div>
-          <div>truehire.dev/@{clean}</div>
+          <div>truehire.dev/{clean}</div>
         </div>
       </div>
     ),

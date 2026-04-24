@@ -21,7 +21,7 @@ export async function SiteHeader() {
         <div className="flex items-center gap-2">
           {username ? (
             <>
-              <Link href={`/@${username}`}>
+              <Link href={`/${username}`}>
                 <Button variant="ghost" size="sm">My profile</Button>
               </Link>
               <Link href="/dashboard">
