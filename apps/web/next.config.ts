@@ -18,10 +18,17 @@ const nextConfig: NextConfig = {
   devIndicators: false,
   typedRoutes: false,
   images: {
+    unoptimized: true,
     remotePatterns: [
       { protocol: "https", hostname: "avatars.githubusercontent.com" },
     ],
   },
+  serverExternalPackages: [
+    '@libsql/client',
+    '@libsql/hrana-client',
+    '@libsql/isomorphic-ws',
+    'drizzle-orm',
+  ],
 };
 
 export default nextConfig;
