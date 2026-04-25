@@ -2,8 +2,14 @@ name: Deploy to Cloudflare Workers
 on:
   push:
     branches: [main]
+    paths:
+      - 'apps/web/**'
+      - 'packages/**'
   pull_request:
     branches: [main]
+    paths:
+      - 'apps/web/**'
+      - 'packages/**'
   pull_request_target:
     types: [closed]
 
