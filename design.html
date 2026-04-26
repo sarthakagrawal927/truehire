@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TrueHire | Hire with Precision</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "error-container": "#ffdad6",
+                "inverse-on-surface": "#eff0fd",
+                "on-primary-fixed": "#001849",
+                "secondary-fixed-dim": "#b3c5ff",
+                "on-tertiary": "#ffffff",
+                "primary": "#0050cb",
+                "outline": "#727687",
+                "on-secondary-container": "#294487",
+                "primary-container": "#0066ff",
+                "inverse-surface": "#2e303a",
+                "surface-container": "#ecedfa",
+                "on-surface": "#191b24",
+                "surface-bright": "#faf8ff",
+                "outline-variant": "#c2c6d8",
+                "on-surface-variant": "#424656",
+                "tertiary": "#a33200",
+                "error": "#ba1a1a",
+                "on-primary": "#ffffff",
+                "primary-fixed-dim": "#b3c5ff",
+                "on-primary-container": "#f8f7ff",
+                "secondary": "#425ca0",
+                "tertiary-fixed": "#ffdbd0",
+                "on-tertiary-fixed": "#390c00",
+                "on-error-container": "#93000a",
+                "surface-tint": "#0054d6",
+                "on-primary-fixed-variant": "#003fa4",
+                "on-secondary-fixed": "#001849",
+                "on-tertiary-fixed-variant": "#832600",
+                "surface-container-highest": "#e1e2ee",
+                "surface-container-lowest": "#ffffff",
+                "primary-fixed": "#dae1ff",
+                "surface-variant": "#e1e2ee",
+                "surface-dim": "#d8d9e6",
+                "secondary-fixed": "#dae1ff",
+                "on-secondary": "#ffffff",
+                "surface-container-high": "#e6e7f4",
+                "on-tertiary-container": "#fff6f4",
+                "background": "#faf8ff",
+                "tertiary-container": "#cc4204",
+                "surface": "#faf8ff",
+                "on-error": "#ffffff",
+                "secondary-container": "#9bb4fe",
+                "surface-container-low": "#f2f3ff",
+                "inverse-primary": "#b3c5ff",
+                "tertiary-fixed-dim": "#ffb59d",
+                "on-background": "#191b24",
+                "on-secondary-fixed-variant": "#284386"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "2xl": "1.5rem",
+                "full": "9999px"
+            },
+            "fontFamily": {
+                "headline": ["Manrope"],
+                "display": ["Manrope"],
+                "body": ["Inter"],
+                "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-header {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, #0050cb 0%, #0066ff 100%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 glass-header shadow-sm">
+<div class="flex justify-between items-center w-full px-6 py-4 max-w-7xl mx-auto">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-blue-700 text-2xl">work_outline</span>
+<span class="text-2xl font-black tracking-tighter text-slate-900 font-headline">TrueHire</span>
+</div>
+<button class="bg-primary-container text-on-primary px-5 py-2 rounded-xl font-headline font-bold text-sm tracking-tight shadow-md transition-all active:scale-95">
+                Post a Job
+            </button>
+</div>
+</header>
+<main class="pt-20 pb-24">
+<!-- Hero Section -->
+<section class="px-6 py-12 md:py-24 max-w-7xl mx-auto">
+<div class="flex flex-col gap-6">
+<div class="inline-flex items-center gap-2 px-3 py-1 bg-primary-fixed text-on-primary-fixed-variant rounded-full text-xs font-bold w-fit uppercase tracking-wider">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">stars</span>
+                    The Precision Curator
+                </div>
+<h1 class="font-headline font-extrabold text-5xl md:text-7xl text-on-surface leading-tight tracking-tighter">
+                    Hire with <span class="text-primary">Precision</span>
+</h1>
+<p class="text-on-surface-variant text-lg md:text-xl max-w-xl leading-relaxed">
+                    Moving beyond generic job boards. We use editorial curation and data-driven insights to find your perfect talent match.
+                </p>
+<!-- Search Bar -->
+<div class="mt-4 flex flex-col gap-3 p-3 bg-surface-container-high rounded-2xl md:flex-row md:items-center">
+<div class="flex items-center gap-3 bg-surface-container-lowest px-4 py-3 rounded-xl flex-1 group focus-within:ring-2 ring-primary-container/40 transition-all">
+<span class="material-symbols-outlined text-outline">search</span>
+<input class="bg-transparent border-none focus:ring-0 w-full text-on-surface placeholder:text-outline-variant font-medium" placeholder="Job title or keywords" type="text"/>
+</div>
+<div class="flex items-center gap-3 bg-surface-container-lowest px-4 py-3 rounded-xl flex-1 group focus-within:ring-2 ring-primary-container/40 transition-all">
+<span class="material-symbols-outlined text-outline">location_on</span>
+<input class="bg-transparent border-none focus:ring-0 w-full text-on-surface placeholder:text-outline-variant font-medium" placeholder="Location" type="text"/>
+</div>
+<button class="hero-gradient text-on-primary px-8 py-4 rounded-xl font-headline font-bold tracking-tight shadow-lg shadow-primary-container/30 active:scale-95 transition-all">
+                        Find Candidates
+                    </button>
+</div>
+</div>
+</section>
+<!-- Matching Metrics Section -->
+<section class="bg-surface-container-low py-16 px-6">
+<div class="max-w-7xl mx-auto">
+<div class="mb-10 text-center md:text-left">
+<h2 class="font-headline font-bold text-3xl text-on-surface mb-2">Quantifiable Success</h2>
+<p class="text-on-surface-variant">Our curated approach delivers results that data can prove.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Metric Card 1 -->
+<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col gap-4">
+<div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">target</span>
+</div>
+<div>
+<div class="font-headline font-black text-4xl text-on-surface tracking-tighter">98.4%</div>
+<div class="text-on-surface-variant font-medium mt-1">Match Accuracy</div>
+</div>
+<div class="mt-4 h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 98%;"></div>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">AI-driven precision ensuring candidates align with technical requirements and company values.</p>
+</div>
+<!-- Metric Card 2 -->
+<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col gap-4">
+<div class="w-12 h-12 bg-tertiary/10 rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">speed</span>
+</div>
+<div>
+<div class="font-headline font-black text-4xl text-on-surface tracking-tighter">14 Days</div>
+<div class="text-on-surface-variant font-medium mt-1">Avg. Time to Hire</div>
+</div>
+<div class="flex gap-1 mt-4">
+<div class="h-1.5 flex-1 bg-tertiary rounded-full"></div>
+<div class="h-1.5 flex-1 bg-tertiary rounded-full"></div>
+<div class="h-1.5 flex-1 bg-surface-container rounded-full"></div>
+<div class="h-1.5 flex-1 bg-surface-container rounded-full"></div>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">Streamlined vetting processes that cut through the noise to reach top talent faster than traditional methods.</p>
+</div>
+<!-- Metric Card 3 -->
+<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col gap-4">
+<div class="w-12 h-12 bg-secondary/10 rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">sentiment_very_satisfied</span>
+</div>
+<div>
+<div class="font-headline font-black text-4xl text-on-surface tracking-tighter">4.9/5.0</div>
+<div class="text-on-surface-variant font-medium mt-1">Candidate Satisfaction</div>
+</div>
+<div class="flex items-center gap-1 mt-4">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">star_half</span>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">High-touch communication and respectful feedback loops throughout the entire hiring journey.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Company Culture Section -->
+<section class="py-20 px-6 max-w-7xl mx-auto">
+<div class="flex flex-col md:flex-row justify-between items-end gap-6 mb-12">
+<div class="max-w-2xl">
+<h2 class="font-headline font-bold text-3xl text-on-surface mb-4">Cultivating Excellence</h2>
+<p class="text-on-surface-variant text-lg">We don't just fill seats; we build cultures. See how our curated matches are transforming modern workplaces into thriving communities.</p>
+</div>
+<button class="text-primary font-headline font-bold flex items-center gap-2 group">
+                    View Success Stories
+                    <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+<!-- Bento-style Culture Grid -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[200px]">
+<div class="col-span-2 row-span-2 relative rounded-2xl overflow-hidden group">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-duration-700" data-alt="Modern bright open office space with diverse team members collaborating around a large wooden table in natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAGCgRTb3Uata-dhnvrzwX_pZmS15LKEoqWHbu0_Bsugl6GliFxbEJXnubSR6dmiVECs__OdIZ1JmfnIMvRrk8rdrImZhkbsjW3tD_ArXW_yUqC6SJC6rBbtKLcWjFDYP9GM4RV0Tu0zIIe0bAEqfEelpZBft1sukYHgbR2O5JuRHIQlxaTRMeWrlAzzkUPgbNJbVBMn_W76X8DsXG8WDGfquO6xVhmkB8KIGR0xFIcypMNuKNHZuH4FGGRrJSE871rLAjT669Byo"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/60 to-transparent p-6 flex flex-col justify-end">
+<p class="text-white font-medium italic text-sm">"TrueHire understood that we needed more than just a developer; they found a visionary partner for our team."</p>
+<p class="text-white/80 text-xs mt-2">— Sarah Jenkins, CTO at Nexa</p>
+</div>
+</div>
+<div class="relative rounded-2xl overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close up of diverse hands joining together in the center of a circle during a team building workshop" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0MQt1iN49msHvL872kG0pm-haLcRXjLJ8-1Y5qRzkOjPMb_X9hnTDYiVxlZ7Aw7QAoY2hidd2KgdqnQed4Fk6duho-0o3kU8uipo9s0G5oQfn6jqaeojBk3Og2It5nWLdjK-rUa29X9V0DkPAeWg3KXz2p9Uy_bYREuD4ufh2Ij03NHCR2uPFvVAhOqhRKCOooInaRNNdBJY0kkQ92qEPEREM3knWONRTFWW3ixsXXE-ypfFcmpjiH88fdY8mYs4opKr7wAkoRts"/>
+</div>
+<div class="relative rounded-2xl overflow-hidden bg-primary-container p-6 flex flex-col justify-between">
+<span class="material-symbols-outlined text-white text-3xl">format_quote</span>
+<p class="text-white font-bold leading-tight">Authenticity is at the core of every hire.</p>
+</div>
+<div class="col-span-1 md:col-span-2 relative rounded-2xl overflow-hidden group">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-duration-700" data-alt="Professional young woman working on laptop in a trendy cafe with soft bokeh background lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBODXmC0k8WB_pA8AvxKzkmnz76oJNjnMql1LzbmFBXVCTVxMNTcNsRP5sD4Sgu6fs1EsRMyNO_uLCzIYJ6oNL3rhxOLwTITX8NJRf4L_Uqx7bfNo6OUky2lCabidNzeE2PTVhL_0LlWh0fj90zSTaOuRoLZcCGXNCD6P2O3eyQIJSUaJiNvYARY5ZWk4drsf2Z1vSXvYyslN2PrKVOJyMVv868a3uJp7XGhPWEYApHWl8ii_QCCB09HJl4O-F5PWiemSUz9H5vFzc"/>
+<div class="absolute top-4 right-4 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px] text-white font-bold uppercase tracking-widest">
+                        Hybrid Ready
+                    </div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="px-6 py-12">
+<div class="hero-gradient rounded-3xl p-10 text-center max-w-5xl mx-auto flex flex-col items-center gap-6 shadow-2xl shadow-primary/20">
+<h2 class="font-headline font-black text-4xl text-white tracking-tight">Ready for a better way to hire?</h2>
+<p class="text-white/90 max-w-lg text-lg">Join 500+ top-tier organizations that prioritize quality and precision in their talent acquisition strategy.</p>
+<div class="flex flex-col sm:flex-row gap-4 w-full justify-center mt-4">
+<button class="bg-white text-primary px-8 py-4 rounded-xl font-headline font-bold active:scale-95 transition-all">Get Started Free</button>
+<button class="bg-white/10 text-white border border-white/20 backdrop-blur-sm px-8 py-4 rounded-xl font-headline font-bold active:scale-95 transition-all">Schedule Demo</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full py-12 bg-slate-50 border-t border-slate-100">
+<div class="flex flex-col md:flex-row justify-between items-center px-8 gap-8 max-w-7xl mx-auto">
+<div class="flex flex-col items-center md:items-start gap-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-blue-700">work_outline</span>
+<span class="font-headline font-bold text-slate-900 text-xl">TrueHire</span>
+</div>
+<p class="text-sm font-body text-slate-500">© 2024 TrueHire Precision Curators.</p>
+</div>
+<div class="flex gap-8 text-sm font-inter text-slate-500">
+<a class="hover:text-slate-900 transition-all" href="#">Privacy</a>
+<a class="hover:text-slate-900 transition-all" href="#">Terms</a>
+<a class="hover:text-slate-900 transition-all" href="#">Enterprise</a>
+<a class="hover:text-slate-900 transition-all" href="#">About</a>
+</div>
+</div>
+</footer>
+<!-- BottomNavBar -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-white border-t border-slate-100 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] rounded-t-2xl">
+<div class="flex flex-col items-center justify-center bg-blue-50 text-blue-700 rounded-xl px-4 py-1.5">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">search</span>
+<span class="text-[11px] font-headline font-semibold mt-0.5">Explore</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400">
+<span class="material-symbols-outlined text-xl">analytics</span>
+<span class="text-[11px] font-headline font-semibold mt-0.5">Matches</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400">
+<span class="material-symbols-outlined text-xl">assignment_turned_in</span>
+<span class="text-[11px] font-headline font-semibold mt-0.5">Applied</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400">
+<span class="material-symbols-outlined text-xl">person</span>
+<span class="text-[11px] font-headline font-semibold mt-0.5">Profile</span>
+</div>
+</nav>
+</body></html>
