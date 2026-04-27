@@ -41,6 +41,15 @@ importers:
       '@paralleldrive/cuid2':
         specifier: 3.3.0
         version: 3.3.0
+      '@saas-maker/changelog-widget':
+        specifier: ^0.2.1
+        version: 0.2.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@saas-maker/feedback':
+        specifier: ^0.2.1
+        version: 0.2.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@saas-maker/testimonials':
+        specifier: ^0.2.1
+        version: 0.2.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@truehire/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -1983,6 +1992,24 @@ packages:
 
   '@rtsao/scc@1.1.0':
     resolution: {integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==}
+
+  '@saas-maker/changelog-widget@0.2.1':
+    resolution: {integrity: sha512-tAQb6hr5mOzbyQxKUNWePlllsdNDquHW0G2FG7u9Um2BzgNNi8WF94M5Khz/SlvVoSYvKl1yMFX6sxnj07kynw==}
+    peerDependencies:
+      react: '>=18'
+      react-dom: '>=18'
+
+  '@saas-maker/feedback@0.2.1':
+    resolution: {integrity: sha512-ajtrH7t/hhzxrNzX2BU0i5nfGpXNu7w4EQCFBajsuFn255O29trRCu3VNL1NoQhWwypjEEdeaK4DqoEY4zd7rw==}
+    peerDependencies:
+      react: '>=18'
+      react-dom: '>=18'
+
+  '@saas-maker/testimonials@0.2.1':
+    resolution: {integrity: sha512-mioGG90lztefuWFKCFPDyv8fmL0+Na2eniHlKuc2Ug35sahIgGqdWsjjTFsVIvuY59gaVyj+iJMV4KmVTeTwBA==}
+    peerDependencies:
+      react: '>=18'
+      react-dom: '>=18'
 
   '@sindresorhus/is@7.2.0':
     resolution: {integrity: sha512-P1Cz1dWaFfR4IR+U13mqqiGsLFf1KbayybWwdd2vfctdV6hDpUkgCY0nKOLLTMSoRd/jJNjtbqzf13K8DCCXQw==}
@@ -6574,6 +6601,21 @@ snapshots:
     optional: true
 
   '@rtsao/scc@1.1.0': {}
+
+  '@saas-maker/changelog-widget@0.2.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+    dependencies:
+      react: 19.2.5
+      react-dom: 19.2.5(react@19.2.5)
+
+  '@saas-maker/feedback@0.2.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+    dependencies:
+      react: 19.2.5
+      react-dom: 19.2.5(react@19.2.5)
+
+  '@saas-maker/testimonials@0.2.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+    dependencies:
+      react: 19.2.5
+      react-dom: 19.2.5(react@19.2.5)
 
   '@sindresorhus/is@7.2.0': {}
 
