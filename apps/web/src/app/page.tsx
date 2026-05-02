@@ -287,7 +287,7 @@ function SignalCard({
         <span className="num text-[11px] tracking-[0.14em] text-[var(--muted-2)]">
           {index}
         </span>
-        <Badge tone={tone as any}>
+        <Badge tone={tone}>
           {state === "live" && <span className="h-1.5 w-1.5 rounded-full bg-[var(--verified)]" />}
           {label}
         </Badge>

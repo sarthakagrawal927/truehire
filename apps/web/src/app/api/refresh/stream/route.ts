@@ -64,12 +64,12 @@ export async function GET() {
         });
         send("phase", { type: "scoring", message: "Computing score", pct: 98 });
         send("done", { ok: true });
-      } catch (e: any) {
+      } catch (e: unknown) {
         await db
           .update(schema.users)
           .set({ ingestStatus: "failed" })
           .where(eq(schema.users.id, user.id));
-        send("error", { message: e?.message ?? "ingest_failed" });
+        send("error", { message: e instanceof Error ? e.message : "ingest_failed" });
       } finally {
         controller.close();
       }

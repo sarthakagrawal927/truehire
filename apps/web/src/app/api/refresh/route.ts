@@ -53,13 +53,13 @@ export async function POST() {
       login: user.githubUsername,
       token,
     });
-  } catch (e: any) {
+  } catch (e: unknown) {
     await db
       .update(schema.users)
       .set({ ingestStatus: "failed" })
       .where(eq(schema.users.id, user.id));
     return NextResponse.json(
-      { error: "ingest_failed", message: e?.message ?? "unknown" },
+      { error: "ingest_failed", message: e instanceof Error ? e.message : "unknown" },
       { status: 500 },
     );
   }

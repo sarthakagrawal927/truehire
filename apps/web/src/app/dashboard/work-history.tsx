@@ -44,6 +44,7 @@ export function WorkHistorySection() {
   }
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
   }, []);
 
@@ -165,7 +166,7 @@ function RoleRow({ row, onChanged }: { row: Row; onChanged: () => void }) {
             {row.companyDomain && <span className="ml-2 text-[var(--muted-2)]">@ {row.companyDomain}</span>}
           </div>
         </div>
-        <Badge tone={tone as any} className="gap-1">
+        <Badge tone={tone} className="gap-1">
           {icon}
           {label}
         </Badge>

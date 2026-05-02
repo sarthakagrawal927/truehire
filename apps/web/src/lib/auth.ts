@@ -18,6 +18,7 @@ declare module "next-auth" {
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   adapter: DrizzleAdapter(db as any, {
     usersTable: schema.users,
     accountsTable: schema.accounts,
@@ -39,6 +40,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           image: profile.avatar_url,
           githubId: profile.id,
           githubUsername: profile.login,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any;
       },
     }),
@@ -67,7 +69,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async session({ session, user }) {
       if (session.user && user) {
         session.user.id = user.id;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         session.user.githubUsername = (user as any).githubUsername ?? null;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         session.user.githubId = (user as any).githubId ?? null;
       }
       return session;
