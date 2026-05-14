@@ -1,5 +1,9 @@
 # agents.md — truehire
 
+## Shared Fleet Standard
+
+Also read and follow the shared fleet-level agent standard at `../AGENTS.md`. Treat this repository as owned product code: protect production stability, keep changes scoped, verify work, and record durable follow-up tasks when something remains incomplete or blocked.
+
 ## Purpose
 Verified candidate platform — GitHub signals generate a transparent 0-100 score replacing traditional resumes, with public profile pages at `/@handle`.
 
