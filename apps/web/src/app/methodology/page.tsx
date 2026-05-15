@@ -91,7 +91,7 @@ export default function MethodologyPage() {
           <code className="rounded bg-stone-100 px-1.5 py-0.5 text-xs">
             packages/core/src/scoring/score.ts
           </code>{" "}
-          so this page can't disagree with the code.
+          so this page can&apos;t disagree with the code.
         </p>
       </header>
 
@@ -177,25 +177,25 @@ export default function MethodologyPage() {
       <section className="mt-10">
         <Card>
           <CardHeader>
-            <CardTitle>What we deliberately don't measure</CardTitle>
+            <CardTitle>What we deliberately don&apos;t measure</CardTitle>
           </CardHeader>
           <CardBody>
             <ul className="list-disc space-y-2 pl-5 text-sm text-stone-700">
               <li>
                 <span className="font-medium">Self-declared skills, titles, or bios.</span>{" "}
-                Profiles aren't user-editable. If a number isn't traceable to
-                public GitHub data, it doesn't appear.
+                Profiles aren&apos;t user-editable. If a number isn&apos;t traceable to
+                public GitHub data, it doesn&apos;t appear.
               </li>
               <li>
                 <span className="font-medium">Generic boilerplate repos.</span>{" "}
                 Common interview-prep / awesome-X / 100-days-of-X clones are
                 downweighted heavily — their stars usually reflect topical
-                interest, not the maintainer's craft.
+                interest, not the maintainer&apos;s craft.
               </li>
               <li>
                 <span className="font-medium">Private contributions.</span>{" "}
                 A core principle: the score is reproducible from public data.
-                Anything you can't independently audit is excluded.
+                Anything you can&apos;t independently audit is excluded.
               </li>
             </ul>
           </CardBody>
