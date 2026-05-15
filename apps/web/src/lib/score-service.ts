@@ -25,6 +25,26 @@ export async function getScoreHistory(userId: string, limit = 60) {
     .limit(limit);
 }
 
+/**
+ * Recently claimed (signed-in-once) profiles, newest first. Used by the
+ * /recent landing surface so visitors can discover other public profiles.
+ */
+export async function getRecentlyClaimedUsers(limit = 30) {
+  return db
+    .select({
+      id: schema.users.id,
+      githubUsername: schema.users.githubUsername,
+      name: schema.users.name,
+      image: schema.users.image,
+      createdAt: schema.users.createdAt,
+      lastScoredAt: schema.users.lastScoredAt,
+    })
+    .from(schema.users)
+    .where(eq(schema.users.claimed, true))
+    .orderBy(desc(schema.users.createdAt))
+    .limit(limit);
+}
+
 export async function getUserByUsername(username: string) {
   const rows = await db
     .select()
