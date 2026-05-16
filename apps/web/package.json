@@ -12,8 +12,9 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "cf:build": "opennextjs-cloudflare build",
+    "validate:env:deploy": "node scripts/validate-env.mjs deploy",
     "cf:preview": "opennextjs-cloudflare preview",
-    "cf:deploy": "opennextjs-cloudflare deploy",
+    "cf:deploy": "pnpm validate:env:deploy && opennextjs-cloudflare deploy",
     "cf:upload": "opennextjs-cloudflare upload",
     "seed:anchors": "tsx scripts/seed-anchors.ts"
   },
@@ -24,6 +25,7 @@
     "@opennextjs/cloudflare": "1.19.4",
     "@paralleldrive/cuid2": "3.3.0",
     "@saas-maker/feedback": "^0.2.1",
+    "@saas-maker/posthog-client": "^0.1.0",
     "@saas-maker/testimonials": "^0.2.1",
     "@truehire/core": "workspace:*",
     "@truehire/db": "workspace:*",

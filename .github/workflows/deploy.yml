@@ -25,6 +25,11 @@ jobs:
       - uses: actions/setup-node@v6
         with: { node-version: '20', cache: pnpm }
       - run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Validate GitHub deploy secrets
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+        run: |
+          test -n "$CF_API_TOKEN" || { echo "::error::Missing GitHub secret: CF_API_TOKEN"; exit 1; }
       - run: pnpm --filter web cf:build
       - name: Deploy production worker
         uses: cloudflare/wrangler-action@v3
@@ -47,6 +52,11 @@ jobs:
       - uses: actions/setup-node@v6
         with: { node-version: '20', cache: pnpm }
       - run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Validate GitHub deploy secrets
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+        run: |
+          test -n "$CF_API_TOKEN" || { echo "::error::Missing GitHub secret: CF_API_TOKEN"; exit 1; }
       - run: pnpm --filter web cf:build
       - name: Deploy preview worker
         uses: cloudflare/wrangler-action@v3
