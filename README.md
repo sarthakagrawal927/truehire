@@ -46,6 +46,7 @@ pnpm dev                              # apps/web on :3000
 pnpm --filter @truehire/core test     # scoring unit tests (must stay at 100%)
 pnpm --filter web typecheck
 pnpm --filter web build
+pnpm test:e2e:local                   # disposable DB + local auth env + Playwright
 ```
 
 ## Database
@@ -55,6 +56,20 @@ pnpm db:generate                                            # regen migrations
 DATABASE_URL="file:$PWD/local.db" pnpm db:migrate          # apply locally
 pnpm db:studio                                              # Drizzle Studio
 ```
+
+## Local E2E
+
+The default web Playwright command expects a migrated database and auth env.
+Use the wrapper when you just need a reliable local smoke pass:
+
+```bash
+pnpm test:e2e:local
+```
+
+It creates a temporary SQLite/libSQL database, runs migrations, supplies local
+dummy GitHub OAuth values plus `AUTH_SECRET`, starts the Next.js web app through
+Playwright, and deletes the temp DB afterward. It does not use production
+secrets.
 
 ## Deploy
 

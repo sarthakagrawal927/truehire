@@ -44,9 +44,9 @@ export async function GET(
               fontSize: 20,
             }}
           >
-            ✓
+            TH
           </div>
-          <div style={{ fontSize: 28, fontWeight: 600, letterSpacing: -0.5 }}>
+          <div style={{ display: "flex", fontSize: 28, fontWeight: 600, letterSpacing: -0.5 }}>
             TrueHire
           </div>
         </div>
@@ -55,16 +55,18 @@ export async function GET(
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div
               style={{
+                display: "flex",
                 fontSize: 22,
                 color: "#8a8a93",
                 letterSpacing: 2,
                 textTransform: "uppercase",
               }}
             >
-              Signal 1 · public work
+              Signal 1 / public work
             </div>
             <div
               style={{
+                display: "flex",
                 fontSize: 56,
                 fontWeight: 600,
                 letterSpacing: -1,
@@ -74,7 +76,7 @@ export async function GET(
               @{clean}
             </div>
             {user?.name && (
-              <div style={{ fontSize: 28, color: "#8a8a93", marginTop: 4 }}>
+              <div style={{ display: "flex", fontSize: 28, color: "#8a8a93", marginTop: 4 }}>
                 {user.name}
               </div>
             )}
@@ -90,6 +92,7 @@ export async function GET(
           >
             <div
               style={{
+                display: "flex",
                 fontSize: 18,
                 color: "#8a8a93",
                 letterSpacing: 2,
@@ -100,13 +103,14 @@ export async function GET(
             </div>
             <div
               style={{
+                display: "flex",
                 fontSize: 220,
                 lineHeight: 1,
                 fontWeight: 600,
                 fontVariantNumeric: "tabular-nums",
               }}
             >
-              {score?.overall ?? "—"}
+              {score?.overall ?? "N/A"}
             </div>
           </div>
         </div>
@@ -132,7 +136,7 @@ export async function GET(
               </>
             )}
           </div>
-          <div>truehire.dev/{clean}</div>
+          <div style={{ display: "flex" }}>truehire.dev/{clean}</div>
         </div>
       </div>
     ),
