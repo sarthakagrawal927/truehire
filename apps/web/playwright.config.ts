@@ -20,6 +20,9 @@ export default defineConfig({
     cwd: ".",
   },
   projects: [
+    // Desktop baseline.
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    // Mobile-viewport project — iPhone 13 is 390px wide, the mobile target.
+    { name: "mobile", use: { ...devices["iPhone 13"] } },
   ],
 });
