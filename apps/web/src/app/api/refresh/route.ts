@@ -2,12 +2,63 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db, schema } from "@truehire/db";
 import { eq } from "drizzle-orm";
+import { GitHubIngestError } from "@truehire/core";
 import {
   canRefresh,
   getGitHubAccessToken,
   getUserById,
   refreshUserScore,
 } from "@/lib/score-service";
+
+/** Maps an ingest failure to a user-safe message + HTTP status. */
+function ingestFailureResponse(e: unknown) {
+  if (e instanceof GitHubIngestError) {
+    if (e.reason === "rate_limited") {
+      return {
+        status: 429,
+        body: {
+          error: "github_rate_limited",
+          message:
+            "GitHub's rate limit was hit while reading your profile. Please try again in a few minutes.",
+        },
+      };
+    }
+    if (e.reason === "auth") {
+      return {
+        status: 401,
+        body: {
+          error: "github_auth",
+          message:
+            "GitHub rejected the connection. Sign out and reconnect GitHub, then try again.",
+        },
+      };
+    }
+    if (e.reason === "not_found") {
+      return {
+        status: 404,
+        body: {
+          error: "github_not_found",
+          message: "We couldn't find that GitHub profile.",
+        },
+      };
+    }
+    return {
+      status: 502,
+      body: {
+        error: "github_unavailable",
+        message:
+          "GitHub didn't respond in time. Your saved score is unchanged — try again shortly.",
+      },
+    };
+  }
+  return {
+    status: 500,
+    body: {
+      error: "ingest_failed",
+      message: "Something went wrong while refreshing your score. Try again shortly.",
+    },
+  };
+}
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -54,14 +105,13 @@ export async function POST() {
       token,
     });
   } catch (e: unknown) {
+    console.error("refreshUserScore failed", e);
     await db
       .update(schema.users)
       .set({ ingestStatus: "failed" })
       .where(eq(schema.users.id, user.id));
-    return NextResponse.json(
-      { error: "ingest_failed", message: e instanceof Error ? e.message : "unknown" },
-      { status: 500 },
-    );
+    const { status, body } = ingestFailureResponse(e);
+    return NextResponse.json(body, { status });
   }
 
   return NextResponse.json({ ok: true });

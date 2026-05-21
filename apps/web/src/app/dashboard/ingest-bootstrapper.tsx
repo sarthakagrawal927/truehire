@@ -17,6 +17,9 @@ const INITIAL_PHASES: Phase[] = [
 /**
  * Drives the initial ingest from the browser. Opens an SSE stream to
  * `/api/refresh/stream` so the user sees every phase as it happens.
+ *
+ * The streaming work lives in a keyed child (`IngestStream`) so a retry simply
+ * remounts it with fresh state — no need to reset state inside an effect.
  */
 export function IngestBootstrapper({
   hasScore,
@@ -24,6 +27,19 @@ export function IngestBootstrapper({
   hasScore: boolean;
   ingestStatus: "idle" | "queued" | "running" | "failed";
 }) {
+  const [retryKey, setRetryKey] = useState(0);
+
+  if (hasScore) return null;
+
+  return (
+    <IngestStream
+      key={retryKey}
+      onRetry={() => setRetryKey((k) => k + 1)}
+    />
+  );
+}
+
+function IngestStream({ onRetry }: { onRetry: () => void }) {
   const [currentId, setCurrentId] = useState<string>("profile");
   const [currentDetail, setCurrentDetail] = useState<string>("Starting");
   const [currentPct, setCurrentPct] = useState<number>(2);
@@ -32,7 +48,6 @@ export function IngestBootstrapper({
   const router = useRouter();
 
   useEffect(() => {
-    if (hasScore) return;
     // Opening a new EventSource per mount is safe — an existing running
     // ingest on the server short-circuits via `canRefresh`, and Vercel's
     // serverless model doesn't hold concurrent streams from the same user.
@@ -76,14 +91,17 @@ export function IngestBootstrapper({
           const p = JSON.parse(data);
           setError(p.message ?? "Ingest failed");
         } catch { setError("Ingest failed"); }
+      } else {
+        // No payload → the connection itself dropped (network / server gone).
+        setError(
+          "Lost connection while scoring your profile. Check your network and try again.",
+        );
       }
       es.close();
     });
 
     return () => es.close();
-  }, [hasScore, router]);
-
-  if (hasScore) return null;
+  }, [router]);
 
   return (
     <div className="mt-10 overflow-hidden rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)]">
@@ -167,8 +185,15 @@ export function IngestBootstrapper({
         </ol>
 
         {error && (
-          <div className="mt-4 rounded-[var(--radius-sm)] border border-[color:color-mix(in_srgb,var(--warn)_40%,var(--border))] px-3 py-2 text-[12px] text-[var(--warn)]">
-            {error}
+          <div className="mt-4 flex items-center justify-between gap-3 rounded-[var(--radius-sm)] border border-[color:color-mix(in_srgb,var(--warn)_40%,var(--border))] px-3 py-2">
+            <span className="text-[12px] text-[var(--warn)]">{error}</span>
+            <button
+              type="button"
+              onClick={onRetry}
+              className="shrink-0 rounded-[var(--radius-sm)] border border-[var(--border)] px-2.5 py-1 text-[11px] font-medium text-[var(--foreground)] hover:bg-[var(--surface-2)]"
+            >
+              Try again
+            </button>
           </div>
         )}
       </div>

@@ -1,7 +1,8 @@
 import { db, schema } from "@truehire/db";
-import { and, eq, desc } from "drizzle-orm";
+import { and, eq, desc, count } from "drizzle-orm";
 import { computeScore, ingestGitHubUser } from "@truehire/core";
 import { computeSignal2, signal2OverallBonus } from "./verify-service";
+import { trackActivated, trackCoreAction } from "./analytics";
 
 const INGEST_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 
@@ -135,6 +136,14 @@ export async function refreshUserScore(params: {
 }) {
   const { userId, login, token, onProgress } = params;
 
+  // Whether the user already has a score — decides if this run is the
+  // `activated` (first real value) milestone or just another `core_action`.
+  const priorScores = await db
+    .select({ n: count() })
+    .from(schema.scores)
+    .where(eq(schema.scores.userId, userId));
+  const isFirstScore = (priorScores[0]?.n ?? 0) === 0;
+
   const result = await ingestGitHubUser({ login, token, onProgress });
 
   await db.transaction(async (tx) => {
@@ -212,6 +221,12 @@ export async function refreshUserScore(params: {
       })
       .where(eq(schema.users.id, userId));
   });
+
+  // Owner-facing analytics — fire after the score is committed.
+  // `activated` fires once (the first computed score = first real value);
+  // `score_refreshed` fires on every successful ingest.
+  if (isFirstScore) trackActivated(userId);
+  trackCoreAction("score_refreshed", userId);
 }
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];

@@ -21,6 +21,121 @@ export type IngestResult = {
 
 type ContribCalendarDay = { date: string; contributionCount: number };
 
+/** Error thrown when GitHub ingestion exhausts retries or hits a fatal state. */
+export class GitHubIngestError extends Error {
+  constructor(
+    message: string,
+    public readonly reason:
+      | "rate_limited"
+      | "not_found"
+      | "auth"
+      | "network"
+      | "unknown",
+  ) {
+    super(message);
+    this.name = "GitHubIngestError";
+  }
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/** Classify an Octokit / GraphQL error into a stable failure reason. */
+function classifyGitHubError(err: unknown): GitHubIngestError["reason"] {
+  const status =
+    (err as { status?: number })?.status ??
+    (err as { response?: { status?: number } })?.response?.status;
+  const message =
+    err instanceof Error ? err.message.toLowerCase() : String(err).toLowerCase();
+
+  if (status === 403) {
+    return "rate_limited"; // GitHub uses 403 for primary + secondary rate limits
+  }
+  if (status === 401) return "auth";
+  if (status === 404) return "not_found";
+  if (status === 429) return "rate_limited";
+  if (message.includes("rate limit") || message.includes("secondary rate")) {
+    return "rate_limited";
+  }
+  if (message.includes("not found")) return "not_found";
+  if (message.includes("bad credentials") || message.includes("unauthorized")) {
+    return "auth";
+  }
+  if (
+    message.includes("fetch failed") ||
+    message.includes("network") ||
+    message.includes("timeout") ||
+    message.includes("econnreset") ||
+    status === 502 ||
+    status === 503 ||
+    status === 504
+  ) {
+    return "network";
+  }
+  return "unknown";
+}
+
+/**
+ * Run a GitHub call with exponential backoff. Retries rate-limit and transient
+ * network failures; fails fast on auth / not-found errors. Honors GitHub's
+ * `retry-after` / `x-ratelimit-reset` headers when present.
+ */
+async function withGitHubRetry<T>(
+  label: string,
+  fn: () => Promise<T>,
+  opts: { maxAttempts?: number; baseDelayMs?: number } = {},
+): Promise<T> {
+  const maxAttempts = opts.maxAttempts ?? 4;
+  const baseDelayMs = opts.baseDelayMs ?? 1000;
+
+  let lastErr: unknown;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      const reason = classifyGitHubError(err);
+
+      // Auth + not-found are not retryable — fail immediately with clear copy.
+      if (reason === "auth" || reason === "not_found") {
+        throw new GitHubIngestError(
+          reason === "auth"
+            ? "GitHub rejected the access token. Reconnect GitHub and try again."
+            : `GitHub returned not-found for ${label}.`,
+          reason,
+        );
+      }
+
+      if (attempt === maxAttempts) break;
+
+      // Prefer GitHub's own backoff hint when present.
+      const headers =
+        (err as { response?: { headers?: Record<string, string> } })?.response
+          ?.headers ?? {};
+      const retryAfter = Number(headers["retry-after"]);
+      const reset = Number(headers["x-ratelimit-reset"]);
+      let delayMs = baseDelayMs * 2 ** (attempt - 1);
+      if (Number.isFinite(retryAfter) && retryAfter > 0) {
+        delayMs = Math.min(retryAfter * 1000, 60_000);
+      } else if (Number.isFinite(reset) && reset > 0) {
+        delayMs = Math.min(Math.max(reset * 1000 - Date.now(), 0), 60_000);
+      }
+      // Jitter so concurrent ingests don't thunder.
+      delayMs += Math.floor(Math.random() * 500);
+      await sleep(delayMs);
+    }
+  }
+
+  const reason = classifyGitHubError(lastErr);
+  throw new GitHubIngestError(
+    reason === "rate_limited"
+      ? "GitHub's rate limit was hit while reading this profile. Try again in a few minutes."
+      : `Failed to read GitHub data for ${label} after ${maxAttempts} attempts.`,
+    reason,
+  );
+}
+
 const CONTRIB_QUERY = /* GraphQL */ `
   query ($login: String!, $from: DateTime!, $to: DateTime!) {
     user(login: $login) {
@@ -121,13 +236,20 @@ export async function ingestGitHubUser(params: {
       pct,
     });
 
-    const res: any = await gql(CONTRIB_QUERY, {
-      login,
-      from: from.toISOString(),
-      to: to.toISOString(),
-    });
+    const res: any = await withGitHubRetry(`@${login} contributions ${label}`, () =>
+      gql(CONTRIB_QUERY, {
+        login,
+        from: from.toISOString(),
+        to: to.toISOString(),
+      }),
+    );
     const u = res.user;
-    if (!u) throw new Error(`GitHub user @${login} not found`);
+    if (!u) {
+      throw new GitHubIngestError(
+        `GitHub user @${login} not found`,
+        "not_found",
+      );
+    }
 
     if (!profile) {
       profile = {
@@ -212,11 +334,13 @@ export async function ingestGitHubUser(params: {
 
   // Top up authored-repo metadata + mark isFork.
   try {
-    const authored = await rest.paginate(rest.repos.listForUser, {
-      username: login,
-      type: "owner",
-      per_page: 100,
-    });
+    const authored = await withGitHubRetry(`@${login} authored repos`, () =>
+      rest.paginate(rest.repos.listForUser, {
+        username: login,
+        type: "owner",
+        per_page: 100,
+      }),
+    );
     for (const r of authored) {
       const key = r.full_name;
       const pushedAt = r.pushed_at ? new Date(r.pushed_at).getTime() : null;
@@ -269,7 +393,13 @@ export async function ingestGitHubUser(params: {
   await Promise.all(
     batch.map(async (c) => {
       try {
-        c.craft = await fetchCraftSignals(rest, c.repoFullName, login);
+        // Craft signals are non-fatal but worth a couple of retries — a single
+        // rate-limit burst shouldn't zero out the Craft score for everyone.
+        c.craft = await withGitHubRetry(
+          `craft signals for ${c.repoFullName}`,
+          () => fetchCraftSignals(rest, c.repoFullName, login),
+          { maxAttempts: 2 },
+        );
       } catch {
         c.craft = null;
       }
@@ -284,7 +414,9 @@ export async function ingestGitHubUser(params: {
     ({ _starSync: _s, ...c }) => c,
   );
 
-  if (!profile) throw new Error("empty GitHub response");
+  if (!profile) {
+    throw new GitHubIngestError("Empty GitHub response", "unknown");
+  }
   profile.contributions = contributions;
   profile.months = months;
   progress({

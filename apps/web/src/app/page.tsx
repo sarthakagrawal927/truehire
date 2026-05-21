@@ -58,8 +58,8 @@ export default function LandingPage() {
             </div>
 
             <dl className="mt-14 grid max-w-xl grid-cols-3 gap-8 border-t border-[var(--border)] pt-7">
-              <Metric k="500–1000" v="applicants per role, post-ChatGPT" />
-              <Metric k="30s" v="to generate a ‘perfect’ resume" />
+              <Metric k="GitHub" v="years of public commits, verified" />
+              <Metric k="0–100" v="transparent score, every number sourced" />
               <Metric k="4 signals" v="stacked, near-impossible to fake" />
             </dl>
           </div>
@@ -88,17 +88,17 @@ export default function LandingPage() {
           </div>
           <ul className="grid grid-cols-1 gap-3 self-start">
             {[
-              ["10×", "increase in application volume per role"],
-              ["62%", "recruiters who can't tell AI resumes apart"],
-              ["34 days", "average time to hire — and getting longer"],
-              ["$4,700", "average cost-per-hire for a senior IC"],
-            ].map(([k, v]) => (
+              "A single posting now draws hundreds of applicants — most with an AI-tailored resume.",
+              "Resumes converge: a strong engineer and an average one read almost identically.",
+              "Recruiters fall back on warm intros, so great engineers without a network go unseen.",
+              "Time-to-hire stretches, and a bad hire is expensive to unwind.",
+            ].map((line) => (
               <li
-                key={k}
-                className="flex items-baseline justify-between gap-4 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface)] px-4 py-3"
+                key={line}
+                className="flex items-start gap-3 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface)] px-4 py-3"
               >
-                <span className="num text-xl font-semibold">{k}</span>
-                <span className="text-right text-[13px] text-[var(--muted)]">{v}</span>
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--muted-2)]" />
+                <span className="text-[13px] leading-relaxed text-[var(--muted)]">{line}</span>
               </li>
             ))}
           </ul>

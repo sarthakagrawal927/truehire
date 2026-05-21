@@ -3,6 +3,7 @@ import GitHub from "next-auth/providers/github";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { eq } from "drizzle-orm";
 import { db, schema } from "@truehire/db";
+import { trackSignup, trackReturned } from "./analytics";
 
 declare module "next-auth" {
   interface Session {
@@ -49,7 +50,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
   pages: { signIn: "/login" },
   events: {
-    async signIn({ user, account }) {
+    async signIn({ user, account, isNewUser }) {
       // We used to kick off ingest here as fire-and-forget, but Vercel
       // serverless kills the lambda the moment this callback returns, so the
       // ingest promise was being discarded mid-flight. The dashboard now
@@ -63,6 +64,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         .update(schema.users)
         .set({ ingestStatus: "idle" })
         .where(eq(schema.users.id, user.id));
+
+      // Owner-facing analytics — the fixed 4-event taxonomy.
+      // `signup` fires once on account creation; `returned` fires on every
+      // subsequent sign-in (a session by a user with prior activity).
+      if (isNewUser) {
+        trackSignup(user.id);
+      } else {
+        trackReturned(user.id);
+      }
     },
   },
   callbacks: {

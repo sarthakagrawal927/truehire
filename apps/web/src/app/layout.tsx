@@ -19,13 +19,26 @@ const jetbrains = JetBrains_Mono({
   display: "swap",
 });
 
+const SITE_DESCRIPTION =
+  "Costly, verifiable signals instead of AI-tailored resumes. Your GitHub becomes a credential recruiters can trust.";
+
 export const metadata: Metadata = {
   title: "TrueHire — the verified-candidate layer",
-  description:
-    "Costly, verifiable signals instead of AI-tailored resumes. Your GitHub becomes a credential recruiters can trust.",
+  description: SITE_DESCRIPTION,
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
   ),
+  openGraph: {
+    type: "website",
+    siteName: "TrueHire",
+    title: "TrueHire — the verified-candidate layer",
+    description: SITE_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "TrueHire — the verified-candidate layer",
+    description: SITE_DESCRIPTION,
+  },
 };
 
 export default function RootLayout({

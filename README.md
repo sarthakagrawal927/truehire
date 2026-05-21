@@ -4,6 +4,15 @@ Verified candidate platform — GitHub signals generate a transparent 0-100 scor
 
 Scores are **derived, never declared**: every number on a profile traces back to verified GitHub data. There are no user-editable bios, skills, or titles.
 
+## Deployment & External Services
+
+| Concern | Service |
+|---------|---------|
+| Hosting | Cloudflare Workers (`truehire`) via `@opennextjs/cloudflare` — one Worker serves the Next.js frontend and API routes |
+| Database | Turso (libSQL) |
+| Auth | NextAuth v5 + GitHub OAuth |
+| CI/CD | GitHub Actions — auto-deploy on push to `main` |
+
 ## Stack
 
 - Next.js 16 (App Router) + React 19, TypeScript, Tailwind v4

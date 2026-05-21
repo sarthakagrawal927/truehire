@@ -13,12 +13,44 @@
 import { auth } from "@/lib/auth";
 import { db, schema } from "@truehire/db";
 import { eq } from "drizzle-orm";
+import { GitHubIngestError } from "@truehire/core";
 import {
   canRefresh,
   getGitHubAccessToken,
   getUserById,
   refreshUserScore,
 } from "@/lib/score-service";
+
+/** User-safe message + reason for an SSE `error` event. */
+function ingestFailurePayload(e: unknown) {
+  if (e instanceof GitHubIngestError) {
+    if (e.reason === "rate_limited") {
+      return {
+        reason: "rate_limited",
+        message:
+          "GitHub's rate limit was hit while reading your profile. Try again in a few minutes.",
+      };
+    }
+    if (e.reason === "auth") {
+      return {
+        reason: "auth",
+        message: "GitHub rejected the connection. Reconnect GitHub and try again.",
+      };
+    }
+    if (e.reason === "not_found") {
+      return { reason: "not_found", message: "We couldn't find that GitHub profile." };
+    }
+    return {
+      reason: "unavailable",
+      message:
+        "GitHub didn't respond in time. Your saved score is unchanged — try again shortly.",
+    };
+  }
+  return {
+    reason: "ingest_failed",
+    message: "Something went wrong while refreshing your score. Try again shortly.",
+  };
+}
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -65,11 +97,12 @@ export async function GET() {
         send("phase", { type: "scoring", message: "Computing score", pct: 98 });
         send("done", { ok: true });
       } catch (e: unknown) {
+        console.error("refreshUserScore (stream) failed", e);
         await db
           .update(schema.users)
           .set({ ingestStatus: "failed" })
           .where(eq(schema.users.id, user.id));
-        send("error", { message: e instanceof Error ? e.message : "ingest_failed" });
+        send("error", ingestFailurePayload(e));
       } finally {
         controller.close();
       }

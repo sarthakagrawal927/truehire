@@ -9,6 +9,7 @@ import {
 import { Badge } from "@/components/atoms/badge";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/atoms/card";
 import { getLatestScore, getUserByUsername } from "@/lib/score-service";
+import { trackCoreAction } from "@/lib/analytics";
 import type { EvidenceEntry, ScoreBreakdown } from "@truehire/core";
 
 type Params = { handle: string };
@@ -40,6 +41,9 @@ export default async function RoleFitPage(props: {
         }),
       )
     : null;
+
+  // Owner-facing analytics: a role-fit report was generated against a profile.
+  if (report) trackCoreAction("role_fit_run", user.id);
 
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-10">

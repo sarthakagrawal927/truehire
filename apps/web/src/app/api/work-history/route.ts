@@ -5,6 +5,7 @@ import {
   latestVerificationForWorkHistory,
   listWorkHistory,
 } from "@/lib/verify-service";
+import { trackCoreAction } from "@/lib/analytics";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -57,5 +58,7 @@ export async function POST(req: Request) {
     startDate: body.startDate,
     endDate: body.endDate,
   });
+  // Owner-facing analytics: a verifiable employment entry was added.
+  trackCoreAction("work_history_added", session.user.id);
   return NextResponse.json({ id });
 }

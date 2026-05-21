@@ -1,30 +1,47 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
+import { usePathname } from "next/navigation";
+import { Menu, X } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/atoms/button";
 import { GithubIcon as Github } from "@/components/atoms/github-icon";
 
+const NAV_LINKS = [
+  { href: "/#how", label: "How it works" },
+  { href: "/#signals", label: "Signals" },
+  { href: "/recruiter/shortlist", label: "Recruiters" },
+  { href: "/#faq", label: "FAQ" },
+];
+
 export function SiteHeader() {
   const { data: session } = useSession();
   const username = session?.user?.githubUsername;
+  const [menuOpen, setMenuOpen] = useState(false);
+  // Close the mobile menu whenever the route changes.
+  const pathname = usePathname();
+
   return (
     <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-[color-mix(in_srgb,var(--background)_85%,transparent)] backdrop-blur-xl">
-      <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-4 px-6">
+      <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
         <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">
           <LogoMark />
           <span>TrueHire</span>
         </Link>
+
         <nav className="hidden items-center gap-6 text-sm text-[var(--muted)] md:flex">
-          <Link href="/#how" className="hover:text-[var(--foreground)]">How it works</Link>
-          <Link href="/#signals" className="hover:text-[var(--foreground)]">Signals</Link>
-          <Link href="/recruiter/shortlist" className="hover:text-[var(--foreground)]">Recruiters</Link>
-          <Link href="/#faq" className="hover:text-[var(--foreground)]">FAQ</Link>
+          {NAV_LINKS.map((l) => (
+            <Link key={l.href} href={l.href} className="hover:text-[var(--foreground)]">
+              {l.label}
+            </Link>
+          ))}
         </nav>
+
         <div className="flex items-center gap-2">
           {username ? (
             <>
-              <Link href={`/${username}`}>
+              <Link href={`/${username}`} className="hidden sm:block">
                 <Button variant="ghost" size="sm">My profile</Button>
               </Link>
               <Link href="/dashboard">
@@ -38,8 +55,52 @@ export function SiteHeader() {
               </Button>
             </Link>
           )}
+
+          {/* Hamburger — mobile only. */}
+          <button
+            type="button"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((o) => !o)}
+            className="inline-flex h-11 w-11 items-center justify-center rounded-[var(--radius-sm)] text-[var(--muted)] hover:bg-[var(--surface-2)] hover:text-[var(--foreground)] md:hidden"
+          >
+            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile nav drawer. */}
+      {menuOpen && (
+        <nav
+          key={pathname}
+          className="border-t border-[var(--border)] bg-[var(--background)] md:hidden"
+        >
+          <ul className="mx-auto flex w-full max-w-6xl flex-col px-2 py-2">
+            {NAV_LINKS.map((l) => (
+              <li key={l.href}>
+                <Link
+                  href={l.href}
+                  onClick={() => setMenuOpen(false)}
+                  className="flex min-h-11 items-center rounded-[var(--radius-sm)] px-3 text-sm text-[var(--muted)] hover:bg-[var(--surface-2)] hover:text-[var(--foreground)]"
+                >
+                  {l.label}
+                </Link>
+              </li>
+            ))}
+            {username && (
+              <li>
+                <Link
+                  href={`/${username}`}
+                  onClick={() => setMenuOpen(false)}
+                  className="flex min-h-11 items-center rounded-[var(--radius-sm)] px-3 text-sm text-[var(--muted)] hover:bg-[var(--surface-2)] hover:text-[var(--foreground)]"
+                >
+                  My profile
+                </Link>
+              </li>
+            )}
+          </ul>
+        </nav>
+      )}
     </header>
   );
 }
