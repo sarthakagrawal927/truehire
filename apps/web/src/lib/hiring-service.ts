@@ -95,12 +95,23 @@ export async function updateCandidateStage(params: {
   stage: PipelineCandidate["stage"];
   notes?: string;
 }) {
+  const patch: { stage: PipelineCandidate["stage"]; notes?: string } = {
+    stage: params.stage,
+  };
+  if (params.notes !== undefined) patch.notes = params.notes;
   await db
     .update(schema.pipelineCandidates)
-    .set({
-      stage: params.stage,
-      notes: params.notes,
-    })
+    .set(patch)
+    .where(eq(schema.pipelineCandidates.id, params.candidateId));
+}
+
+export async function updateCandidateNotes(params: {
+  candidateId: string;
+  notes: string;
+}) {
+  await db
+    .update(schema.pipelineCandidates)
+    .set({ notes: params.notes })
     .where(eq(schema.pipelineCandidates.id, params.candidateId));
 }
 
