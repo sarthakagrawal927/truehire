@@ -35,7 +35,7 @@ export default function NewRolePage() {
         Define a new role.
       </h1>
       <p className="mt-2 text-sm text-[var(--muted)]">
-        Provide a title and job description. We'll automatically extract a rubric from the description, which you can refine later.
+        Provide a title and job description. We will automatically extract a rubric from the description, which you can refine later.
       </p>
 
       <Card className="mt-8">

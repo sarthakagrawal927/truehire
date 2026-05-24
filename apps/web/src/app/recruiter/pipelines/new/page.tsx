@@ -33,7 +33,7 @@ export default async function NewPipelinePage() {
         Launch a hiring pipeline.
       </h1>
       <p className="mt-2 text-sm text-[var(--muted)]">
-        Give your pipeline a name (e.g., "Senior Frontend - Q4 2024") and select the role template to use for scoring.
+        Give your pipeline a name, such as Senior Frontend - Q4 2024, and select the role template to use for scoring.
       </p>
 
       <Card className="mt-8">

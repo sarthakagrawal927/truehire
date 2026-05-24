@@ -31,6 +31,13 @@ const STAGES = [
   "rejected",
 ] as const;
 
+type PipelineStage = (typeof STAGES)[number];
+
+function nextStage(stage: PipelineStage): PipelineStage | null {
+  const next = STAGES[STAGES.indexOf(stage) + 1];
+  return next ?? null;
+}
+
 export const dynamic = "force-dynamic";
 
 export default async function PipelineDetailPage(props: {
@@ -62,7 +69,7 @@ export default async function PipelineDetailPage(props: {
     revalidatePath(`/recruiter/pipelines/${id}`);
   }
 
-  async function moveStageAction(candidateId: string, stage: (typeof STAGES)[number]) {
+  async function moveStageAction(candidateId: string, stage: PipelineStage) {
     "use server";
     await updateCandidateStage({ candidateId, stage });
     revalidatePath(`/recruiter/pipelines/${id}`);
@@ -114,35 +121,38 @@ export default async function PipelineDetailPage(props: {
                 <Badge tone="outline">{stageCandidates.length}</Badge>
               </div>
               <div className="flex flex-col gap-3">
-                {stageCandidates.map(({ candidate, user }) => (
-                  <Card key={candidate.id} className="group relative">
-                    <CardBody className="p-3">
-                      <div className="font-semibold text-sm">{user.name || user.githubUsername}</div>
-                      <div className="text-[11px] text-[var(--muted)]">@{user.githubUsername}</div>
-                      
-                      <div className="mt-4 flex items-center justify-between gap-2">
-                        <div className="flex gap-2 items-center">
-                          <Link href={`/${user.githubUsername}`} className="text-[10px] font-medium text-[var(--muted)] hover:text-[var(--foreground)] hover:underline">
-                            Profile
-                          </Link>
-                          <Link href={`/recruiter/pipelines/${pipeline.id}/evaluate/${candidate.id}`} className="text-[10px] font-medium text-[var(--accent)] hover:underline">
-                            Evaluate
-                          </Link>
+                {stageCandidates.map(({ candidate, user }) => {
+                  const next = nextStage(stage);
+                  return (
+                    <Card key={candidate.id} className="group relative">
+                      <CardBody className="p-3">
+                        <div className="font-semibold text-sm">{user.name || user.githubUsername}</div>
+                        <div className="text-[11px] text-[var(--muted)]">@{user.githubUsername}</div>
+
+                        <div className="mt-4 flex items-center justify-between gap-2">
+                          <div className="flex gap-2 items-center">
+                            <Link href={`/${user.githubUsername}`} className="text-[10px] font-medium text-[var(--muted)] hover:text-[var(--foreground)] hover:underline">
+                              Profile
+                            </Link>
+                            <Link href={`/recruiter/pipelines/${pipeline.id}/evaluate/${candidate.id}`} className="text-[10px] font-medium text-[var(--accent)] hover:underline">
+                              Evaluate
+                            </Link>
+                          </div>
+
+                          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            {next && (
+                              <form action={moveStageAction.bind(null, candidate.id, next)}>
+                                <button type="submit" className="p-1 hover:bg-[var(--surface-2)] rounded">
+                                  <ArrowRight className="h-3 w-3 text-[var(--muted)]" />
+                                </button>
+                              </form>
+                            )}
+                          </div>
                         </div>
-                        
-                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          {STAGES.indexOf(stage) < STAGES.length - 1 && (
-                            <form action={moveStageAction.bind(null, candidate.id, STAGES[STAGES.indexOf(stage) + 1] as any)}>
-                              <button type="submit" className="p-1 hover:bg-[var(--surface-2)] rounded">
-                                <ArrowRight className="h-3 w-3 text-[var(--muted)]" />
-                              </button>
-                            </form>
-                          )}
-                        </div>
-                      </div>
-                    </CardBody>
-                  </Card>
-                ))}
+                      </CardBody>
+                    </Card>
+                  );
+                })}
                 {stageCandidates.length === 0 && (
                   <div className="rounded-[var(--radius-sm)] border border-dashed border-[var(--border)] p-4 text-center">
                     <span className="text-[10px] text-[var(--muted)] italic">Empty</span>
