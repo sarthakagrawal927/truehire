@@ -35,6 +35,7 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || '7d048325699a5acddb44d3be31cf6ba9' }}
           workingDirectory: apps/web
           command: deploy
       - name: Smoke production
@@ -62,6 +63,7 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || '7d048325699a5acddb44d3be31cf6ba9' }}
           workingDirectory: apps/web
           command: deploy --name truehire-pr-${{ github.event.number }}
       - name: Comment preview URL on PR
@@ -82,5 +84,6 @@ jobs:
       - uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || '7d048325699a5acddb44d3be31cf6ba9' }}
           workingDirectory: apps/web
           command: delete --name truehire-pr-${{ github.event.number }} --force
