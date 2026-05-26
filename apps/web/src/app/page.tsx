@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import {
   ShieldCheck, GitBranch, Award, Coins, Activity, ArrowRight,
@@ -7,7 +8,7 @@ import { GithubIcon as Github } from "@/components/atoms/github-icon";
 import { Button } from "@/components/atoms/button";
 import { Badge } from "@/components/atoms/badge";
 import { Card, CardBody } from "@/components/atoms/card";
-import { ScoreRing } from "@/components/molecules/score-ring";
+import { LiveHeroProfileDemo } from "./live-hero-profile-demo";
 
 export const revalidate = 3600;
 
@@ -56,6 +57,14 @@ export default function LandingPage() {
                 </Button>
               </Link>
             </div>
+            <div className="mt-4">
+              <Link
+                href="/demo"
+                className="inline-flex items-center gap-1.5 text-[13px] text-[var(--muted)] underline-offset-2 hover:text-[var(--foreground)] hover:underline"
+              >
+                See a sample profile <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
 
             <dl className="mt-14 grid max-w-xl grid-cols-3 gap-8 border-t border-[var(--border)] pt-7">
               <Metric k="GitHub" v="years of public commits, verified" />
@@ -66,7 +75,9 @@ export default function LandingPage() {
 
           {/* hero demo: the actual product, not a mini-card */}
           <div className="relative">
-            <HeroProfileDemo />
+            <Suspense fallback={<HeroProfileDemoSkeleton />}>
+              <LiveHeroProfileDemo />
+            </Suspense>
           </div>
         </div>
       </section>
@@ -401,114 +412,15 @@ function Step({ n, title, body }: { n: string; title: string; body: string }) {
   );
 }
 
-function HeroProfileDemo() {
+function HeroProfileDemoSkeleton() {
   return (
     <div className="relative mx-auto w-full max-w-[460px]">
-      {/* glow */}
-      <div
-        className="absolute -inset-10 rounded-[28px] bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--foreground)_12%,transparent),transparent)] blur-[2px]"
-        aria-hidden
-      />
-      {/* window chrome */}
-      <Card className="relative overflow-hidden shadow-[0_40px_80px_-40px_rgba(0,0,0,0.45),0_0_0_1px_var(--border)]">
-        {/* chrome strip */}
-        <div className="flex items-center justify-between border-b border-[var(--border)] bg-[var(--surface-2)] px-4 py-2.5">
-          <div className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-[var(--border-strong)]" />
-            <span className="h-2.5 w-2.5 rounded-full bg-[var(--border-strong)]" />
-            <span className="h-2.5 w-2.5 rounded-full bg-[var(--border-strong)]" />
-          </div>
-          <div className="num flex items-center gap-1 rounded-full border border-[var(--border)] bg-[var(--surface)] px-2.5 py-0.5 text-[11px] text-[var(--muted)]">
-            <span className="h-1 w-1 rounded-full bg-[var(--verified)]" />
-            truehire.dev/sample-dev
-          </div>
-          <div className="w-10" />
-        </div>
-
-        {/* content */}
-        <div className="p-6">
-          <div className="flex items-center gap-3">
-            <div className="relative h-10 w-10 overflow-hidden rounded-full bg-[var(--score-track)]">
-              <span className="absolute inset-0 grid place-items-center text-[13px] font-semibold text-[var(--muted)]">sd</span>
-            </div>
-            <div className="min-w-0">
-              <div className="truncate text-[15px] font-semibold">Sam Devlin</div>
-              <div className="truncate text-[12px] text-[var(--muted)]">@sample-dev · Senior infra engineer</div>
-            </div>
-            <Badge tone="verified" className="ml-auto">
-              <ShieldCheck className="h-3 w-3" /> Verified
-            </Badge>
-          </div>
-
-          <div className="mt-6 grid grid-cols-[auto_1fr] items-center gap-6">
-            <ScoreRing score={82} size={136} />
-            <div className="flex flex-col gap-3">
-              <MiniBar label="Depth" value={88} />
-              <MiniBar label="Breadth" value={71} />
-              <MiniBar label="Recognition" value={84} />
-              <MiniBar label="Specialization" value={76} />
-            </div>
-          </div>
-
-          <div className="mt-7 border-t border-[var(--border)] pt-4">
-            <div className="mb-2 flex items-center justify-between text-[11px] uppercase tracking-[0.1em] text-[var(--muted)]">
-              <span>Top evidence</span>
-              <span>weight</span>
-            </div>
-            <ul className="space-y-2.5">
-              {[
-                { repo: "kubernetes/kubernetes", stars: "112k", note: "14 PRs merged", weight: 96 },
-                { repo: "sample-dev/warp-cache", stars: "3.2k", note: "authored", weight: 72 },
-                { repo: "grafana/loki", stars: "24k", note: "6 PRs merged", weight: 61 },
-              ].map((r) => (
-                <li key={r.repo} className="flex items-center gap-3">
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-[13px] font-medium">{r.repo}</div>
-                    <div className="num mt-1 flex items-center gap-2 text-[11px] text-[var(--muted)]">
-                      <Star className="h-3 w-3" /> {r.stars}
-                      <span className="text-[var(--muted-2)]">·</span>
-                      <GitPullRequest className="h-3 w-3" /> {r.note}
-                    </div>
-                  </div>
-                  <div className="h-1 w-16 overflow-hidden rounded-full bg-[var(--score-track)]">
-                    <div
-                      className="h-full rounded-full bg-[var(--score-fill)]"
-                      style={{ width: `${r.weight}%` }}
-                    />
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="mt-5 flex items-center gap-2 border-t border-[var(--border)] pt-4 text-[11px] text-[var(--muted-2)]">
-            <Sparkles className="h-3 w-3" />
-            Derived weekly from GitHub · last verified 2h ago
-          </div>
-        </div>
+      <Card className="relative flex h-[460px] items-center justify-center overflow-hidden shadow-[0_40px_80px_-40px_rgba(0,0,0,0.45),0_0_0_1px_var(--border)]">
+        <div
+          className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--border)] border-t-transparent"
+          aria-hidden
+        />
       </Card>
-
-      {/* floating score chip — the share badge */}
-      <div className="absolute -right-4 -top-4 hidden rotate-[3deg] md:block">
-        <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-3 shadow-lg">
-          <div className="text-[10px] uppercase tracking-[0.14em] text-[var(--muted)]">TrueHire</div>
-          <div className="num mt-1 text-3xl font-semibold leading-none">82<span className="text-base text-[var(--muted)]">/100</span></div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function MiniBar({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="flex items-center gap-3">
-      <div className="w-24 text-[11px] uppercase tracking-[0.1em] text-[var(--muted)]">
-        {label}
-      </div>
-      <div className="relative h-1 w-28 rounded-full bg-[var(--score-track)] overflow-hidden">
-        <div className="h-full rounded-full bg-[var(--score-fill)]" style={{ width: `${value}%` }} />
-      </div>
-      <div className="num w-8 text-right text-[12px]">{value}</div>
     </div>
   );
 }

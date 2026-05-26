@@ -12,7 +12,7 @@ export function ScoreBreakdown({ rows, className }: { rows: Row[]; className?: s
               {r.label}
             </div>
             <div className="text-[11px] text-[var(--muted-2)]">
-              {Math.round(r.weight * 100)}% weight
+              {Math.round(r.weight * 100)}% weight{r.hint && ` · ${r.hint}`}
             </div>
           </div>
           <div className="relative flex-1 h-1.5 rounded-full bg-[var(--score-track)] overflow-hidden">

@@ -102,3 +102,22 @@ Secrets via `wrangler secret put` only (never in `vars`):
 - **Do not add**: Prisma, Supabase, CockroachDB, leaderboards, pseudonymous profiles, or any user-editable profile fields.
 
 For full agent guidance and architecture notes, see [`agents.md`](./agents.md).
+
+<!-- ACTIVE-AI-TASK-LOG:START -->
+## Active AI Task Log
+
+This section is maintained by the SaaS Maker Active-AI product/design loop so future agents do not reopen duplicate UI tasks.
+
+- Business lane: P1 Explore; recommended P0 candidate
+- Rule: do not create another broad "improve the UI" task unless the acceptance criteria differ materially from the tasks listed here.
+- Source of truth for task status: SaaS Maker task board. README entries are durable context only.
+
+| Task | Status | Priority | Last known note |
+| --- | --- | --- | --- |
+| `eba19665` truehire: make score proof concrete before claim-profile CTA | done | high | 2026-05-25 18:42:03 |
+| `3fb43ca6` truehire: add recruiter-side score explanation proof | done | high | 2026-05-26 — recruiter takeaway card added to `[handle]/page.tsx` after evidence rail: track record / community signal / craft stats + "no ML" trust note + GitHub CTA |
+| `531939c3` truehire: add evidence source labels to score demo | done | high | 2026-05-26 — each ScoreBreakdown row now shows evidence label inline with weight (consistency / public GitHub / portfolio / activity); applied to both demo page and real profile page |
+| `162c790a` truehire: add sample candidate risk flags | done | medium | 2026-05-26 — `RiskFlags` molecule added to `[handle]/page.tsx` between evidence rail and recruiter takeaway; computes up to 5 non-judgmental signals (no recent activity, sparse craft, short window, no authored repos, single-language portfolio, low traction) from existing score data; each flag links to GitHub evidence; section hidden when no flags apply |
+| `8b883594` truehire: add recruiter next-action comparison | done | medium | 2026-05-26 — recruiter takeaway card now ends with a "Next action" block offering two side-by-side CTAs: primary (filled) "Contact {handle} on GitHub" and secondary "Review evidence first" (anchors to `#top-evidence` on the evidence rail); replaces the prior single "View on GitHub" link |
+| `e3311861` truehire: add job-description paste evaluation demo | done | medium | 2026-05-26 — `JdEvaluator` client component added to `/recruiter/shortlist` empty state; recruiter pastes a JD, sees which of the 5 evaluation dimensions (Depth/Breadth/Recognition/Craft/Specialization) are signaled by the JD text via keyword detection, then can expand a sample @sample-dev comparison with real score breakdown; no model/auth/data changes |
+<!-- ACTIVE-AI-TASK-LOG:END -->

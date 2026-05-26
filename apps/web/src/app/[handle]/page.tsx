@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Activity, ArrowUpRight, Clock, ShieldCheck } from "lucide-react";
+import { Activity, ArrowUpRight, Clock, Info, ShieldCheck } from "lucide-react";
 import { GithubIcon as Github } from "@/components/atoms/github-icon";
 import { Badge } from "@/components/atoms/badge";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/atoms/card";
@@ -20,6 +20,7 @@ import {
   getUserByUsername,
 } from "@/lib/score-service";
 import { PublicWorkHistory } from "@/components/molecules/work-history-public";
+import { RiskFlags } from "@/components/molecules/risk-flags";
 import type { EvidenceEntry } from "@truehire/core";
 import { CopyProfileLink } from "./copy-profile-link";
 
@@ -185,11 +186,11 @@ export default async function ProfilePage(props: { params: Promise<Params> }) {
               <CardBody>
                 <ScoreBreakdown
                   rows={[
-                    { label: "Depth", value: score.depth, weight: 0.2 },
-                    { label: "Breadth", value: score.breadth, weight: 0.15 },
-                    { label: "Recognition", value: score.recognition, weight: 0.3 },
-                    { label: "Craft", value: score.craft, weight: 0.2 },
-                    { label: "Specialization", value: score.specialization, weight: 0.15 },
+                    { label: "Depth", value: score.depth, weight: 0.2, hint: "consistency" },
+                    { label: "Breadth", value: score.breadth, weight: 0.15, hint: "public GitHub" },
+                    { label: "Recognition", value: score.recognition, weight: 0.3, hint: "portfolio" },
+                    { label: "Craft", value: score.craft, weight: 0.2, hint: "portfolio" },
+                    { label: "Specialization", value: score.specialization, weight: 0.15, hint: "activity" },
                   ]}
                 />
                 <div className="mt-6 grid grid-cols-2 gap-6 border-t border-[var(--border)] pt-6 sm:grid-cols-4">
@@ -200,6 +201,17 @@ export default async function ProfilePage(props: { params: Promise<Params> }) {
                 </div>
               </CardBody>
             </Card>
+          </div>
+
+          {/* Fairness note */}
+          <div className="mt-4 flex gap-3 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-2)] px-4 py-3">
+            <Info className="mt-0.5 h-4 w-4 shrink-0 text-[var(--muted)]" />
+            <p className="text-[12px] text-[var(--muted)]">
+              <span className="font-medium text-[var(--foreground)]">What this score measures:</span>{" "}
+              public GitHub activity — consistency, project breadth, community recognition, and craft signals.{" "}
+              <span className="font-medium text-[var(--foreground)]">What it does not claim:</span>{" "}
+              intelligence, personality, culture fit, or interview performance. Treat it as one signal among many — not a hiring decision on its own.
+            </p>
           </div>
 
           {/* timeline + languages */}
@@ -226,7 +238,7 @@ export default async function ProfilePage(props: { params: Promise<Params> }) {
           </div>
 
           {/* evidence rail */}
-          <Card className="mt-6">
+          <Card id="top-evidence" className="mt-6 scroll-mt-6">
             <CardHeader>
               <CardTitle>Top evidence</CardTitle>
               <Badge tone="outline">sorted by weight</Badge>
@@ -242,6 +254,99 @@ export default async function ProfilePage(props: { params: Promise<Params> }) {
                 ))
               )}
             </div>
+          </Card>
+
+          {/* Risk flags */}
+          <RiskFlags
+            depth={score.depth}
+            breadth={score.breadth}
+            craft={score.craft}
+            specialization={score.specialization}
+            recognition={score.recognition}
+            monthsActive={score.monthsActive}
+            totalStars={score.totalStars}
+            totalRepos={score.totalRepos}
+            evidence={evidence}
+            months={months}
+            githubUsername={user.githubUsername!}
+          />
+
+          {/* Recruiter takeaway */}
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle>For recruiters</CardTitle>
+              <Badge tone="outline">score explained</Badge>
+            </CardHeader>
+            <CardBody>
+              <div className="grid gap-5 sm:grid-cols-3">
+                <div>
+                  <div className="text-[11px] uppercase tracking-[0.14em] text-[var(--muted)]">
+                    Track record
+                  </div>
+                  <div className="num mt-1 text-[22px] font-semibold">{score.monthsActive}</div>
+                  <div className="mt-0.5 text-[12px] text-[var(--muted)]">
+                    active months — consistent output, not a one-week burst.
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[11px] uppercase tracking-[0.14em] text-[var(--muted)]">
+                    Community signal
+                  </div>
+                  <div className="num mt-1 text-[22px] font-semibold">{formatNumber(score.totalStars)}</div>
+                  <div className="mt-0.5 text-[12px] text-[var(--muted)]">
+                    stars on authored repos — other engineers bookmarked this work.
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[11px] uppercase tracking-[0.14em] text-[var(--muted)]">
+                    Engineering craft
+                  </div>
+                  <div className="num mt-1 text-[22px] font-semibold">
+                    {score.craft}
+                    <span className="text-[14px] font-normal text-[var(--muted)]">/100</span>
+                  </div>
+                  <div className="mt-0.5 text-[12px] text-[var(--muted)]">
+                    CI, tests, code review habits across top repos.
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-5 flex gap-3 rounded-[var(--radius-sm)] bg-[var(--surface-2)] p-4">
+                <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[var(--verified)]" />
+                <p className="text-[12px] text-[var(--muted)]">
+                  No ML, no self-reported data. Every number is a deterministic formula
+                  on verified public GitHub activity — the algorithm is open source and
+                  any result can be independently reproduced.
+                </p>
+              </div>
+
+              <div className="mt-5 border-t border-[var(--border)] pt-5">
+                <div className="text-[11px] uppercase tracking-[0.14em] text-[var(--muted)]">
+                  Next action
+                </div>
+                <p className="mt-1 text-[12px] text-[var(--muted)]">
+                  Double-check the proof, then reach out — one click each.
+                </p>
+                <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                  <a
+                    href={`https://github.com/${user.githubUsername}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-[var(--radius-sm)] bg-[var(--foreground)] px-4 py-2.5 text-[13px] font-medium text-[var(--background)] hover:opacity-90"
+                  >
+                    <Github className="h-3.5 w-3.5" />
+                    Contact {user.githubUsername} on GitHub
+                    <ArrowUpRight className="h-3 w-3" />
+                  </a>
+                  <a
+                    href="#top-evidence"
+                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-2)] px-4 py-2.5 text-[13px] font-medium hover:bg-[var(--surface-3)]"
+                  >
+                    Review evidence first
+                  </a>
+                </div>
+              </div>
+            </CardBody>
           </Card>
 
           {/* Signal 2 — work history */}

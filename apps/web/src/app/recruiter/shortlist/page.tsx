@@ -19,6 +19,7 @@ import { Card, CardBody, CardHeader, CardTitle } from "@/components/atoms/card";
 import { getLatestScore, getUserByUsername } from "@/lib/score-service";
 import type { EvidenceEntry, ScoreBreakdown } from "@truehire/core";
 import { ExportReportButton } from "./export-report-button";
+import { JdEvaluator } from "@/components/molecules/jd-evaluator";
 
 type SearchParams = {
   handles?: string | string[];
@@ -341,16 +342,18 @@ function MissingCandidates({ candidates }: { candidates: MissingCandidate[] }) {
 
 function EmptyShortlist() {
   return (
-    <Card className="mt-8">
-      <CardBody className="p-8 text-center">
-        <GitCompareArrows className="mx-auto h-6 w-6 text-[var(--muted)]" />
-        <div className="mt-3 text-lg font-semibold">Create a comparison dashboard</div>
-        <p className="mx-auto mt-2 max-w-md text-sm text-[var(--muted)]">
-          Add candidate handles and a role description to rank shortlist fit from
-          public, verifiable evidence.
+    <div className="mt-8">
+      <div className="mb-5">
+        <div className="text-[11px] uppercase tracking-[0.14em] text-[var(--muted)]">
+          Try the evaluation loop
+        </div>
+        <p className="mt-1 max-w-2xl text-[14px] text-[var(--muted)]">
+          Paste a job description to see which verified GitHub signals TrueHire will
+          evaluate — before you add any candidates.
         </p>
-      </CardBody>
-    </Card>
+      </div>
+      <JdEvaluator />
+    </div>
   );
 }
 
