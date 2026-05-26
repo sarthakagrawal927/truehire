@@ -11,11 +11,66 @@ import { ScoreRing } from "@/components/molecules/score-ring";
 import { getUserByUsername, getLatestScore } from "@/lib/score-service";
 import type { EvidenceEntry } from "@truehire/core";
 
+const SAMPLE_EVIDENCE: EvidenceEntry[] = [
+  {
+    repoFullName: "kubernetes/kubernetes",
+    stars: 112000,
+    commits: 28,
+    mergedPrs: 14,
+    isAuthor: false,
+    primaryLanguage: "Go",
+    weight: 96,
+    craftTags: ["CI", "tests", "docs"],
+  },
+  {
+    repoFullName: "sample-dev/warp-cache",
+    stars: 3200,
+    commits: 612,
+    mergedPrs: 0,
+    isAuthor: true,
+    primaryLanguage: "Rust",
+    weight: 72,
+    craftTags: ["CI", "tests", "releases"],
+  },
+  {
+    repoFullName: "grafana/loki",
+    stars: 24000,
+    commits: 11,
+    mergedPrs: 6,
+    isAuthor: false,
+    primaryLanguage: "Go",
+    weight: 61,
+    craftTags: ["CI", "docs"],
+  },
+];
+
+const SAMPLE_PROFILE = {
+  user: {
+    id: "sample",
+    githubUsername: "sample-dev",
+    name: "Sam Devlin",
+    image: null,
+  },
+  score: {
+    overall: 82,
+    depth: 88,
+    breadth: 71,
+    recognition: 84,
+    specialization: 76,
+    evidenceJson: JSON.stringify(SAMPLE_EVIDENCE),
+    computedAt: new Date(),
+  },
+};
+
 async function loadProfile(handle: string) {
-  const user = await getUserByUsername(handle);
-  if (!user) return null;
-  const score = await getLatestScore(user.id);
-  return { user, score };
+  try {
+    const user = await getUserByUsername(handle);
+    if (!user) return SAMPLE_PROFILE;
+    const score = await getLatestScore(user.id);
+    return score ? { user, score } : SAMPLE_PROFILE;
+  } catch {
+    return SAMPLE_PROFILE;
+  }
 }
 
 export async function LiveHeroProfileDemo() {
