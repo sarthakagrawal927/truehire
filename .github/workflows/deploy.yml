@@ -27,15 +27,15 @@ jobs:
       - run: pnpm install --frozen-lockfile --ignore-scripts
       - name: Validate GitHub deploy secrets
         env:
-          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
-          test -n "$CF_API_TOKEN" || { echo "::error::Missing GitHub secret: CF_API_TOKEN"; exit 1; }
+          test -n "$CLOUDFLARE_API_TOKEN" || { echo "::error::Missing GitHub secret: CLOUDFLARE_API_TOKEN"; exit 1; }
       - run: pnpm --filter web cf:build
       - name: Deploy production worker
         uses: cloudflare/wrangler-action@v3
         with:
-          apiToken: ${{ secrets.CF_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || '7d048325699a5acddb44d3be31cf6ba9' }}
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: apps/web
           command: deploy
       - name: Smoke production
@@ -55,15 +55,15 @@ jobs:
       - run: pnpm install --frozen-lockfile --ignore-scripts
       - name: Validate GitHub deploy secrets
         env:
-          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
-          test -n "$CF_API_TOKEN" || { echo "::error::Missing GitHub secret: CF_API_TOKEN"; exit 1; }
+          test -n "$CLOUDFLARE_API_TOKEN" || { echo "::error::Missing GitHub secret: CLOUDFLARE_API_TOKEN"; exit 1; }
       - run: pnpm --filter web cf:build
       - name: Deploy preview worker
         uses: cloudflare/wrangler-action@v3
         with:
-          apiToken: ${{ secrets.CF_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || '7d048325699a5acddb44d3be31cf6ba9' }}
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: apps/web
           command: deploy --name truehire-pr-${{ github.event.number }}
       - name: Comment preview URL on PR
@@ -83,7 +83,7 @@ jobs:
     steps:
       - uses: cloudflare/wrangler-action@v3
         with:
-          apiToken: ${{ secrets.CF_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || '7d048325699a5acddb44d3be31cf6ba9' }}
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: apps/web
           command: delete --name truehire-pr-${{ github.event.number }} --force
