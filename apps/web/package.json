@@ -11,7 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "cf:build": "next build && node scripts/inline-critical-css.mjs && opennextjs-cloudflare build --skipNextBuild && opennextjs-cloudflare populateCache local",
+    "cf:build": "next build && node scripts/inline-critical-css.mjs && opennextjs-cloudflare build --skipNextBuild && opennextjs-cloudflare populateCache local && pnpm --filter ./landing-astro build && node scripts/overlay-astro-landing.mjs",
     "validate:env:deploy": "node scripts/validate-env.mjs deploy",
     "cf:preview": "opennextjs-cloudflare preview",
     "cf:deploy": "pnpm validate:env:deploy && opennextjs-cloudflare deploy",

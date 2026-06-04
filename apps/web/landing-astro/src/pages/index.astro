@@ -1,0 +1,522 @@
+---
+import Layout from '@/layouts/Layout.astro';
+
+// TrueHire landing — Astro port of `src/app/page.tsx`.
+//
+// Port intent:
+//   - 1:1 copy + Tailwind utility match where possible (the tokens in
+//     landing.css are the same ones in apps/web/src/app/globals.css).
+//   - `LiveHeroProfileDemo` (Next.js server component that hit the DB)
+//     is replaced with a static <HeroProfileCard /> rendering the
+//     SAMPLE_PROFILE shape verbatim — no client JS racing the LCP.
+//   - lucide-react icons inlined as SVGs (Astro can't run React).
+//   - Section composition unchanged: hero → problem → signal stack →
+//     how-it-works → faq → cta.
+//
+// The diagnose agent flagged truehire's render delay (~680-780ms LCP)
+// was driven by Worker cold-start + client-JS handshake. Pure static
+// markup eliminates both.
+
+const TITLE = 'TrueHire — the verified-candidate layer';
+const DESCRIPTION =
+  'Costly, verifiable signals instead of AI-tailored resumes. Your GitHub becomes a credential recruiters can trust.';
+
+// Sample profile — same shape the live-hero-profile-demo.tsx falls back
+// to when the DB read returns nothing. We embed it directly: no fetch,
+// no Suspense, no JS.
+const SAMPLE = {
+  user: { name: 'Sam Devlin', githubUsername: 'sample-dev', initials: 'sa' },
+  score: { overall: 82, depth: 88, breadth: 71, recognition: 84, specialization: 76 },
+  evidence: [
+    { repo: 'kubernetes/kubernetes', stars: 112000, mergedPrs: 14, weight: 96 },
+    { repo: 'sample-dev/warp-cache', stars: 3200, mergedPrs: 0, weight: 72 },
+    { repo: 'grafana/loki', stars: 24000, mergedPrs: 6, weight: 61 },
+  ],
+};
+
+const FAQS = [
+  {
+    q: 'Why GitHub first?',
+    a: "Because it's the one signal that exists at scale today without asking anyone's permission. Years of public commits cannot be fabricated in a weekend. Other signals — employer verification, reputation bonds, paid auditions — come next.",
+  },
+  {
+    q: 'Can I edit my profile?',
+    a: "No. The entire point is that nothing on a TrueHire profile is written by the candidate. If it's on your profile, it came from a verifiable source. We surface the raw evidence so recruiters can audit every number.",
+  },
+  {
+    q: "What if I don't have much GitHub history?",
+    a: "MVP focuses on engineers with public code. If that's not you yet, the score will be low — that's honest. As we ship signals 2–4, non-code credentials (verified employment, references, auditions) open the door for more profiles.",
+  },
+  {
+    q: 'How do you stop gaming (bot commits, bought stars)?',
+    a: 'Recognition credits only high-star repos and merged PRs into them. Depth requires sustained months of activity, not a recent burst. We detect and discount star-spikes. Gaming enough signals to materially move a score is substantially harder than real work.',
+  },
+  {
+    q: 'Is this free?',
+    a: 'Yes — public profiles and weekly score refresh will stay free. Paid tiers (manual refresh, private mode, verified PDF export, recruiter search) come later.',
+  },
+];
+
+// Commit-bar viz — same deterministic sin-based heights as page.tsx
+// SignalVizCommits so the static port is pixel-comparable.
+const COMMIT_BARS = Array.from({ length: 28 }, (_, i) =>
+  20 + Math.round(70 * Math.abs(Math.sin(i * 0.9))),
+);
+const AUDITION_DAYS = Array.from({ length: 14 }, (_, i) => i);
+---
+
+<Layout title={TITLE} description={DESCRIPTION}>
+  {/* ─────────────────────  HERO  ───────────────────── */}
+  <section class="relative overflow-hidden border-b border-[var(--border)]">
+    <div class="pointer-events-none absolute inset-0 dot-grid" aria-hidden="true"></div>
+    <div
+      class="pointer-events-none absolute -left-40 -top-40 h-[520px] w-[520px] rounded-full blur-3xl"
+      style="background: radial-gradient(closest-side, color-mix(in srgb, var(--foreground) 10%, transparent), transparent)"
+      aria-hidden="true"
+    ></div>
+    <div class="relative mx-auto grid w-full max-w-6xl grid-cols-1 gap-16 px-6 pb-20 pt-14 md:grid-cols-[1.08fr_1fr] md:gap-10 md:pb-28 md:pt-24">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-strong)] bg-transparent px-2.5 py-0.5 text-[11px] font-medium tracking-tight text-[var(--foreground)] mb-6">
+          <span class="h-1.5 w-1.5 rounded-full bg-[var(--verified)]"></span>
+          Costly signals over cheap ones
+        </span>
+
+        <h1 class="text-balance text-[44px] font-semibold leading-[1.02] tracking-[-0.025em] md:text-[72px]">
+          Your resume
+          <br />
+          <span class="text-[var(--muted)]">is gone.</span>
+          <br />
+          Your work still speaks.
+        </h1>
+
+        <p class="mt-8 max-w-[34ch] text-[16px] leading-[1.55] text-[var(--muted)]">
+          AI tailors every resume into a 95% match. Recruiters stopped reading them.
+          TrueHire replaces the resume with signals that are too expensive to fake —
+          starting with years of verified public code.
+        </p>
+
+        <div class="mt-10 flex flex-wrap items-center gap-3">
+          <a href="/login" class="inline-flex h-12 items-center justify-center gap-2 whitespace-nowrap rounded-[var(--radius-sm)] bg-[var(--accent)] px-6 text-base font-medium text-[var(--accent-contrast)] transition-opacity hover:opacity-90">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+              <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.744.084-.729.084-.729 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.807 1.304 3.492.997.108-.775.418-1.305.762-1.605-2.665-.305-5.467-1.334-5.467-5.93 0-1.31.468-2.381 1.236-3.22-.124-.303-.536-1.524.118-3.176 0 0 1.007-.322 3.3 1.23a11.52 11.52 0 0 1 3-.404c1.02.005 2.046.137 3.006.404 2.29-1.552 3.296-1.23 3.296-1.23.654 1.652.242 2.873.118 3.176.77.839 1.236 1.91 1.236 3.22 0 4.61-2.807 5.624-5.48 5.921.43.372.816 1.102.816 2.22 0 1.604-.015 2.896-.015 3.29 0 .322.216.697.825.579C20.565 22.092 24 17.598 24 12.297c0-6.627-5.373-12-12-12" />
+            </svg>
+            Claim your profile
+          </a>
+          <a href="#how" class="inline-flex h-12 items-center justify-center gap-2 whitespace-nowrap rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-transparent px-6 text-base font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--surface-2)]">
+            How the score works
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </a>
+        </div>
+        <div class="mt-4">
+          <a href="/demo" class="inline-flex items-center gap-1.5 text-[13px] text-[var(--muted)] underline-offset-2 hover:text-[var(--foreground)] hover:underline">
+            See a sample profile
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </a>
+        </div>
+
+        <dl class="mt-14 grid max-w-xl grid-cols-3 gap-8 border-t border-[var(--border)] pt-7">
+          <div>
+            <dt class="num text-[20px] font-semibold leading-none tracking-tight">GitHub</dt>
+            <dd class="mt-2 text-[12px] leading-[1.4] text-[var(--muted)]">years of public commits, verified</dd>
+          </div>
+          <div>
+            <dt class="num text-[20px] font-semibold leading-none tracking-tight">0–100</dt>
+            <dd class="mt-2 text-[12px] leading-[1.4] text-[var(--muted)]">transparent score, every number sourced</dd>
+          </div>
+          <div>
+            <dt class="num text-[20px] font-semibold leading-none tracking-tight">4 signals</dt>
+            <dd class="mt-2 text-[12px] leading-[1.4] text-[var(--muted)]">stacked, near-impossible to fake</dd>
+          </div>
+        </dl>
+      </div>
+
+      {/* Hero profile mock — static replacement for LiveHeroProfileDemo.
+         Same shape, same sample data, no JS. */}
+      <div class="relative">
+        <div class="relative mx-auto w-full max-w-[460px]">
+          <div
+            class="absolute -inset-10 rounded-[28px] blur-[2px]"
+            style="background: radial-gradient(closest-side, color-mix(in srgb, var(--foreground) 12%, transparent), transparent)"
+            aria-hidden="true"
+          ></div>
+          <div class="relative overflow-hidden rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] shadow-[0_40px_80px_-40px_rgba(0,0,0,0.45),0_0_0_1px_var(--border)]">
+            {/* chrome strip */}
+            <div class="flex items-center justify-between border-b border-[var(--border)] bg-[var(--surface-2)] px-4 py-2.5">
+              <div class="flex items-center gap-1.5">
+                <span class="h-2.5 w-2.5 rounded-full bg-[var(--border-strong)]"></span>
+                <span class="h-2.5 w-2.5 rounded-full bg-[var(--border-strong)]"></span>
+                <span class="h-2.5 w-2.5 rounded-full bg-[var(--border-strong)]"></span>
+              </div>
+              <div class="num flex items-center gap-1 rounded-full border border-[var(--border)] bg-[var(--surface)] px-2.5 py-0.5 text-[11px] text-[var(--muted)]">
+                <span class="h-1 w-1 rounded-full bg-[var(--verified)]"></span>
+                truehire.dev/{SAMPLE.user.githubUsername}
+              </div>
+              <div class="w-10"></div>
+            </div>
+
+            <div class="p-6">
+              <div class="flex items-center gap-3">
+                <div class="relative h-10 w-10 overflow-hidden rounded-full bg-[var(--score-track)]">
+                  <span class="absolute inset-0 grid place-items-center text-[13px] font-semibold text-[var(--muted)]">
+                    {SAMPLE.user.initials}
+                  </span>
+                </div>
+                <div class="min-w-0">
+                  <div class="truncate text-[15px] font-semibold">{SAMPLE.user.name}</div>
+                  <div class="truncate text-[12px] text-[var(--muted)]">@{SAMPLE.user.githubUsername}</div>
+                </div>
+                <span class="ml-auto inline-flex items-center gap-1.5 rounded-full border border-[color:color-mix(in_srgb,var(--verified)_40%,var(--border))] bg-[var(--verified-bg)] px-2.5 py-0.5 text-[11px] font-medium tracking-tight text-[var(--verified)]">
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.79 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+                  Verified
+                </span>
+              </div>
+
+              <div class="mt-6 grid grid-cols-[auto_1fr] items-center gap-6">
+                {/* Score ring — static SVG */}
+                <div class="relative h-[136px] w-[136px]">
+                  <svg viewBox="0 0 100 100" width="136" height="136" aria-hidden="true">
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="var(--score-track)" stroke-width="8" />
+                    <circle
+                      cx="50" cy="50" r="42" fill="none"
+                      stroke="var(--score-fill)" stroke-width="8"
+                      stroke-linecap="round"
+                      stroke-dasharray={`${(SAMPLE.score.overall / 100) * 263.9} 263.9`}
+                      transform="rotate(-90 50 50)"
+                    />
+                  </svg>
+                  <div class="absolute inset-0 grid place-items-center">
+                    <div class="text-center">
+                      <div class="num text-[28px] font-semibold leading-none">{SAMPLE.score.overall}</div>
+                      <div class="mt-0.5 text-[10px] uppercase tracking-[0.1em] text-[var(--muted)]">score</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex flex-col gap-3">
+                  {[
+                    ['Depth', SAMPLE.score.depth],
+                    ['Breadth', SAMPLE.score.breadth],
+                    ['Recognition', SAMPLE.score.recognition],
+                    ['Specialization', SAMPLE.score.specialization],
+                  ].map(([label, value]) => (
+                    <div class="flex items-center gap-3">
+                      <div class="w-24 text-[11px] uppercase tracking-[0.1em] text-[var(--muted)]">{label}</div>
+                      <div class="relative h-1 w-28 overflow-hidden rounded-full bg-[var(--score-track)]">
+                        <div class="h-full rounded-full bg-[var(--score-fill)]" style={`width: ${value}%`}></div>
+                      </div>
+                      <div class="num w-8 text-right text-[12px]">{value}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div class="mt-7 border-t border-[var(--border)] pt-4">
+                <div class="mb-2 flex items-center justify-between text-[11px] uppercase tracking-[0.1em] text-[var(--muted)]">
+                  <span>Top evidence</span>
+                  <span>weight</span>
+                </div>
+                <ul class="space-y-2.5">
+                  {SAMPLE.evidence.map((r) => (
+                    <li class="flex items-center gap-3">
+                      <div class="min-w-0 flex-1">
+                        <div class="truncate text-[13px] font-medium">{r.repo}</div>
+                        <div class="num mt-1 flex items-center gap-2 text-[11px] text-[var(--muted)]">
+                          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                          {r.stars.toLocaleString()}
+                          <span class="text-[var(--muted-2)]">·</span>
+                          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><line x1="6" y1="9" x2="6" y2="21"/></svg>
+                          {r.mergedPrs} PRs merged
+                        </div>
+                      </div>
+                      <div class="h-1 w-16 overflow-hidden rounded-full bg-[var(--score-track)]">
+                        <div class="h-full rounded-full bg-[var(--score-fill)]" style={`width: ${r.weight}%`}></div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div class="mt-5 flex items-center gap-2 border-t border-[var(--border)] pt-4 text-[11px] text-[var(--muted-2)]">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.582a.5.5 0 0 1 0 .962L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+                Derived weekly from GitHub · last verified 2h ago
+              </div>
+            </div>
+          </div>
+
+          {/* floating score chip — the share badge */}
+          <div class="absolute -right-4 -top-4 hidden rotate-[3deg] md:block">
+            <div class="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-3 shadow-lg">
+              <div class="text-[10px] uppercase tracking-[0.14em] text-[var(--muted)]">TrueHire</div>
+              <div class="num mt-1 text-3xl font-semibold leading-none">
+                {SAMPLE.score.overall}<span class="text-base text-[var(--muted)]">/100</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* ─────────────────────  PROBLEM  ───────────────────── */}
+  <section class="border-b border-[var(--border)]">
+    <div class="mx-auto grid w-full max-w-6xl grid-cols-1 gap-10 px-6 py-24 md:grid-cols-2">
+      <div>
+        <div class="flex items-center gap-3">
+          <span class="num rounded-full border border-[var(--border-strong)] bg-[var(--surface)] px-2 py-0.5 text-[11px] font-medium tracking-[0.14em] text-[var(--foreground)]">§ 01</span>
+          <span class="h-px w-8 bg-[var(--border-strong)]"></span>
+          <span class="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--muted)]">Signal collapse</span>
+        </div>
+        <h2 class="mt-3 text-[32px] font-semibold leading-[1.1] tracking-[-0.015em] md:text-[44px]">
+          Hiring broke in a new way.
+        </h2>
+        <p class="mt-5 max-w-lg text-[15px] leading-relaxed text-[var(--muted)]">
+          When every applicant can ship a tailored resume in 30 seconds, top-tier
+          candidates look identical to average ones. Recruiters bias toward warm
+          intros, great engineers without networks go invisible, and everyone pays
+          more for worse hires.
+        </p>
+      </div>
+      <ul class="grid grid-cols-1 gap-3 self-start">
+        {[
+          'A single posting now draws hundreds of applicants — most with an AI-tailored resume.',
+          'Resumes converge: a strong engineer and an average one read almost identically.',
+          'Recruiters fall back on warm intros, so great engineers without a network go unseen.',
+          'Time-to-hire stretches, and a bad hire is expensive to unwind.',
+        ].map((line) => (
+          <li class="flex items-start gap-3 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface)] px-4 py-3">
+            <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--muted-2)]"></span>
+            <span class="text-[13px] leading-relaxed text-[var(--muted)]">{line}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  {/* ─────────────────────  SIGNAL STACK  ───────────────────── */}
+  <section id="signals" class="border-b border-[var(--border)]">
+    <div class="mx-auto w-full max-w-6xl px-6 py-24">
+      <div class="mb-14 max-w-2xl">
+        <div class="flex items-center gap-3">
+          <span class="num rounded-full border border-[var(--border-strong)] bg-[var(--surface)] px-2 py-0.5 text-[11px] font-medium tracking-[0.14em] text-[var(--foreground)]">§ 02</span>
+          <span class="h-px w-8 bg-[var(--border-strong)]"></span>
+          <span class="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--muted)]">The stack</span>
+        </div>
+        <h2 class="mt-3 text-[32px] font-semibold leading-[1.1] tracking-[-0.015em] md:text-[44px]">
+          Four orthogonal signals. Stacked.
+        </h2>
+        <p class="mt-5 text-[15px] leading-relaxed text-[var(--muted)]">
+          Any one costly signal can be partially gamed. Four, layered, can only
+          be produced by someone who actually is who they claim to be.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 gap-0 overflow-hidden rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] md:grid-cols-2 lg:grid-cols-4">
+        {/* 01 — Public work · LIVE */}
+        <div class="relative flex flex-col gap-5 border-b border-r border-[var(--border)] p-6 last:border-r-0 md:[&:nth-child(2)]:border-r-0 lg:[&:nth-child(2)]:border-r lg:[&:nth-child(4)]:border-r-0 md:[&:nth-child(n+3)]:border-b-0 lg:[&:nth-child(n+2)]:border-b-0">
+          <div class="flex items-center justify-between">
+            <span class="num text-[11px] tracking-[0.14em] text-[var(--muted-2)]">01</span>
+            <span class="inline-flex items-center gap-1.5 rounded-full border border-[color:color-mix(in_srgb,var(--verified)_40%,var(--border))] bg-[var(--verified-bg)] px-2.5 py-0.5 text-[11px] font-medium tracking-tight text-[var(--verified)]">
+              <span class="h-1.5 w-1.5 rounded-full bg-[var(--verified)]"></span>
+              Live
+            </span>
+          </div>
+          <div class="h-24 w-full overflow-hidden rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-2)]">
+            <div class="flex h-full items-end gap-[3px] px-3 pb-3 pt-4">
+              {COMMIT_BARS.map((h) => (
+                <div
+                  class="flex-1 rounded-[1px]"
+                  style={`height: ${h}%; background-color: color-mix(in srgb, var(--foreground) ${35 + h / 3}%, transparent)`}
+                ></div>
+              ))}
+            </div>
+          </div>
+          <div>
+            <div class="text-[16px] font-semibold tracking-tight">Public work</div>
+            <p class="mt-2 text-[13px] leading-relaxed text-[var(--muted)]">
+              Years of real commits, merged PRs into popular repos, authored libraries. Already indexable, no buy-in required.
+            </p>
+          </div>
+        </div>
+
+        {/* 02 — Employer verification · NEXT */}
+        <div class="relative flex flex-col gap-5 border-b border-r border-[var(--border)] p-6 last:border-r-0 md:[&:nth-child(2)]:border-r-0 lg:[&:nth-child(2)]:border-r lg:[&:nth-child(4)]:border-r-0 md:[&:nth-child(n+3)]:border-b-0 lg:[&:nth-child(n+2)]:border-b-0">
+          <div class="flex items-center justify-between">
+            <span class="num text-[11px] tracking-[0.14em] text-[var(--muted-2)]">02</span>
+            <span class="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-strong)] bg-transparent px-2.5 py-0.5 text-[11px] font-medium tracking-tight text-[var(--foreground)]">Next</span>
+          </div>
+          <div class="h-24 w-full overflow-hidden rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-2)]">
+            <div class="flex h-full flex-col justify-center gap-1.5 px-4">
+              {[
+                { line: 'hr@stripe.com', k: 'Confirmed Staff Eng · 2022–2024' },
+                { line: 'hr@datadog.com', k: 'Confirmed Senior SWE · 2019–2022' },
+              ].map((r) => (
+                <div class="flex items-center gap-2 text-[11px]">
+                  <span class="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[var(--verified-bg)] text-[var(--verified)]">
+                    <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.79 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+                  </span>
+                  <span class="num text-[var(--foreground)]">{r.line}</span>
+                  <span class="ml-auto truncate text-[var(--muted-2)]">{r.k}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div>
+            <div class="text-[16px] font-semibold tracking-tight">Employer verification</div>
+            <p class="mt-2 text-[13px] leading-relaxed text-[var(--muted)]">
+              HR-signed confirmation of role and tenure, payroll-backed where available. Cryptographically signed on your profile.
+            </p>
+          </div>
+        </div>
+
+        {/* 03 — Reputation bonds · ROADMAP */}
+        <div class="relative flex flex-col gap-5 border-b border-r border-[var(--border)] p-6 last:border-r-0 md:[&:nth-child(2)]:border-r-0 lg:[&:nth-child(2)]:border-r lg:[&:nth-child(4)]:border-r-0 md:[&:nth-child(n+3)]:border-b-0 lg:[&:nth-child(n+2)]:border-b-0">
+          <div class="flex items-center justify-between">
+            <span class="num text-[11px] tracking-[0.14em] text-[var(--muted-2)]">03</span>
+            <span class="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface-2)] px-2.5 py-0.5 text-[11px] font-medium tracking-tight text-[var(--muted)]">Roadmap</span>
+          </div>
+          <div class="h-24 w-full overflow-hidden rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-2)]">
+            <div class="relative flex h-full items-center justify-center">
+              <div class="absolute inset-0 flex items-center justify-center opacity-[0.18]">
+                <div class="h-24 w-24 rounded-full border-2 border-[var(--foreground)]"></div>
+                <div class="absolute h-16 w-16 rounded-full border-2 border-[var(--foreground)]"></div>
+              </div>
+              <div class="relative z-10 flex gap-2">
+                {[200, 500, 1000].map((v) => (
+                  <div class="num rounded-[var(--radius-xs)] border border-[var(--border-strong)] bg-[var(--surface)] px-2 py-1 text-[11px]">
+                    ${v}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="text-[16px] font-semibold tracking-tight">Reputation bonds</div>
+            <p class="mt-2 text-[13px] leading-relaxed text-[var(--muted)]">
+              Colleagues and referrers stake money on specific claims. The stake forfeits if the claim proves false.
+            </p>
+          </div>
+        </div>
+
+        {/* 04 — Paid audition · ROADMAP */}
+        <div class="relative flex flex-col gap-5 border-b border-r border-[var(--border)] p-6 last:border-r-0 md:[&:nth-child(2)]:border-r-0 lg:[&:nth-child(2)]:border-r lg:[&:nth-child(4)]:border-r-0 md:[&:nth-child(n+3)]:border-b-0 lg:[&:nth-child(n+2)]:border-b-0">
+          <div class="flex items-center justify-between">
+            <span class="num text-[11px] tracking-[0.14em] text-[var(--muted-2)]">04</span>
+            <span class="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface-2)] px-2.5 py-0.5 text-[11px] font-medium tracking-tight text-[var(--muted)]">Roadmap</span>
+          </div>
+          <div class="h-24 w-full overflow-hidden rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-2)]">
+            <div class="flex h-full items-center justify-center px-3">
+              <div class="grid grid-cols-7 gap-1">
+                {AUDITION_DAYS.map((d) => (
+                  <div class={'h-5 w-5 rounded-[3px] ' + (d < 10 ? 'bg-[var(--foreground)]' : 'border border-[var(--border-strong)] bg-transparent')}></div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="text-[16px] font-semibold tracking-tight">Paid audition</div>
+            <p class="mt-2 text-[13px] leading-relaxed text-[var(--muted)]">
+              Two weeks of paid contract work at target comp. Convert to FT with escrowed outcome feedback.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* ─────────────────────  HOW IT WORKS  ───────────────────── */}
+  <section id="how" class="border-b border-[var(--border)]">
+    <div class="mx-auto w-full max-w-6xl px-6 py-24">
+      <div class="mb-14 max-w-2xl">
+        <div class="flex items-center gap-3">
+          <span class="num rounded-full border border-[var(--border-strong)] bg-[var(--surface)] px-2 py-0.5 text-[11px] font-medium tracking-[0.14em] text-[var(--foreground)]">§ 03</span>
+          <span class="h-px w-8 bg-[var(--border-strong)]"></span>
+          <span class="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--muted)]">How it works</span>
+        </div>
+        <h2 class="mt-3 text-[32px] font-semibold leading-[1.1] tracking-[-0.015em] md:text-[44px]">
+          Derived, not declared.
+        </h2>
+        <p class="mt-5 text-[15px] leading-relaxed text-[var(--muted)]">
+          You cannot write your own bio, summary, or skills list. Everything on
+          your profile is computed from verified sources. That is the point.
+        </p>
+      </div>
+
+      <ol class="grid grid-cols-1 gap-6 md:grid-cols-3">
+        {[
+          ['01', 'Connect GitHub', 'OAuth only — we never ask for a resume, a headline, or a self-description.'],
+          ['02', 'We read your work', 'Commits, releases, stars, merged PRs to high-reputation repos — no heuristics, no ML black box.'],
+          ['03', 'Score + evidence', 'A transparent 0–100 composite with the receipts behind every number. Recomputed weekly.'],
+        ].map(([n, title, body]) => (
+          <li class="relative rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-6">
+            <div class="num text-[11px] tracking-[0.1em] text-[var(--muted-2)]">{n}</div>
+            <div class="mt-3 text-[17px] font-semibold">{title}</div>
+            <p class="mt-2 text-[13px] leading-relaxed text-[var(--muted)]">{body}</p>
+          </li>
+        ))}
+      </ol>
+
+      <div class="mt-12 grid grid-cols-1 gap-3 md:grid-cols-4">
+        {[
+          ['Depth', '30%', 'Months active, recency-weighted'],
+          ['Breadth', '20%', 'Distinct meaningful repos'],
+          ['Recognition', '35%', 'Stars, merged PRs to 100★+ repos'],
+          ['Specialization', '15%', 'Concentration in a top language'],
+        ].map(([n, w, d]) => (
+          <div class="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)]">
+            <div class="p-5">
+              <div class="text-[11px] uppercase tracking-[0.1em] text-[var(--muted)]">{n}</div>
+              <div class="num mt-1 text-3xl font-semibold">{w}</div>
+              <div class="mt-2 text-[13px] text-[var(--muted)]">{d}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {/* ─────────────────────  FAQ  ───────────────────── */}
+  <section id="faq">
+    <div class="mx-auto w-full max-w-3xl px-6 py-24">
+      <div class="mb-12">
+        <div class="flex items-center gap-3">
+          <span class="num rounded-full border border-[var(--border-strong)] bg-[var(--surface)] px-2 py-0.5 text-[11px] font-medium tracking-[0.14em] text-[var(--foreground)]">§ 04</span>
+          <span class="h-px w-8 bg-[var(--border-strong)]"></span>
+          <span class="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--muted)]">FAQ</span>
+        </div>
+        <h2 class="mt-3 text-[32px] font-semibold leading-[1.1] tracking-[-0.015em] md:text-[44px]">
+          Questions, answered.
+        </h2>
+      </div>
+      <dl class="divide-y divide-[var(--border)]">
+        {FAQS.map((f) => (
+          <details class="group py-4 [&>summary::-webkit-details-marker]:hidden">
+            <summary class="flex cursor-pointer items-center justify-between gap-4 font-medium text-[var(--foreground)]">
+              {f.q}
+              <span class="text-[var(--muted)] transition-transform group-open:rotate-45">＋</span>
+            </summary>
+            <p class="mt-3 text-[14px] text-[var(--muted)]">{f.a}</p>
+          </details>
+        ))}
+      </dl>
+    </div>
+  </section>
+
+  {/* ─────────────────────  CTA  ───────────────────── */}
+  <section class="border-t border-[var(--border)] bg-[var(--surface-2)]">
+    <div class="mx-auto flex w-full max-w-6xl flex-col items-start justify-between gap-6 px-6 py-16 md:flex-row md:items-center">
+      <div>
+        <h2 class="text-[24px] font-semibold tracking-tight md:text-[28px]">
+          Stop tailoring. Start being trusted.
+        </h2>
+        <p class="mt-2 max-w-xl text-[var(--muted)]">
+          Your profile takes 60 seconds. Then it works for you, forever.
+        </p>
+      </div>
+      <a href="/login" class="inline-flex h-12 items-center justify-center gap-2 whitespace-nowrap rounded-[var(--radius-sm)] bg-[var(--accent)] px-6 text-base font-medium text-[var(--accent-contrast)] transition-opacity hover:opacity-90">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+          <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.744.084-.729.084-.729 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.807 1.304 3.492.997.108-.775.418-1.305.762-1.605-2.665-.305-5.467-1.334-5.467-5.93 0-1.31.468-2.381 1.236-3.22-.124-.303-.536-1.524.118-3.176 0 0 1.007-.322 3.3 1.23a11.52 11.52 0 0 1 3-.404c1.02.005 2.046.137 3.006.404 2.29-1.552 3.296-1.23 3.296-1.23.654 1.652.242 2.873.118 3.176.77.839 1.236 1.91 1.236 3.22 0 4.61-2.807 5.624-5.48 5.921.43.372.816 1.102.816 2.22 0 1.604-.015 2.896-.015 3.29 0 .322.216.697.825.579C20.565 22.092 24 17.598 24 12.297c0-6.627-5.373-12-12-12" />
+        </svg>
+        Claim your profile
+      </a>
+    </div>
+  </section>
+</Layout>

@@ -1,0 +1,20 @@
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
+
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Cache the HTML at the CF edge for ~1 day; stale-while-revalidate keeps
+# it instant for everyone while a single deploy bumps source-of-truth.
+# The diagnose agent flagged truehire's render delay as the dominant LCP
+# contributor on the Next.js Worker; this static overlay + long cache is
+# the fix. Browser max-age tells CF the response is cacheable at edge
+# (without it, responses come back as cf-cache-status: DYNAMIC).
+/
+  Cache-Control: public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800
+
+/*.html
+  Cache-Control: public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800

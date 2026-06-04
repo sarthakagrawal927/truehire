@@ -1,0 +1,24 @@
+{
+  "name": "truehire-landing-astro",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Static Astro port of the TrueHire marketing landing (`/`). Built independently and overlaid into `.open-next/assets/index.html` by `scripts/overlay-astro-landing.mjs` so the single Worker serves the static landing for `/` and OpenNext SSR for everything else.",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.3",
+    "@tailwindcss/vite": "^4.0.0",
+    "astro": "^5.18.2",
+    "tailwindcss": "^4.0.0"
+  },
+  "devDependencies": {
+    "lightningcss": "^1.32.0",
+    "wrangler": "^4.85.0"
+  },
+  "packageManager": "pnpm@9.0.0"
+}
