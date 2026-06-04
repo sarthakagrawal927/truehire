@@ -80,6 +80,33 @@ export type ShortlistComparisonReport = {
   };
 };
 
+export type RecruiterCandidateIntelligenceReport = {
+  fit: {
+    score: number;
+    summary: string;
+    verifiedRequirementCount: number;
+    gapCount: number;
+  };
+  strengths: Array<{
+    title: string;
+    evidence: RoleFitEvidence[];
+  }>;
+  risks: Array<{
+    title: string;
+    reason: string;
+    evidence: RoleFitEvidence[];
+  }>;
+  followUpQuestions: Array<{
+    question: string;
+    evidence: RoleFitEvidence[];
+  }>;
+  evidenceLinks: Array<{
+    repoFullName: string;
+    url: string;
+    reason: string;
+  }>;
+};
+
 const REQUIREMENT_CATALOG: Array<Omit<RoleRequirement, "id" | "weight">> = [
   {
     label: "TypeScript",
@@ -282,6 +309,77 @@ export function buildShortlistComparisonReport(params: {
   };
 }
 
+export function buildRecruiterCandidateIntelligenceReport(params: {
+  jobDescription: string;
+  score: Pick<ScoreBreakdown, "languages">;
+  evidence: EvidenceEntry[];
+}): RecruiterCandidateIntelligenceReport {
+  const roleFit = serializePublicRoleFitReport(
+    buildRoleFitReport({
+      jobDescription: params.jobDescription,
+      score: params.score,
+      evidence: params.evidence,
+    }),
+  );
+
+  const strengths = roleFit.verifiedStrengths
+    .slice()
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 3)
+    .map((result) => ({
+      title: `${result.requirement.label}: verified in public work`,
+      evidence: result.strengths.slice(0, 3),
+    }));
+
+  const risks = roleFit.gaps
+    .slice()
+    .sort((a, b) => a.score - b.score)
+    .slice(0, 3)
+    .map((result) => ({
+      title: `${result.requirement.label}: not proven by current GitHub evidence`,
+      reason: result.remediation,
+      evidence: result.strengths.slice(0, 2),
+    }));
+
+  if (params.evidence.length === 0) {
+    risks.unshift({
+      title: "No repository evidence available",
+      reason: "Wait for GitHub ingest or ask for public work that maps to this role.",
+      evidence: [],
+    });
+  }
+
+  const followUpQuestions = [
+    ...risks.slice(0, 2).map((risk) => ({
+      question: `Can you walk through a project that proves ${risk.title.replace(/:.*$/, "")}?`,
+      evidence: risk.evidence,
+    })),
+    ...strengths.slice(0, 2).map((strength) => ({
+      question: `Which design tradeoff in ${strength.evidence[0]?.repoFullName ?? "this work"} mattered most?`,
+      evidence: strength.evidence.slice(0, 1),
+    })),
+  ].slice(0, 4);
+
+  const evidenceLinks = params.evidence.slice(0, 6).map((entry) => ({
+    repoFullName: entry.repoFullName,
+    url: `https://github.com/${entry.repoFullName}`,
+    reason: evidenceReason(entry),
+  }));
+
+  return {
+    fit: {
+      score: roleFit.fitScore,
+      summary: summarizeFit(roleFit),
+      verifiedRequirementCount: roleFit.summary.verifiedRequirements,
+      gapCount: roleFit.summary.gapCount,
+    },
+    strengths,
+    risks,
+    followUpQuestions,
+    evidenceLinks,
+  };
+}
+
 function matchRequirement(
   requirement: RoleRequirement,
   evidence: EvidenceEntry[],
@@ -336,6 +434,30 @@ function buildRemediation(requirement: RoleRequirement, score: number) {
   if (score >= 70) return "Keep this proof fresh with recent commits and visible releases.";
   if (score >= 35) return `Add clearer README, tests, or recent commits that mention ${requirement.label}.`;
   return `Create or update a public repo that directly demonstrates ${requirement.label}, with tests, CI, and a short README.`;
+}
+
+function summarizeFit(report: RoleFitReport): string {
+  if (report.summary.totalRequirements === 0) {
+    return "No role requirements were extracted from the job description; use the raw score evidence as the starting point.";
+  }
+  if (report.fitScore >= 70) {
+    return "Strong verified match against the pasted job description.";
+  }
+  if (report.fitScore >= 40) {
+    return "Partial verified match; review gaps before advancing.";
+  }
+  return "Limited verified match from current GitHub evidence.";
+}
+
+function evidenceReason(entry: EvidenceEntry): string {
+  const parts = [
+    entry.isAuthor ? "authored repo" : "external contribution",
+    `${entry.commits} commits`,
+    `${entry.mergedPrs} merged PRs`,
+    `${entry.stars} stars`,
+  ];
+  if (entry.primaryLanguage) parts.push(entry.primaryLanguage);
+  return parts.join(" · ");
 }
 
 function serializeResult(result: RoleFitRequirementResult): RoleFitRequirementResult {

@@ -28,6 +28,7 @@ import {
 } from "@/lib/hiring-service";
 import { getLatestScore } from "@/lib/score-service";
 import { auth } from "@/lib/auth";
+import { buildRecruiterCandidateIntelligenceReport } from "@truehire/core";
 import type { EvidenceEntry, RoleRequirement } from "@truehire/core";
 import { revalidatePath } from "next/cache";
 
@@ -80,7 +81,7 @@ export default async function EvaluationPage(props: {
     ? safeParseArray<EvidenceEntry>(score.evidenceJson)
     : [];
   const languages = score
-    ? safeParseArray<{ language: string; share: number }>(score.languagesJson)
+    ? safeParseArray<{ language: string; share: number; commits: number }>(score.languagesJson)
     : [];
 
   const currentStage = candidate.candidate.stage as Stage;
@@ -143,6 +144,11 @@ export default async function EvaluationPage(props: {
   const displayName = candidate.user.name || candidate.user.githubUsername || "Candidate";
   const handle = candidate.user.githubUsername;
   const noteHistory = candidate.candidate.notes ?? "";
+  const intelligenceReport = buildRecruiterCandidateIntelligenceReport({
+    jobDescription: role.description,
+    evidence,
+    score: { languages },
+  });
 
   // Build a stage timeline from candidate add + each evaluation snapshot.
   const timelineEvents: Array<{
@@ -428,6 +434,105 @@ export default async function EvaluationPage(props: {
 
           <Card>
             <CardHeader>
+              <CardTitle>Candidate intelligence</CardTitle>
+              <Badge tone="outline">{intelligenceReport.fit.score}/100 fit</Badge>
+            </CardHeader>
+            <CardBody className="grid gap-5">
+              <div className="rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-2)] p-4">
+                <div className="text-sm font-semibold">{intelligenceReport.fit.summary}</div>
+                <div className="mt-2 grid gap-2 text-[11px] text-[var(--muted)] sm:grid-cols-3">
+                  <span>{intelligenceReport.fit.verifiedRequirementCount} verified requirements</span>
+                  <span>{intelligenceReport.fit.gapCount} evidence gaps</span>
+                  <span>{intelligenceReport.evidenceLinks.length} GitHub evidence links</span>
+                </div>
+              </div>
+
+              <div className="grid gap-4 lg:grid-cols-2">
+                <div>
+                  <h3 className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--muted)]">
+                    Strengths
+                  </h3>
+                  <div className="mt-2 grid gap-2">
+                    {intelligenceReport.strengths.length > 0 ? (
+                      intelligenceReport.strengths.map((strength) => (
+                        <EvidenceInsight
+                          key={strength.title}
+                          title={strength.title}
+                          evidence={strength.evidence}
+                        />
+                      ))
+                    ) : (
+                      <p className="text-[12px] text-[var(--muted)]">
+                        No strengths were verified from the current GitHub evidence for this JD.
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--muted)]">
+                    Risks
+                  </h3>
+                  <div className="mt-2 grid gap-2">
+                    {intelligenceReport.risks.map((risk) => (
+                      <EvidenceInsight
+                        key={risk.title}
+                        title={risk.title}
+                        detail={risk.reason}
+                        evidence={risk.evidence}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--muted)]">
+                  Follow-up questions
+                </h3>
+                <ul className="mt-2 grid gap-2">
+                  {intelligenceReport.followUpQuestions.map((item) => (
+                    <li
+                      key={item.question}
+                      className="rounded-[var(--radius-sm)] border border-[var(--border)] px-3 py-2 text-[12px]"
+                    >
+                      {item.question}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--muted)]">
+                  Evidence links
+                </h3>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {intelligenceReport.evidenceLinks.length > 0 ? (
+                    intelligenceReport.evidenceLinks.map((link) => (
+                      <a
+                        key={link.repoFullName}
+                        href={link.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 rounded-full border border-[var(--border-strong)] bg-[var(--surface-2)] px-2 py-1 text-[11px] hover:text-[var(--accent)]"
+                        title={link.reason}
+                      >
+                        {link.repoFullName}
+                        <ExternalLink className="h-3 w-3 opacity-60" />
+                      </a>
+                    ))
+                  ) : (
+                    <p className="text-[12px] text-[var(--muted)]">
+                      No GitHub evidence links available yet.
+                    </p>
+                  )}
+                </div>
+              </div>
+            </CardBody>
+          </Card>
+
+          <Card>
+            <CardHeader>
               <CardTitle>Rubric</CardTitle>
               {requirements.length > 0 && (
                 <Badge tone="outline">{requirements.length} criteria</Badge>
@@ -694,6 +799,41 @@ function NextAction({
         <span className="text-[10px] uppercase tracking-wider opacity-80">{hint}</span>
       </div>
     </label>
+  );
+}
+
+function EvidenceInsight({
+  title,
+  detail,
+  evidence,
+}: {
+  title: string;
+  detail?: string;
+  evidence: Array<{
+    repoFullName: string;
+    commits: number;
+    mergedPrs: number;
+    stars: number;
+  }>;
+}) {
+  return (
+    <div className="rounded-[var(--radius-sm)] border border-[var(--border)] px-3 py-2">
+      <div className="text-[12px] font-semibold">{title}</div>
+      {detail && <p className="mt-1 text-[11px] text-[var(--muted)]">{detail}</p>}
+      {evidence.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1">
+          {evidence.slice(0, 3).map((item) => (
+            <span
+              key={item.repoFullName}
+              className="rounded-full bg-[var(--surface-2)] px-2 py-0.5 text-[10px] text-[var(--muted)]"
+              title={`${item.commits} commits · ${item.mergedPrs} PRs · ${item.stars} stars`}
+            >
+              {item.repoFullName}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 

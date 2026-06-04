@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildRoleFitReport,
+  buildRecruiterCandidateIntelligenceReport,
   buildShortlistComparisonReport,
   extractRoleRequirements,
   serializePublicRoleFitReport,
@@ -158,5 +159,42 @@ describe("role fit reports", () => {
     });
     expect(report.summary.averageFitScore).toBeGreaterThan(0);
     expect(report.summary.strongestRequirement).toBeTruthy();
+  });
+
+  it("builds an evidence-backed recruiter candidate intelligence report", () => {
+    const report = buildRecruiterCandidateIntelligenceReport({
+      jobDescription: "TypeScript React engineer with testing, CI, docs, and Cloudflare API work.",
+      evidence,
+      score: {
+        languages: [
+          { language: "TypeScript", share: 0.72, commits: 800 },
+          { language: "JavaScript", share: 0.18, commits: 200 },
+        ],
+      },
+    });
+
+    expect(report.fit.score).toBeGreaterThan(45);
+    expect(report.fit.verifiedRequirementCount).toBeGreaterThan(0);
+    expect(report.strengths[0]?.evidence[0]?.repoFullName).toBe("sarthak/next-platform");
+    expect(report.evidenceLinks[0]).toEqual(
+      expect.objectContaining({
+        url: "https://github.com/sarthak/next-platform",
+        reason: expect.stringContaining("commits"),
+      }),
+    );
+    expect(JSON.stringify(report)).not.toMatch(/bio|self-declared|claimed/i);
+    expect(report.followUpQuestions.length).toBeGreaterThan(0);
+  });
+
+  it("reports missing evidence as a recruiter risk instead of inventing claims", () => {
+    const report = buildRecruiterCandidateIntelligenceReport({
+      jobDescription: "Rust systems engineer with Kubernetes ownership.",
+      evidence: [],
+      score: { languages: [] },
+    });
+
+    expect(report.strengths).toEqual([]);
+    expect(report.risks[0]?.title).toBe("No repository evidence available");
+    expect(report.evidenceLinks).toEqual([]);
   });
 });
