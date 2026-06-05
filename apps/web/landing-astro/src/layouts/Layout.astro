@@ -1,5 +1,6 @@
 ---
 import '@/styles/landing.css';
+import '@fontsource-variable/inter';
 
 interface Props {
   title: string;
@@ -46,30 +47,13 @@ const NAV_LINKS = [
     {/* ── Fonts ────────────────────────────────────────────────────
        The body face is system-ui first with Inter as a webfont layer
        — Inter is the only LCP-critical face (the hero H1 lives in the
-       body sans). We preload it with the async-style swap pattern so
-       the stylesheet never blocks first paint. JetBrains Mono is NOT
-       preloaded: the `.num` rule falls through to ui-monospace cleanly
-       and the `.num` glyphs don't appear above the fold on mobile. */}
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-
-    <link
-      rel="preload"
-      as="style"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-    />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-      media="print"
-      onload="this.media='all'"
-    />
-    <noscript>
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-      />
-    </noscript>
+       body sans). Self-hosted via @fontsource-variable/inter (imported
+       in the frontmatter). Astro/Vite extracts the @font-face into the
+       page CSS and serves the woff2 from /_astro/ same-origin, so there
+       is no external CSS fetch on the LCP path. font-display: swap is
+       preserved by Fontsource. JetBrains Mono is NOT loaded: the `.num`
+       rule falls through to ui-monospace cleanly and the `.num` glyphs
+       don't appear above the fold on mobile. */}
   </head>
   <body class="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)]">
     {/* ─────────────────────  HEADER  ─────────────────────

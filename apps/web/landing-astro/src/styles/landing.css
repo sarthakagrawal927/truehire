@@ -68,7 +68,7 @@
   --color-score-fill: var(--score-fill);
 
   --font-sans:
-    ui-sans-serif, system-ui, -apple-system, "Inter", "Segoe UI", Roboto,
+    ui-sans-serif, system-ui, -apple-system, "Inter Variable", "Inter", "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
   --font-mono:
     ui-monospace, "JetBrains Mono", "SF Mono", "Menlo", "Consolas", monospace;
