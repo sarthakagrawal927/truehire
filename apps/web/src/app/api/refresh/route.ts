@@ -93,9 +93,12 @@ export async function POST() {
     return NextResponse.json({ error: "no_github_token" }, { status: 400 });
   }
 
+  // `lastIngestedAt` marks run start — `canRefresh` relies on it for the
+  // 3-minute zombie-recovery window, so a concurrent second request can't
+  // kick off a duplicate ingest while this one is still running.
   await db
     .update(schema.users)
-    .set({ ingestStatus: "running" })
+    .set({ ingestStatus: "running", lastIngestedAt: new Date() })
     .where(eq(schema.users.id, user.id));
 
   try {

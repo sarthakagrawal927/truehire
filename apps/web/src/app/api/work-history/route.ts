@@ -47,8 +47,19 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
   const body = await req.json().catch(() => null);
-  if (!body?.company || !body?.title || !body?.startDate) {
+  if (
+    typeof body?.company !== "string" || !body.company.trim() ||
+    typeof body?.title !== "string" || !body.title.trim() ||
+    typeof body?.startDate !== "string"
+  ) {
     return NextResponse.json({ error: "bad_request" }, { status: 400 });
+  }
+  // Dates are stored as "YYYY-MM" strings — tenure math and the public
+  // profile sort both depend on this exact shape. Empty end date = ongoing.
+  const YM = /^\d{4}-(0[1-9]|1[0-2])$/;
+  const endDate = typeof body.endDate === "string" && body.endDate ? body.endDate : null;
+  if (!YM.test(body.startDate) || (endDate !== null && !YM.test(endDate))) {
+    return NextResponse.json({ error: "bad_date" }, { status: 400 });
   }
   const id = await addWorkHistory({
     userId: session.user.id,
@@ -56,7 +67,7 @@ export async function POST(req: Request) {
     companyDomain: body.companyDomain,
     title: body.title,
     startDate: body.startDate,
-    endDate: body.endDate,
+    endDate,
   });
   // Owner-facing analytics: a verifiable employment entry was added.
   trackCoreAction("work_history_added", session.user.id);

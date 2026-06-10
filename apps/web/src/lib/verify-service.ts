@@ -201,16 +201,18 @@ export function computeSignal2(input: Signal2Input): number {
 function tenureFromDates(startYM: string, endYM: string | null): number {
   const [sy, sm] = startYM.split("-").map(Number);
   if (!sy || !sm) return 0;
-  const now = endYM
-    ? (() => {
-        const [ey, em] = endYM.split("-").map(Number);
-        return { y: ey, m: em };
-      })()
-    : (() => {
-        const d = new Date();
-        return { y: d.getUTCFullYear(), m: d.getUTCMonth() + 1 };
-      })();
-  const months = (now.y - sy) * 12 + (now.m - sm);
+  let end: { y: number; m: number };
+  if (endYM) {
+    const [ey, em] = endYM.split("-").map(Number);
+    // Malformed end date would otherwise produce NaN that propagates into
+    // the stored signal2/overall score.
+    if (!ey || !em) return 0;
+    end = { y: ey, m: em };
+  } else {
+    const d = new Date();
+    end = { y: d.getUTCFullYear(), m: d.getUTCMonth() + 1 };
+  }
+  const months = (end.y - sy) * 12 + (end.m - sm);
   return Math.max(0, months / 12);
 }
 
