@@ -22,7 +22,7 @@ const ENDPOINTS: Endpoint[] = [
     path: "/@:handle/data.json",
     description:
       "Public profile snapshot — score, latest activity months, public work history. Caches for 60s.",
-    example: "curl https://truehire.workers.dev/torvalds/data.json",
+    example: "curl https://truehire.workers.dev/@torvalds/data.json",
   },
   {
     method: "GET",
