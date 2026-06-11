@@ -79,16 +79,17 @@ export async function getPublicWorkHistory(userId: string) {
     .select()
     .from(schema.employerVerifications);
   const latestByWh = new Map<string, typeof verifications[number]>();
-  // status priority: confirmed > pending > disputed > denied > expired, then recency
+  // Use the newest verification request per work-history row.
+  // If timestamps tie, prefer the more resolved status for deterministic UI.
   const rank: Record<string, number> = {
     confirmed: 0, pending: 1, disputed: 2, denied: 3, expired: 4,
   };
   for (const v of verifications) {
     const prev = latestByWh.get(v.workHistoryId);
     if (!prev ||
-        rank[v.status] < rank[prev.status] ||
-        (rank[v.status] === rank[prev.status] &&
-          v.requestedAt.getTime() > prev.requestedAt.getTime())) {
+        v.requestedAt.getTime() > prev.requestedAt.getTime() ||
+        (v.requestedAt.getTime() === prev.requestedAt.getTime() &&
+          rank[v.status] < rank[prev.status])) {
       latestByWh.set(v.workHistoryId, v);
     }
   }
