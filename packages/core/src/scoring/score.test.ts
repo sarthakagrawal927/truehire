@@ -355,6 +355,24 @@ describe("computeScore", () => {
     expect(core.evidence.map((e) => e.craftTags ?? []).flat()).toContain("core contributor");
   });
 
+  it("core contributor freshness depends on lastCommitAt", () => {
+    const missing = computeScore({
+      contributions: [
+        { ...emptyContrib, repoFullName: "facebook/react", repoStars: 230_000, commits: 500, mergedPrs: 50, isAuthor: false, primaryLanguage: "JavaScript", lastCommitAt: null },
+      ],
+      months: monthsRange("2020-01", "2026-03"),
+      now,
+    });
+    const stale = computeScore({
+      contributions: [
+        { ...emptyContrib, repoFullName: "facebook/react", repoStars: 230_000, commits: 500, mergedPrs: 50, isAuthor: false, primaryLanguage: "JavaScript", lastCommitAt: now - 365 * 5 * MS_DAY },
+      ],
+      months: monthsRange("2020-01", "2026-03"),
+      now,
+    });
+    expect(missing.recognition).toBeGreaterThan(stale.recognition);
+  });
+
   it("low-signal repo is still filtered even for core contributor", () => {
     const r = computeScore({
       contributions: [

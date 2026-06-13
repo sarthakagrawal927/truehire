@@ -15,6 +15,7 @@ import { db, schema } from "@truehire/db";
 import { eq } from "drizzle-orm";
 import { GitHubIngestError } from "@truehire/core";
 import {
+  beginRefresh,
   canRefresh,
   getGitHubAccessToken,
   getUserById,
@@ -70,6 +71,10 @@ export async function GET() {
   }
   const token = (await getGitHubAccessToken(user.id)) ?? process.env.GITHUB_API_TOKEN;
   if (!token) return new Response("no_token", { status: 400 });
+
+  if (!(await beginRefresh(user))) {
+    return new Response("refresh_in_progress", { status: 409 });
+  }
 
   await db
     .update(schema.users)

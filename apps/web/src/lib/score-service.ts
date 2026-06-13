@@ -1,5 +1,5 @@
 import { db, schema } from "@truehire/db";
-import { and, eq, desc, count } from "drizzle-orm";
+import { and, count, desc, eq, isNull } from "drizzle-orm";
 import { computeScore, ingestGitHubUser } from "@truehire/core";
 import { computeSignal2, signal2OverallBonus } from "./verify-service";
 import { trackActivated, trackCoreAction } from "./analytics";
@@ -265,7 +265,7 @@ export async function recomputeSignal2OnVerificationChange(userId: string) {
   const latest = await getLatestScore(userId);
   if (!latest) return; // user hasn't had Signal 1 computed yet; nothing to blend into.
   const signal2 = await computeSignal2ForUser(db, userId);
-  const signal1 = latest.signal1 || latest.overall; // fallback for legacy rows
+  const signal1 = latest.signal1 ?? latest.overall; // fallback for legacy rows
   const overall = Math.min(100, signal1 + signal2OverallBonus(signal2));
   await db.insert(schema.scores).values({
     ...latest,
@@ -289,4 +289,30 @@ export function canRefresh(user: {
   }
   if (user.ingestStatus === "failed") return true;
   return Date.now() - user.lastIngestedAt.getTime() >= INGEST_COOLDOWN_MS;
+}
+
+/**
+ * Atomically claim the ingest slot for a refresh. This closes the race where
+ * two requests both pass `canRefresh()` before either writes `running`.
+ */
+export async function beginRefresh(user: {
+  id: string;
+  lastIngestedAt: Date | null;
+  ingestStatus: "idle" | "queued" | "running" | "failed";
+}): Promise<boolean> {
+  const [claimed] = await db
+    .update(schema.users)
+    .set({ ingestStatus: "running", lastIngestedAt: new Date() })
+    .where(
+      and(
+        eq(schema.users.id, user.id),
+        eq(schema.users.ingestStatus, user.ingestStatus),
+        user.lastIngestedAt === null
+          ? isNull(schema.users.lastIngestedAt)
+          : eq(schema.users.lastIngestedAt, user.lastIngestedAt),
+      ),
+    )
+    .returning({ id: schema.users.id });
+
+  return claimed != null;
 }

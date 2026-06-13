@@ -4,6 +4,7 @@ import { db, schema } from "@truehire/db";
 import { eq } from "drizzle-orm";
 import { GitHubIngestError } from "@truehire/core";
 import {
+  beginRefresh,
   canRefresh,
   getGitHubAccessToken,
   getUserById,
@@ -91,6 +92,16 @@ export async function POST() {
   const token = (await getGitHubAccessToken(user.id)) ?? process.env.GITHUB_API_TOKEN;
   if (!token) {
     return NextResponse.json({ error: "no_github_token" }, { status: 400 });
+  }
+
+  if (!(await beginRefresh(user))) {
+    return NextResponse.json(
+      {
+        error: "ingest_in_progress",
+        message: "A refresh already started for this profile. Try again shortly.",
+      },
+      { status: 409 },
+    );
   }
 
   // `lastIngestedAt` marks run start — `canRefresh` relies on it for the

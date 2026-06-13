@@ -20,6 +20,10 @@ export type IngestResult = {
 };
 
 type ContribCalendarDay = { date: string; contributionCount: number };
+type RepoSignals = CraftSignals & {
+  firstCommitAt: number | null;
+  lastCommitAt: number | null;
+};
 
 /** Error thrown when GitHub ingestion exhausts retries or hits a fatal state. */
 export class GitHubIngestError extends Error {
@@ -395,11 +399,15 @@ export async function ingestGitHubUser(params: {
       try {
         // Craft signals are non-fatal but worth a couple of retries — a single
         // rate-limit burst shouldn't zero out the Craft score for everyone.
-        c.craft = await withGitHubRetry(
+        const signals = await withGitHubRetry(
           `craft signals for ${c.repoFullName}`,
           () => fetchCraftSignals(rest, c.repoFullName, login),
           { maxAttempts: 2 },
         );
+        const { firstCommitAt, lastCommitAt, ...craft } = signals;
+        c.craft = craft;
+        c.firstCommitAt = firstCommitAt;
+        c.lastCommitAt = lastCommitAt;
       } catch {
         c.craft = null;
       }
@@ -437,7 +445,7 @@ async function fetchCraftSignals(
   rest: Octokit,
   fullName: string,
   login: string,
-): Promise<CraftSignals> {
+): Promise<RepoSignals> {
   const [owner, repo] = fullName.split("/");
 
   // Run file listing + releases count + contributors count + commit sample in parallel.
@@ -495,7 +503,15 @@ async function fetchCraftSignals(
   // A repo with no manifest is usually throwaway — dampen tests signal if no code
   if (!hasManifest && !hasTests) hasTests = false;
 
-  const commitQuality = computeCommitQuality(commitsRes);
+  const commitQuality = computeCommitQuality(
+    commitsRes as Array<{
+      commit?: {
+        message?: string;
+        author?: { date?: string | null } | null;
+        committer?: { date?: string | null } | null;
+      };
+    }>,
+  );
 
   return {
     hasCi,
@@ -508,6 +524,8 @@ async function fetchCraftSignals(
     avgCommitMsgLen: commitQuality.avgLen,
     meaningfulMsgRatio: commitQuality.meaningful,
     sampledCommits: commitQuality.sampled,
+    firstCommitAt: commitQuality.firstCommitAt,
+    lastCommitAt: commitQuality.lastCommitAt,
   };
 }
 
@@ -516,13 +534,21 @@ const TRIVIAL_MSG =
 const MEANINGFUL_VERB =
   /^(?:feat|fix|refactor|docs?|test|perf|chore|style|ci|build|revert|add(?:s|ed)?|remove[sd]?|implement|introduce|handle|prevent|enable|disable|migrate|rename|move|extract|inline|bump|upgrade|downgrade|close|resolve)[\s(:\-]/i;
 
-function computeCommitQuality(commits: Array<{ commit?: { message?: string } }>) {
+function computeCommitQuality(
+  commits: Array<{
+    commit?: {
+      message?: string;
+      author?: { date?: string | null } | null;
+      committer?: { date?: string | null } | null;
+    };
+  }>,
+) {
   const msgs = commits
     .map((c) => (c.commit?.message ?? "").split("\n")[0].trim())
     .filter((m) => m.length > 0);
   const sampled = msgs.length;
   if (sampled === 0) {
-    return { avgLen: 0, meaningful: 0, sampled: 0 };
+    return { avgLen: 0, meaningful: 0, sampled: 0, firstCommitAt: null, lastCommitAt: null };
   }
   const totalLen = msgs.reduce((s, m) => s + m.length, 0);
   const avgLen = Math.round(totalLen / sampled);
@@ -531,7 +557,18 @@ function computeCommitQuality(commits: Array<{ commit?: { message?: string } }>)
       !TRIVIAL_MSG.test(m) &&
       (MEANINGFUL_VERB.test(m) || m.length >= 30),
   ).length;
-  return { avgLen, meaningful: meaningfulCount / sampled, sampled };
+  const commitDates = commits
+    .map((c) => c.commit?.author?.date ?? c.commit?.committer?.date ?? null)
+    .filter((d): d is string => Boolean(d))
+    .map((d) => new Date(d).getTime())
+    .filter((d) => Number.isFinite(d));
+  return {
+    avgLen,
+    meaningful: meaningfulCount / sampled,
+    sampled,
+    firstCommitAt: commitDates.length ? Math.min(...commitDates) : null,
+    lastCommitAt: commitDates.length ? Math.max(...commitDates) : null,
+  };
 }
 
 function extractTotalCountFromLinkHeader(
