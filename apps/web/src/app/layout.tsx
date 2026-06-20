@@ -1,4 +1,3 @@
-import { SaasMakerAnalytics } from '@/components/SaasMakerAnalytics'
 import { SaaSMakerFeedback } from '@/components/saasmaker-feedback'
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
@@ -50,7 +49,6 @@ export default function RootLayout({
       className={`${inter.variable} ${jetbrains.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)]">
-        <SaasMakerAnalytics />
         <SaaSMakerFeedback />
         <Providers>
           <SiteHeader />

@@ -8,6 +8,10 @@
     "build": "pnpm -r build",
     "start": "pnpm --filter web start",
     "lint": "pnpm -r lint",
+    "biome:lint": "biome lint .",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "check": "biome check .",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
     "test:e2e": "pnpm --filter web test:e2e",
@@ -18,6 +22,7 @@
     "prepare": "husky || true"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.5.0",
     "eslint": "10.2.1",
     "husky": "9.1.7",
     "lint-staged": "16.4.0",
