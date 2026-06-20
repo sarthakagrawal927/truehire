@@ -94,6 +94,9 @@ importers:
       '@playwright/test':
         specifier: 1.59.1
         version: 1.59.1
+      '@saas-maker/astro-landing':
+        specifier: file:../../../saas-maker/packages/tooling/astro-landing
+        version: file:../saas-maker/packages/tooling/astro-landing
       '@tailwindcss/postcss':
         specifier: '4'
         version: 4.2.4
@@ -106,9 +109,6 @@ importers:
       '@types/react-dom':
         specifier: '19'
         version: 19.2.3(@types/react@19.2.14)
-      beasties:
-        specifier: ^0.4.2
-        version: 0.4.2
       eslint:
         specifier: 10.2.1
         version: 10.2.1(jiti@2.6.1)
@@ -2249,6 +2249,10 @@ packages:
   '@rtsao/scc@1.1.0':
     resolution: {integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==}
 
+  '@saas-maker/astro-landing@file:../saas-maker/packages/tooling/astro-landing':
+    resolution: {directory: ../saas-maker/packages/tooling/astro-landing, type: directory}
+    hasBin: true
+
   '@saas-maker/feedback@0.2.1':
     resolution: {integrity: sha512-ajtrH7t/hhzxrNzX2BU0i5nfGpXNu7w4EQCFBajsuFn255O29trRCu3VNL1NoQhWwypjEEdeaK4DqoEY4zd7rw==}
     peerDependencies:
@@ -3104,9 +3108,9 @@ packages:
     engines: {node: '>=6.0.0'}
     hasBin: true
 
-  beasties@0.4.2:
-    resolution: {integrity: sha512-NvcGjG/7AVUAfRbvrJmHunDQS9uHnE6Q/7AkaPr8oKE8HjOlpjRG5075z/th2Tmlezk3VlaaS8+X9I1RwHJMQw==}
-    engines: {node: '>=18.0.0'}
+  beasties@0.3.5:
+    resolution: {integrity: sha512-NaWu+f4YrJxEttJSm16AzMIFtVldCvaJ68b1L098KpqXmxt9xOLtKoLkKxb8ekhOrLqEJAbvT6n6SEvB/sac7A==}
+    engines: {node: '>=14.0.0'}
 
   before-after-hook@4.0.0:
     resolution: {integrity: sha512-q6tR3RPqIB1pMiTRMFcZwuG5T8vwp+vUvEG0vuI6B+Rikh5BfPp2fQ82c925FOs+b0lcFQ8CFrL+KbilfZFhOQ==}
@@ -5013,12 +5017,6 @@ packages:
 
   postcss-media-query-parser@0.2.3:
     resolution: {integrity: sha512-3sOlxmbKcSHMjlUXQZKQ06jOswE7oVkXPxmZdoB1r5l0q6gTFTQSHxNxOrCccElbW7dxNytifNEo8qidX2Vsig==}
-
-  postcss-safe-parser@7.0.1:
-    resolution: {integrity: sha512-0AioNCJZ2DPYz5ABT6bddIqlhgwhpHZ/l65YAYo0BCIn0xiDpsnTHz0gnoTGk0OXZW0JRs+cDwL8u/teRdz+8A==}
-    engines: {node: '>=18.0'}
-    peerDependencies:
-      postcss: ^8.4.31
 
   postcss@8.4.31:
     resolution: {integrity: sha512-PS08Iboia9mts/2ygV3eLpY5ghnUcfLV/EXTOW1E2qYxJKGGBUtNjN76FYHnMs36RmARn41bC0AZmn+rR0OVpQ==}
@@ -8023,6 +8021,10 @@ snapshots:
 
   '@rtsao/scc@1.1.0': {}
 
+  '@saas-maker/astro-landing@file:../saas-maker/packages/tooling/astro-landing':
+    dependencies:
+      beasties: 0.3.5
+
   '@saas-maker/feedback@0.2.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
     dependencies:
       react: 19.2.5
@@ -9066,7 +9068,7 @@ snapshots:
 
   baseline-browser-mapping@2.10.21: {}
 
-  beasties@0.4.2:
+  beasties@0.3.5:
     dependencies:
       css-select: 6.0.0
       css-what: 7.0.0
@@ -9076,7 +9078,6 @@ snapshots:
       picocolors: 1.1.1
       postcss: 8.5.10
       postcss-media-query-parser: 0.2.3
-      postcss-safe-parser: 7.0.1(postcss@8.5.10)
 
   before-after-hook@4.0.0: {}
 
@@ -11348,10 +11349,6 @@ snapshots:
   possible-typed-array-names@1.1.0: {}
 
   postcss-media-query-parser@0.2.3: {}
-
-  postcss-safe-parser@7.0.1(postcss@8.5.10):
-    dependencies:
-      postcss: 8.5.10
 
   postcss@8.4.31:
     dependencies:

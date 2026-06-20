@@ -36,6 +36,5 @@
   },
   "engines": {
     "node": ">=20"
-  },
-  "prettier": "@saas-maker/prettier-config"
+  }
 }
