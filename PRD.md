@@ -2,8 +2,8 @@
 
 **Version:** 0.2  
 **Owner:** Sarthak Agrawal  
-**Last updated:** 2026-06-13  
-**Status:** MVP (Signal 1) shipped + recruiter proof surfaces live; Signal 2 scaffold complete; extensions in validation
+**Last updated:** 2026-06-20  
+**Status:** MVP shipped (Signal 1 + recruiter proof). Signal 2 scaffold complete (manual-link beta). Signal 2+ extensions and next features in `plans/` and `docs/signal-2-employer-verification.md`.
 
 ---
 
@@ -128,7 +128,7 @@ See `PROJECT_STATUS.md` (single source of truth for Done / Planned Next / Deferr
 
 **Phase 4 (Signal 4 — Paid audition):** 2-week paid contract (pro-rated target comp) → convert. TrueHire handles contract/escrow/NDA + outcome feedback (future signal 5). High margin, low volume complement to lower-tier signals.
 
-Later phases remain deferred until Signal 1 + early Signal 2 are validated with real usage and recruiter feedback. See PROJECT_STATUS.md.
+Later phases remain deferred until Signal 1 MVP validation completes with real usage and recruiter feedback. Signal 2 email/payroll wiring spec: `docs/signal-2-employer-verification.md`. Next candidate-side extensions: `plans/0002`–`0004`. See PROJECT_STATUS.md.
 
 ## 9. Open questions
 

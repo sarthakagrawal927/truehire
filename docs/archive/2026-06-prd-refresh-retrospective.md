@@ -1,5 +1,6 @@
 # 2026-06 PRD Refresh & Documentation Sync — Retrospective
 
+**Status:** Archived (2026-06-20) — journey artifact from the 2026-06-13 documentation pass.  
 **Date:** 2026-06-13  
 **Context:** Original PRD.md (v0.1, 2026-04-24, 368 lines) had become stale relative to shipped features (Signal 2 scaffold, recruiter-proof toolkit, craft axis, public exports, etc.). The four `plans/*.md` were still short "proposal" docs. Documentation preferences (shorter pages 150-300 lines, DRY, journey + learning artifacts as first-class, preserve on consolidate) were not yet applied at project scale. This pass archived the old PRD, refreshed the high-level one, finished the four implementation plans, added focused topic docs, a decisions log, and this retrospective, and synced PROJECT_STATUS.
 
