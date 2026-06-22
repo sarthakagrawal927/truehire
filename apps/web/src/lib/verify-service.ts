@@ -15,7 +15,7 @@
 import { createHmac, randomBytes } from "node:crypto";
 import { createId } from "@paralleldrive/cuid2";
 import { db, schema } from "@truehire/db";
-import { and, eq, inArray } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 
 const HMAC_SECRET = () => {
   const s = process.env.AUTH_SECRET;

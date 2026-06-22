@@ -1,6 +1,6 @@
 import { db, schema } from "@truehire/db";
-import { and, eq, desc } from "drizzle-orm";
-import type { HiringRole, HiringPipeline, PipelineCandidate, CandidateEvaluation } from "@truehire/db";
+import { eq, desc } from "drizzle-orm";
+import type { PipelineCandidate, CandidateEvaluation } from "@truehire/db";
 
 export async function createHiringRole(params: {
   name: string;
