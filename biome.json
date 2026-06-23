@@ -17,6 +17,7 @@
       "!**/build",
       "!**/node_modules",
       "!**/.astro",
+      "!**/*.astro",
       "!**/local.db",
       "!**/next-env.d.ts",
       "!**/pnpm-lock.yaml",

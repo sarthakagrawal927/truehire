@@ -15,14 +15,16 @@
 // was driven by Worker cold-start + client-JS handshake. Pure static
 // markup eliminates both.
 
-const _TITLE = 'TrueHire — the verified-candidate layer';
-const _DESCRIPTION =
+import Layout from '@/layouts/Layout.astro';
+
+const TITLE = 'TrueHire — the verified-candidate layer';
+const DESCRIPTION =
   'Costly, verifiable signals instead of AI-tailored resumes. Your GitHub becomes a credential recruiters can trust.';
 
 // Sample profile — same shape the live-hero-profile-demo.tsx falls back
 // to when the DB read returns nothing. We embed it directly: no fetch,
 // no Suspense, no JS.
-const _SAMPLE = {
+const SAMPLE = {
   user: { name: 'Sam Devlin', githubUsername: 'sample-dev', initials: 'sa' },
   score: { overall: 82, depth: 88, breadth: 71, recognition: 84, specialization: 76 },
   evidence: [
@@ -32,7 +34,7 @@ const _SAMPLE = {
   ],
 };
 
-const _FAQS = [
+const FAQS = [
   {
     q: 'Why GitHub first?',
     a: "Because it's the one signal that exists at scale today without asking anyone's permission. Years of public commits cannot be fabricated in a weekend. Other signals — employer verification, reputation bonds, paid auditions — come next.",
@@ -57,11 +59,11 @@ const _FAQS = [
 
 // Commit-bar viz — same deterministic sin-based heights as page.tsx
 // SignalVizCommits so the static port is pixel-comparable.
-const _COMMIT_BARS = Array.from(
+const COMMIT_BARS = Array.from(
   { length: 28 },
   (_, i) => 20 + Math.round(70 * Math.abs(Math.sin(i * 0.9)))
 );
-const _AUDITION_DAYS = Array.from({ length: 14 }, (_, i) => i);
+const AUDITION_DAYS = Array.from({ length: 14 }, (_, i) => i);
 ---
 
 <Layout title={TITLE} description={DESCRIPTION}>
