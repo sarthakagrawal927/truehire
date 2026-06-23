@@ -9,7 +9,7 @@ export function ActivityTimeline({ months }: { months: Bucket[] }) {
 
   // Gridline for year boundaries
   const yearMarkers = new Set<string>();
-  let lastYear = "";
+  let lastYear = '';
   for (const b of last) {
     const y = b.month.slice(0, 4);
     if (y !== lastYear) {
@@ -32,9 +32,9 @@ export function ActivityTimeline({ months }: { months: Bucket[] }) {
               style={{
                 height: `${h}%`,
                 backgroundColor: `color-mix(in srgb, var(--foreground) ${Math.round(
-                  op * 100,
+                  op * 100
                 )}%, transparent)`,
-                borderRadius: "2px",
+                borderRadius: '2px',
               }}
             />
           );
@@ -57,7 +57,7 @@ function padMonths(months: Bucket[], count: number): Bucket[] {
   const now = new Date();
   for (let i = count - 1; i >= 0; i--) {
     const d = new Date(now.getUTCFullYear(), now.getUTCMonth() - i, 1);
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
     out.push({ month: key, commits: map.get(key) ?? 0 });
   }
   return out;

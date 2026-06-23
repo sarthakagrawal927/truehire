@@ -11,40 +11,40 @@
  * When an anchor signs in for real, NextAuth DrizzleAdapter links the same
  * githubId → row and flips `claimed=true`.
  */
-import { createId } from "@paralleldrive/cuid2";
-import { db, schema } from "@truehire/db";
-import { eq } from "drizzle-orm";
-import { computeScore, ingestGitHubUser } from "@truehire/core";
+import { createId } from '@paralleldrive/cuid2';
+import { db, schema } from '@truehire/db';
+import { eq } from 'drizzle-orm';
+import { computeScore, ingestGitHubUser } from '@truehire/core';
 
 // Curated list — OSS maintainers / known strong engineers with large public
 // footprints. Any GitHub user works; these were chosen for variety of language
 // + domain to showcase score range out of the gate.
 const ANCHORS: string[] = [
-  "tj",             // Node.js/Go prolific, express, koa
-  "sindresorhus",   // indie JS maintainer, huge footprint
-  "yyx990803",      // Vue author
-  "gaearon",        // React, Redux (Dan Abramov)
-  "addyosmani",     // web-perf, Chrome DX
-  "mitsuhiko",      // Flask, Rust author
-  "sebmarkbage",    // React core
-  "rauchg",         // Vercel founder
-  "timneutkens",    // Next.js core
-  "developit",      // Preact author
-  "kentcdodds",     // testing-library, remix
-  "shadcn",         // shadcn/ui
-  "wycats",         // Ember, Rust
-  "jaredpalmer",    // formik, Vercel
-  "jashkenas",      // Backbone, Underscore, CoffeeScript
-  "torvalds",       // Linux, Git — ceiling test
-  "antirez",        // Redis
-  "gvanrossum",     // Python creator
-  "bellard",        // QEMU, FFmpeg, tcc
-  "mitchellh",      // HashiCorp founder
+  'tj', // Node.js/Go prolific, express, koa
+  'sindresorhus', // indie JS maintainer, huge footprint
+  'yyx990803', // Vue author
+  'gaearon', // React, Redux (Dan Abramov)
+  'addyosmani', // web-perf, Chrome DX
+  'mitsuhiko', // Flask, Rust author
+  'sebmarkbage', // React core
+  'rauchg', // Vercel founder
+  'timneutkens', // Next.js core
+  'developit', // Preact author
+  'kentcdodds', // testing-library, remix
+  'shadcn', // shadcn/ui
+  'wycats', // Ember, Rust
+  'jaredpalmer', // formik, Vercel
+  'jashkenas', // Backbone, Underscore, CoffeeScript
+  'torvalds', // Linux, Git — ceiling test
+  'antirez', // Redis
+  'gvanrossum', // Python creator
+  'bellard', // QEMU, FFmpeg, tcc
+  'mitchellh', // HashiCorp founder
 ];
 
 async function seed(login: string) {
   const token = process.env.GITHUB_API_TOKEN;
-  if (!token) throw new Error("GITHUB_API_TOKEN is required");
+  if (!token) throw new Error('GITHUB_API_TOKEN is required');
 
   console.log(`→ ingesting @${login}`);
   const result = await ingestGitHubUser({ login, token });
@@ -69,7 +69,7 @@ async function seed(login: string) {
         githubUsername: result.username,
         seeded: true,
         claimed: false,
-        ingestStatus: "idle",
+        ingestStatus: 'idle',
         lastIngestedAt: new Date(),
         lastScoredAt: new Date(),
       });
@@ -81,7 +81,7 @@ async function seed(login: string) {
           image: existing.image ?? result.avatarUrl,
           lastIngestedAt: new Date(),
           lastScoredAt: new Date(),
-          ingestStatus: "idle",
+          ingestStatus: 'idle',
         })
         .where(eq(schema.users.id, userId));
     }
@@ -107,15 +107,15 @@ async function seed(login: string) {
           pushedAt: c.pushedAt ? new Date(c.pushedAt) : null,
           craftJson: c.craft ? JSON.stringify(c.craft) : null,
           weightedScore: 0,
-        })),
+        }))
       );
     }
 
     await tx.delete(schema.activityMonths).where(eq(schema.activityMonths.userId, userId));
     if (result.months.length > 0) {
-      await tx.insert(schema.activityMonths).values(
-        result.months.map((m) => ({ userId, month: m.month, commits: m.commits })),
-      );
+      await tx
+        .insert(schema.activityMonths)
+        .values(result.months.map((m) => ({ userId, month: m.month, commits: m.commits })));
     }
 
     const breakdown = computeScore({
@@ -140,7 +140,9 @@ async function seed(login: string) {
       monthsActive: breakdown.totals.monthsActive,
     });
 
-    console.log(`  ✓ ${result.username} · overall ${breakdown.overall} · ${result.contributions.length} repos`);
+    console.log(
+      `  ✓ ${result.username} · overall ${breakdown.overall} · ${result.contributions.length} repos`
+    );
   });
 }
 

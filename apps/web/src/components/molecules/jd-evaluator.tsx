@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useState, useDeferredValue } from "react";
-import { CheckCircle2, Circle, ChevronRight } from "lucide-react";
-import Link from "next/link";
-import { Card, CardBody, CardHeader, CardTitle } from "@/components/atoms/card";
-import { Badge } from "@/components/atoms/badge";
-import { Button } from "@/components/atoms/button";
-import { ScoreBreakdown } from "./score-breakdown";
+import { useState, useDeferredValue } from 'react';
+import { CheckCircle2, Circle, ChevronRight } from 'lucide-react';
+import Link from 'next/link';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/atoms/card';
+import { Badge } from '@/components/atoms/badge';
+import { Button } from '@/components/atoms/button';
+import { ScoreBreakdown } from './score-breakdown';
 
 const EXAMPLE_JD =
   "We're hiring a Senior Backend Engineer with 5+ years of Go or Rust experience. Strong background in distributed systems, open source contributions, and cloud-native architecture (Kubernetes). Experience with CI/CD pipelines and automated testing is required. We'd love to see contributions to high-impact open source projects.";
@@ -22,11 +22,11 @@ type Dimension = {
 
 const DIMENSIONS: Dimension[] = [
   {
-    signal: "Depth",
+    signal: 'Depth',
     weight: 0.2,
-    hint: "consistency",
-    measures: "Months of sustained public activity, recency-weighted over 30 months",
-    jdMapping: "years of experience · seniority level",
+    hint: 'consistency',
+    measures: 'Months of sustained public activity, recency-weighted over 30 months',
+    jdMapping: 'years of experience · seniority level',
     patterns: [
       /\b\d\+?\s*years?\b/i,
       /\bsenior\b/i,
@@ -37,11 +37,11 @@ const DIMENSIONS: Dimension[] = [
     ],
   },
   {
-    signal: "Breadth",
+    signal: 'Breadth',
     weight: 0.15,
-    hint: "public GitHub",
-    measures: "Distinct repos with ≥3 commits or ≥1 merged PR, capped at 40",
-    jdMapping: "language & framework requirements · multi-stack experience",
+    hint: 'public GitHub',
+    measures: 'Distinct repos with ≥3 commits or ≥1 merged PR, capped at 40',
+    jdMapping: 'language & framework requirements · multi-stack experience',
     patterns: [
       /\bgo\b/i,
       /\brust\b/i,
@@ -55,11 +55,11 @@ const DIMENSIONS: Dimension[] = [
     ],
   },
   {
-    signal: "Recognition",
+    signal: 'Recognition',
     weight: 0.3,
-    hint: "portfolio",
-    measures: "Stars on authored repos + merged PRs into ≥100★ repos",
-    jdMapping: "open source contributions · community involvement · high-visibility work",
+    hint: 'portfolio',
+    measures: 'Stars on authored repos + merged PRs into ≥100★ repos',
+    jdMapping: 'open source contributions · community involvement · high-visibility work',
     patterns: [
       /\bopen.?source\b/i,
       /\boss\b/i,
@@ -71,11 +71,11 @@ const DIMENSIONS: Dimension[] = [
     ],
   },
   {
-    signal: "Craft",
+    signal: 'Craft',
     weight: 0.2,
-    hint: "portfolio",
-    measures: "CI pipelines, test coverage, structured releases across top repos",
-    jdMapping: "CI/CD practices · testing discipline · engineering quality",
+    hint: 'portfolio',
+    measures: 'CI pipelines, test coverage, structured releases across top repos',
+    jdMapping: 'CI/CD practices · testing discipline · engineering quality',
     patterns: [
       /\bci\b/i,
       /\bcd\b/i,
@@ -88,25 +88,25 @@ const DIMENSIONS: Dimension[] = [
     ],
   },
   {
-    signal: "Specialization",
+    signal: 'Specialization',
     weight: 0.15,
-    hint: "activity",
-    measures: "Dominant-language concentration — piecewise 0–100",
-    jdMapping: "expert-level depth in a specific language or domain",
+    hint: 'activity',
+    measures: 'Dominant-language concentration — piecewise 0–100',
+    jdMapping: 'expert-level depth in a specific language or domain',
     patterns: [/\bexpert\b/i, /\bspeciali/i, /\bdeep expertise\b/i, /\bcore competency\b/i],
   },
 ];
 
 const SAMPLE_SCORES = [
-  { label: "Depth", value: 88, weight: 0.2, hint: "consistency" },
-  { label: "Breadth", value: 71, weight: 0.15, hint: "public GitHub" },
-  { label: "Recognition", value: 84, weight: 0.3, hint: "portfolio" },
-  { label: "Craft", value: 79, weight: 0.2, hint: "portfolio" },
-  { label: "Specialization", value: 76, weight: 0.15, hint: "activity" },
+  { label: 'Depth', value: 88, weight: 0.2, hint: 'consistency' },
+  { label: 'Breadth', value: 71, weight: 0.15, hint: 'public GitHub' },
+  { label: 'Recognition', value: 84, weight: 0.3, hint: 'portfolio' },
+  { label: 'Craft', value: 79, weight: 0.2, hint: 'portfolio' },
+  { label: 'Specialization', value: 76, weight: 0.15, hint: 'activity' },
 ];
 
 export function JdEvaluator() {
-  const [jd, setJd] = useState("");
+  const [jd, setJd] = useState('');
   const [showSample, setShowSample] = useState(false);
   const deferred = useDeferredValue(jd);
   const hasText = deferred.trim().length > 0;
@@ -127,8 +127,8 @@ export function JdEvaluator() {
         </CardHeader>
         <CardBody>
           <p className="mb-3 text-[13px] text-[var(--muted)]">
-            Paste any job description to see which verified GitHub signals TrueHire will
-            evaluate your candidates against.
+            Paste any job description to see which verified GitHub signals TrueHire will evaluate
+            your candidates against.
           </p>
           <textarea
             value={jd}
@@ -199,8 +199,7 @@ export function JdEvaluator() {
               onClick={() => setShowSample(true)}
               className="inline-flex items-center gap-1.5 text-[13px] text-[var(--muted)] underline-offset-2 hover:text-[var(--foreground)] hover:underline"
             >
-              See how a verified candidate compares{" "}
-              <ChevronRight className="h-3.5 w-3.5" />
+              See how a verified candidate compares <ChevronRight className="h-3.5 w-3.5" />
             </button>
           ) : (
             <Card>
@@ -210,8 +209,8 @@ export function JdEvaluator() {
               </CardHeader>
               <CardBody>
                 <p className="mb-4 text-[13px] text-[var(--muted)]">
-                  Every row traces back to verifiable public GitHub data — no self-reported
-                  skills or tailored resumes.
+                  Every row traces back to verifiable public GitHub data — no self-reported skills
+                  or tailored resumes.
                 </p>
                 <ScoreBreakdown rows={SAMPLE_SCORES} />
                 <div className="mt-5">

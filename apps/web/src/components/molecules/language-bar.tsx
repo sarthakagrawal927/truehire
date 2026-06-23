@@ -1,22 +1,22 @@
 const PALETTE: Record<string, string> = {
-  TypeScript: "#3178c6",
-  JavaScript: "#f1c40f",
-  Python: "#3572a5",
-  Go: "#00add8",
-  Rust: "#dea584",
-  Java: "#b07219",
-  Kotlin: "#a97bff",
-  Ruby: "#701516",
-  C: "#555555",
-  "C++": "#f34b7d",
-  "C#": "#178600",
-  Swift: "#f05138",
-  PHP: "#4f5d95",
-  Elixir: "#6e4a7e",
-  Scala: "#c22d40",
-  HTML: "#e34c26",
-  Shell: "#89e051",
-  CSS: "#563d7c",
+  TypeScript: '#3178c6',
+  JavaScript: '#f1c40f',
+  Python: '#3572a5',
+  Go: '#00add8',
+  Rust: '#dea584',
+  Java: '#b07219',
+  Kotlin: '#a97bff',
+  Ruby: '#701516',
+  C: '#555555',
+  'C++': '#f34b7d',
+  'C#': '#178600',
+  Swift: '#f05138',
+  PHP: '#4f5d95',
+  Elixir: '#6e4a7e',
+  Scala: '#c22d40',
+  HTML: '#e34c26',
+  Shell: '#89e051',
+  CSS: '#563d7c',
 };
 
 function colorFor(lang: string) {
@@ -47,10 +47,7 @@ export function LanguageBar({ languages }: { languages: LangRow[] }) {
       </div>
       <ul className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-3">
         {languages.map((l) => (
-          <li
-            key={l.language}
-            className="flex items-center justify-between gap-3 text-[13px]"
-          >
+          <li key={l.language} className="flex items-center justify-between gap-3 text-[13px]">
             <span className="flex items-center gap-2 text-[var(--foreground)]">
               <span
                 className="h-2 w-2 rounded-full"
@@ -58,9 +55,7 @@ export function LanguageBar({ languages }: { languages: LangRow[] }) {
               />
               {l.language}
             </span>
-            <span className="num text-[var(--muted)]">
-              {(l.share * 100).toFixed(0)}%
-            </span>
+            <span className="num text-[var(--muted)]">{(l.share * 100).toFixed(0)}%</span>
           </li>
         ))}
       </ul>

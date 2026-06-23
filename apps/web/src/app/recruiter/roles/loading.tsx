@@ -1,5 +1,4 @@
-import { BriefcaseBusiness } from "lucide-react";
-import { Card, CardBody } from "@/components/atoms/card";
+import { Card, CardBody } from '@/components/atoms/card';
 
 export default function Loading() {
   return (

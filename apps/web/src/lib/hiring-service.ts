@@ -1,6 +1,6 @@
-import { db, schema } from "@truehire/db";
-import { eq, desc } from "drizzle-orm";
-import type { PipelineCandidate, CandidateEvaluation } from "@truehire/db";
+import { db, schema } from '@truehire/db';
+import { eq, desc } from 'drizzle-orm';
+import type { PipelineCandidate, CandidateEvaluation } from '@truehire/db';
 
 export async function createHiringRole(params: {
   name: string;
@@ -22,20 +22,21 @@ export async function getHiringRoles() {
 }
 
 export async function getHiringRole(id: string) {
-  const rows = await db.select().from(schema.hiringRoles).where(eq(schema.hiringRoles.id, id)).limit(1);
+  const rows = await db
+    .select()
+    .from(schema.hiringRoles)
+    .where(eq(schema.hiringRoles.id, id))
+    .limit(1);
   return rows[0] ?? null;
 }
 
-export async function createHiringPipeline(params: {
-  roleId: string;
-  name: string;
-}) {
+export async function createHiringPipeline(params: { roleId: string; name: string }) {
   const id = crypto.randomUUID();
   await db.insert(schema.hiringPipelines).values({
     id,
     roleId: params.roleId,
     name: params.name,
-    status: "active",
+    status: 'active',
   });
   return id;
 }
@@ -64,16 +65,13 @@ export async function getHiringPipeline(id: string) {
   return rows[0] ?? null;
 }
 
-export async function addCandidateToPipeline(params: {
-  pipelineId: string;
-  userId: string;
-}) {
+export async function addCandidateToPipeline(params: { pipelineId: string; userId: string }) {
   const id = crypto.randomUUID();
   await db.insert(schema.pipelineCandidates).values({
     id,
     pipelineId: params.pipelineId,
     userId: params.userId,
-    stage: "shortlist",
+    stage: 'shortlist',
   });
   return id;
 }
@@ -92,10 +90,10 @@ export async function getPipelineCandidates(pipelineId: string) {
 
 export async function updateCandidateStage(params: {
   candidateId: string;
-  stage: PipelineCandidate["stage"];
+  stage: PipelineCandidate['stage'];
   notes?: string;
 }) {
-  const patch: { stage: PipelineCandidate["stage"]; notes?: string } = {
+  const patch: { stage: PipelineCandidate['stage']; notes?: string } = {
     stage: params.stage,
   };
   if (params.notes !== undefined) patch.notes = params.notes;
@@ -105,10 +103,7 @@ export async function updateCandidateStage(params: {
     .where(eq(schema.pipelineCandidates.id, params.candidateId));
 }
 
-export async function updateCandidateNotes(params: {
-  candidateId: string;
-  notes: string;
-}) {
+export async function updateCandidateNotes(params: { candidateId: string; notes: string }) {
   await db
     .update(schema.pipelineCandidates)
     .set({ notes: params.notes })
@@ -119,7 +114,7 @@ export async function createEvaluation(params: {
   pipelineCandidateId: string;
   stage: string;
   scoresJson: string;
-  overallRecommendation: CandidateEvaluation["overallRecommendation"];
+  overallRecommendation: CandidateEvaluation['overallRecommendation'];
   evaluatorId: string;
 }) {
   const id = crypto.randomUUID();

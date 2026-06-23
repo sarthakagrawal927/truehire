@@ -1,26 +1,26 @@
-import { redirect } from "next/navigation";
-import Link from "next/link";
-import { GitBranch, Save } from "lucide-react";
-import { Button } from "@/components/atoms/button";
-import { Card, CardBody } from "@/components/atoms/card";
-import { createHiringPipeline, getHiringRoles } from "@/lib/hiring-service";
+import { redirect } from 'next/navigation';
+import Link from 'next/link';
+import { GitBranch, Save } from 'lucide-react';
+import { Button } from '@/components/atoms/button';
+import { Card, CardBody } from '@/components/atoms/card';
+import { createHiringPipeline, getHiringRoles } from '@/lib/hiring-service';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 export default async function NewPipelinePage() {
   const roles = await getHiringRoles();
 
   async function action(formData: FormData) {
-    "use server";
-    const name = formData.get("name") as string;
-    const roleId = formData.get("roleId") as string;
+    'use server';
+    const name = formData.get('name') as string;
+    const roleId = formData.get('roleId') as string;
 
     await createHiringPipeline({
       name,
       roleId,
     });
 
-    redirect("/recruiter/pipelines");
+    redirect('/recruiter/pipelines');
   }
 
   return (
@@ -29,11 +29,10 @@ export default async function NewPipelinePage() {
         <GitBranch className="h-4 w-4" />
         New pipeline
       </div>
-      <h1 className="mt-2 text-[30px] font-semibold tracking-tight">
-        Launch a hiring pipeline.
-      </h1>
+      <h1 className="mt-2 text-[30px] font-semibold tracking-tight">Launch a hiring pipeline.</h1>
       <p className="mt-2 text-sm text-[var(--muted)]">
-        Give your pipeline a name, such as Senior Frontend - Q4 2024, and select the role template to use for scoring.
+        Give your pipeline a name, such as Senior Frontend - Q4 2024, and select the role template
+        to use for scoring.
       </p>
 
       <Card className="mt-8">

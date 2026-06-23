@@ -1,7 +1,7 @@
-import Link from "next/link";
-import { Button } from "@/components/atoms/button";
-import { Badge } from "@/components/atoms/badge";
-import { ArrowRight, Search } from "lucide-react";
+import Link from 'next/link';
+import { Button } from '@/components/atoms/button';
+import { Badge } from '@/components/atoms/badge';
+import { ArrowRight, Search } from 'lucide-react';
 
 export default function NotFound() {
   return (
@@ -17,9 +17,8 @@ export default function NotFound() {
         This profile hasn’t claimed their account.
       </h1>
       <p className="mt-3 max-w-lg text-[14px] leading-relaxed text-[var(--muted)]">
-        TrueHire profiles are derived from verified public work. A handle only
-        exists once its owner signs in. If this is you, connect GitHub to claim
-        the URL.
+        TrueHire profiles are derived from verified public work. A handle only exists once its owner
+        signs in. If this is you, connect GitHub to claim the URL.
       </p>
       <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
         <Link href="/login">

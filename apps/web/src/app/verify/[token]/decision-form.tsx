@@ -1,31 +1,31 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Check, X } from "lucide-react";
-import { Button } from "@/components/atoms/button";
+import { useState } from 'react';
+import { Check, X } from 'lucide-react';
+import { Button } from '@/components/atoms/button';
 
 export function VerifyDecisionForm({ token }: { token: string }) {
-  const [state, setState] = useState<"idle" | "loading" | "done" | "error">("idle");
-  const [decision, setDecision] = useState<"confirmed" | "denied" | null>(null);
-  const [notes, setNotes] = useState("");
+  const [state, setState] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
+  const [decision, setDecision] = useState<'confirmed' | 'denied' | null>(null);
+  const [notes, setNotes] = useState('');
 
-  async function submit(d: "confirmed" | "denied") {
+  async function submit(d: 'confirmed' | 'denied') {
     setDecision(d);
-    setState("loading");
+    setState('loading');
     try {
-      const res = await fetch("/api/verify/respond", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
+      const res = await fetch('/api/verify/respond', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ token, decision: d, notes: notes || undefined }),
       });
       if (!res.ok) throw new Error(String(res.status));
-      setState("done");
+      setState('done');
     } catch {
-      setState("error");
+      setState('error');
     }
   }
 
-  if (state === "done") {
+  if (state === 'done') {
     return (
       <div className="mt-8 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-6 text-center">
         <div className="mx-auto inline-flex h-10 w-10 items-center justify-center rounded-full bg-[var(--verified-bg)] text-[var(--verified)]">
@@ -54,8 +54,8 @@ export function VerifyDecisionForm({ token }: { token: string }) {
       <div className="mt-4 flex flex-wrap gap-3">
         <Button
           size="lg"
-          onClick={() => submit("confirmed")}
-          disabled={state === "loading"}
+          onClick={() => submit('confirmed')}
+          disabled={state === 'loading'}
           leftIcon={<Check className="h-4 w-4" />}
         >
           Confirm
@@ -63,14 +63,14 @@ export function VerifyDecisionForm({ token }: { token: string }) {
         <Button
           size="lg"
           variant="outline"
-          onClick={() => submit("denied")}
-          disabled={state === "loading"}
+          onClick={() => submit('denied')}
+          disabled={state === 'loading'}
           leftIcon={<X className="h-4 w-4" />}
         >
           Deny
         </Button>
       </div>
-      {state === "error" && (
+      {state === 'error' && (
         <p className="mt-3 text-[12px] text-[var(--warn)]">
           Couldn’t record that. Link may have expired — ask the candidate to re-send.
         </p>

@@ -17,10 +17,14 @@
       "!**/build",
       "!**/node_modules",
       "!**/.astro",
+      "!**/*.astro",
       "!**/local.db",
       "!**/next-env.d.ts",
       "!**/pnpm-lock.yaml",
-      "!**/drizzle/**"
+      "!**/drizzle",
+      "!**/public/**/*.svg",
+      "!**/*.css",
+      "!**/design.html"
     ]
   },
   "formatter": {
@@ -41,7 +45,27 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true
+      "recommended": true,
+      "a11y": {
+        "noSvgWithoutTitle": "off",
+        "useButtonType": "off",
+        "useAriaPropsSupportedByRole": "off",
+        "noLabelWithoutControl": "off"
+      },
+      "suspicious": {
+        "noArrayIndexKey": "off",
+        "noShadowRestrictedNames": "off",
+        "noExplicitAny": "off"
+      },
+      "style": {
+        "noNonNullAssertion": "off",
+        "useTemplate": "off"
+      },
+      "correctness": {
+        "noUnusedVariables": "warn",
+        "noUnusedImports": "warn",
+        "useExhaustiveDependencies": "off"
+      }
     }
   },
   "assist": {

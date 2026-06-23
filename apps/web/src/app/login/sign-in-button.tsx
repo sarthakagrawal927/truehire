@@ -1,30 +1,30 @@
-"use client";
+'use client';
 
-import { signIn } from "next-auth/react";
-import { GithubIcon as Github } from "@/components/atoms/github-icon";
-import { Button } from "@/components/atoms/button";
-import { captureAuthFailure } from "@/lib/foundry-monitoring";
+import { signIn } from 'next-auth/react';
+import { GithubIcon as Github } from '@/components/atoms/github-icon';
+import { Button } from '@/components/atoms/button';
+import { captureAuthFailure } from '@/lib/foundry-monitoring';
 
-export function SignInButton({ callbackUrl = "/dashboard" }: { callbackUrl?: string }) {
+export function SignInButton({ callbackUrl = '/dashboard' }: { callbackUrl?: string }) {
   async function handleSignIn() {
     try {
-      const result = await signIn("github", { callbackUrl, redirect: false });
+      const result = await signIn('github', { callbackUrl, redirect: false });
       if (result?.error) {
         captureAuthFailure({
-          provider: "github",
-          stage: "signin",
+          provider: 'github',
+          stage: 'signin',
           reason: result.error,
-          source: "sign-in-button",
+          source: 'sign-in-button',
         });
       } else if (result?.url) {
         window.location.href = result.url;
       }
     } catch (error) {
       captureAuthFailure({
-        provider: "github",
-        stage: "signin",
-        reason: error instanceof Error ? error.message : "GitHub sign-in failed",
-        source: "sign-in-button",
+        provider: 'github',
+        stage: 'signin',
+        reason: error instanceof Error ? error.message : 'GitHub sign-in failed',
+        source: 'sign-in-button',
       });
     }
   }

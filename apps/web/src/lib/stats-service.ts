@@ -1,5 +1,5 @@
-import { db } from "@truehire/db";
-import { sql } from "drizzle-orm";
+import { db } from '@truehire/db';
+import { sql } from 'drizzle-orm';
 
 export interface FleetStats {
   totalProfiles: number;
@@ -60,7 +60,7 @@ export async function getFleetStats(): Promise<FleetStats> {
   for (const row of rows) {
     let parsed: LanguageEntry[] = [];
     try {
-      parsed = JSON.parse(row.languages_json ?? "[]");
+      parsed = JSON.parse(row.languages_json ?? '[]');
     } catch {
       parsed = [];
     }

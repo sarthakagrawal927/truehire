@@ -1,17 +1,15 @@
-import { notFound } from "next/navigation";
-import Link from "next/link";
-import { ArrowLeft, BriefcaseBusiness, ListTodo } from "lucide-react";
-import { Button } from "@/components/atoms/button";
-import { Card, CardBody, CardHeader, CardTitle } from "@/components/atoms/card";
-import { Badge } from "@/components/atoms/badge";
-import { getHiringRole } from "@/lib/hiring-service";
-import type { RoleRequirement } from "@truehire/core";
+import { notFound } from 'next/navigation';
+import Link from 'next/link';
+import { ArrowLeft, BriefcaseBusiness, ListTodo } from 'lucide-react';
+import { Button } from '@/components/atoms/button';
+import { Card, CardBody } from '@/components/atoms/card';
+import { Badge } from '@/components/atoms/badge';
+import { getHiringRole } from '@/lib/hiring-service';
+import type { RoleRequirement } from '@truehire/core';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
-export default async function RoleDetailPage(props: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function RoleDetailPage(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params;
   const role = await getHiringRole(id);
 
@@ -34,9 +32,7 @@ export default async function RoleDetailPage(props: {
           <BriefcaseBusiness className="h-4 w-4" />
           Role template
         </div>
-        <h1 className="mt-2 text-[30px] font-semibold tracking-tight">
-          {role.name}
-        </h1>
+        <h1 className="mt-2 text-[30px] font-semibold tracking-tight">{role.name}</h1>
         <p className="mt-4 text-sm text-[var(--muted)] whitespace-pre-wrap leading-relaxed">
           {role.description}
         </p>
@@ -58,7 +54,10 @@ export default async function RoleDetailPage(props: {
                 </div>
                 <div className="flex flex-wrap gap-1">
                   {req.keywords.map((kw) => (
-                    <span key={kw} className="text-[10px] bg-[var(--surface-2)] px-1.5 py-0.5 rounded border border-[var(--border)] text-[var(--muted)]">
+                    <span
+                      key={kw}
+                      className="text-[10px] bg-[var(--surface-2)] px-1.5 py-0.5 rounded border border-[var(--border)] text-[var(--muted)]"
+                    >
                       {kw}
                     </span>
                   ))}

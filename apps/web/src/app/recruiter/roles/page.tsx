@@ -1,11 +1,11 @@
-import Link from "next/link";
-import { Plus, BriefcaseBusiness, FileText, ChevronRight } from "lucide-react";
-import { Button } from "@/components/atoms/button";
-import { Card, CardBody, CardHeader, CardTitle } from "@/components/atoms/card";
-import { Badge } from "@/components/atoms/badge";
-import { getHiringRoles } from "@/lib/hiring-service";
+import Link from 'next/link';
+import { Plus, BriefcaseBusiness, FileText, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/atoms/button';
+import { Card, CardBody } from '@/components/atoms/card';
+import { Badge } from '@/components/atoms/badge';
+import { getHiringRoles } from '@/lib/hiring-service';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 export default async function RolesPage() {
   const roles = await getHiringRoles();
@@ -22,7 +22,8 @@ export default async function RolesPage() {
             Role templates and rubrics.
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-[var(--muted)]">
-            Define repeatable role requirements and scoring rubrics. Use these templates to launch hiring pipelines.
+            Define repeatable role requirements and scoring rubrics. Use these templates to launch
+            hiring pipelines.
           </p>
         </div>
         <div className="flex gap-3">

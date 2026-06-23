@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { Download } from "lucide-react";
-import { Button } from "@/components/atoms/button";
+import { Download } from 'lucide-react';
+import { Button } from '@/components/atoms/button';
 
 export function ExportReportButton() {
   return (

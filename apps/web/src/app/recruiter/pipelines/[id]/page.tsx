@@ -1,34 +1,26 @@
-import { notFound } from "next/navigation";
-import Link from "next/link";
-import {
-  GitBranch,
-  Plus,
-  ArrowRight,
-  MoreVertical,
-  UserPlus,
-  CheckCircle2,
-  Circle,
-} from "lucide-react";
-import { Button } from "@/components/atoms/button";
-import { Card, CardBody, CardHeader, CardTitle } from "@/components/atoms/card";
-import { Badge } from "@/components/atoms/badge";
+import { notFound } from 'next/navigation';
+import Link from 'next/link';
+import { ArrowRight, UserPlus } from 'lucide-react';
+import { Button } from '@/components/atoms/button';
+import { Card, CardBody } from '@/components/atoms/card';
+import { Badge } from '@/components/atoms/badge';
 import {
   getHiringPipeline,
   getPipelineCandidates,
   addCandidateToPipeline,
   updateCandidateStage,
-} from "@/lib/hiring-service";
-import { getUserByUsername } from "@/lib/score-service";
-import { revalidatePath } from "next/cache";
+} from '@/lib/hiring-service';
+import { getUserByUsername } from '@/lib/score-service';
+import { revalidatePath } from 'next/cache';
 
 const STAGES = [
-  "shortlist",
-  "screening",
-  "technical",
-  "interview",
-  "decision",
-  "hired",
-  "rejected",
+  'shortlist',
+  'screening',
+  'technical',
+  'interview',
+  'decision',
+  'hired',
+  'rejected',
 ] as const;
 
 type PipelineStage = (typeof STAGES)[number];
@@ -38,11 +30,9 @@ function nextStage(stage: PipelineStage): PipelineStage | null {
   return next ?? null;
 }
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
-export default async function PipelineDetailPage(props: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function PipelineDetailPage(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params;
   const data = await getHiringPipeline(id);
 
@@ -52,9 +42,9 @@ export default async function PipelineDetailPage(props: {
   const candidates = await getPipelineCandidates(id);
 
   async function addCandidateAction(formData: FormData) {
-    "use server";
-    const handle = formData.get("handle") as string;
-    const user = await getUserByUsername(handle.replace(/^@/, ""));
+    'use server';
+    const handle = formData.get('handle') as string;
+    const user = await getUserByUsername(handle.replace(/^@/, ''));
 
     if (!user) {
       // In a real app, we'd handle this better (e.g., show an error)
@@ -70,7 +60,7 @@ export default async function PipelineDetailPage(props: {
   }
 
   async function moveStageAction(candidateId: string, stage: PipelineStage) {
-    "use server";
+    'use server';
     await updateCandidateStage({ candidateId, stage });
     revalidatePath(`/recruiter/pipelines/${id}`);
   }
@@ -86,11 +76,15 @@ export default async function PipelineDetailPage(props: {
             <ArrowRight className="h-3 w-3" />
             {pipeline.name}
           </div>
-          <h1 className="mt-2 text-[30px] font-semibold tracking-tight">
-            {pipeline.name}
-          </h1>
+          <h1 className="mt-2 text-[30px] font-semibold tracking-tight">{pipeline.name}</h1>
           <p className="mt-2 text-sm text-[var(--muted)]">
-            Role: <Link href={`/recruiter/roles/${role.id}`} className="font-medium text-[var(--foreground)] hover:underline">{role.name}</Link>
+            Role:{' '}
+            <Link
+              href={`/recruiter/roles/${role.id}`}
+              className="font-medium text-[var(--foreground)] hover:underline"
+            >
+              {role.name}
+            </Link>
           </p>
         </div>
         <div>
@@ -126,15 +120,25 @@ export default async function PipelineDetailPage(props: {
                   return (
                     <Card key={candidate.id} className="group relative">
                       <CardBody className="p-3">
-                        <div className="font-semibold text-sm">{user.name || user.githubUsername}</div>
-                        <div className="text-[11px] text-[var(--muted)]">@{user.githubUsername}</div>
+                        <div className="font-semibold text-sm">
+                          {user.name || user.githubUsername}
+                        </div>
+                        <div className="text-[11px] text-[var(--muted)]">
+                          @{user.githubUsername}
+                        </div>
 
                         <div className="mt-4 flex items-center justify-between gap-2">
                           <div className="flex gap-2 items-center">
-                            <Link href={`/${user.githubUsername}`} className="text-[10px] font-medium text-[var(--muted)] hover:text-[var(--foreground)] hover:underline">
+                            <Link
+                              href={`/${user.githubUsername}`}
+                              className="text-[10px] font-medium text-[var(--muted)] hover:text-[var(--foreground)] hover:underline"
+                            >
                               Profile
                             </Link>
-                            <Link href={`/recruiter/pipelines/${pipeline.id}/evaluate/${candidate.id}`} className="text-[10px] font-medium text-[var(--accent)] hover:underline">
+                            <Link
+                              href={`/recruiter/pipelines/${pipeline.id}/evaluate/${candidate.id}`}
+                              className="text-[10px] font-medium text-[var(--accent)] hover:underline"
+                            >
                               Evaluate
                             </Link>
                           </div>
@@ -142,7 +146,10 @@ export default async function PipelineDetailPage(props: {
                           <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             {next && (
                               <form action={moveStageAction.bind(null, candidate.id, next)}>
-                                <button type="submit" className="p-1 hover:bg-[var(--surface-2)] rounded">
+                                <button
+                                  type="submit"
+                                  className="p-1 hover:bg-[var(--surface-2)] rounded"
+                                >
                                   <ArrowRight className="h-3 w-3 text-[var(--muted)]" />
                                 </button>
                               </form>

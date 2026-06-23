@@ -1,2 +1,2 @@
-export { ingestGitHubUser, GitHubIngestError } from "./github";
-export type { IngestResult, IngestPhase, IngestProgress } from "./github";
+export { ingestGitHubUser, GitHubIngestError } from './github';
+export type { IngestResult, IngestPhase, IngestProgress } from './github';

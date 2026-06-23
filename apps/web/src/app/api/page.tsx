@@ -1,12 +1,12 @@
-import type { Metadata } from "next";
-import Link from "next/link";
+import type { Metadata } from 'next';
+import Link from 'next/link';
 
-import { Card, CardBody, CardHeader, CardTitle } from "@/components/atoms/card";
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/atoms/card';
 
 export const metadata: Metadata = {
-  title: "API — TrueHire",
+  title: 'API — TrueHire',
   description:
-    "Public read-only endpoints to pull TrueHire profile data programmatically. JSON, no auth, no API key.",
+    'Public read-only endpoints to pull TrueHire profile data programmatically. JSON, no auth, no API key.',
 };
 
 interface Endpoint {
@@ -18,21 +18,21 @@ interface Endpoint {
 
 const ENDPOINTS: Endpoint[] = [
   {
-    method: "GET",
-    path: "/@:handle/data.json",
+    method: 'GET',
+    path: '/@:handle/data.json',
     description:
-      "Public profile snapshot — score, latest activity months, public work history. Caches for 60s.",
-    example: "curl https://truehire.workers.dev/@torvalds/data.json",
+      'Public profile snapshot — score, latest activity months, public work history. Caches for 60s.',
+    example: 'curl https://truehire.workers.dev/@torvalds/data.json',
   },
   {
-    method: "GET",
-    path: "/sitemap.xml",
-    description: "Standard sitemap with all public pages.",
+    method: 'GET',
+    path: '/sitemap.xml',
+    description: 'Standard sitemap with all public pages.',
   },
   {
-    method: "GET",
-    path: "/robots.txt",
-    description: "Crawler rules, links to /sitemap.xml.",
+    method: 'GET',
+    path: '/robots.txt',
+    description: 'Crawler rules, links to /sitemap.xml.',
   },
 ];
 
@@ -44,8 +44,7 @@ export default function ApiPage() {
       </Link>
       <h1 className="mt-3 text-3xl font-bold tracking-tight">API</h1>
       <p className="mt-3 text-sm text-stone-600">
-        Public, read-only endpoints. No auth, no API key. Everything is
-        cached at the edge.
+        Public, read-only endpoints. No auth, no API key. Everything is cached at the edge.
       </p>
 
       <div className="mt-8 space-y-4">
@@ -72,8 +71,8 @@ export default function ApiPage() {
       </div>
 
       <p className="mt-10 text-xs text-stone-500">
-        Want a different shape? Open an issue — most read-side data is
-        already in Drizzle queries that could be exposed.
+        Want a different shape? Open an issue — most read-side data is already in Drizzle queries
+        that could be exposed.
       </p>
     </main>
   );

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from 'next/link';
 import {
   ArrowUpRight,
   BriefcaseBusiness,
@@ -8,19 +8,19 @@ import {
   GitCompareArrows,
   Search,
   UsersRound,
-} from "lucide-react";
+} from 'lucide-react';
 import {
   buildShortlistComparisonReport,
   type ShortlistCandidateComparison,
   type ShortlistCandidateInput,
-} from "@truehire/core";
-import { Badge } from "@/components/atoms/badge";
-import { Button } from "@/components/atoms/button";
-import { Card, CardBody, CardHeader, CardTitle } from "@/components/atoms/card";
-import { getLatestScore, getUserByUsername } from "@/lib/score-service";
-import type { EvidenceEntry, ScoreBreakdown } from "@truehire/core";
-import { ExportReportButton } from "./export-report-button";
-import { JdEvaluator } from "@/components/molecules/jd-evaluator";
+} from '@truehire/core';
+import { Badge } from '@/components/atoms/badge';
+import { Button } from '@/components/atoms/button';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/atoms/card';
+import { getLatestScore, getUserByUsername } from '@/lib/score-service';
+import type { EvidenceEntry, ScoreBreakdown } from '@truehire/core';
+import { ExportReportButton } from './export-report-button';
+import { JdEvaluator } from '@/components/molecules/jd-evaluator';
 
 type SearchParams = {
   handles?: string | string[];
@@ -29,10 +29,10 @@ type SearchParams = {
 
 type MissingCandidate = {
   handle: string;
-  reason: "not_found" | "no_score";
+  reason: 'not_found' | 'no_score';
 };
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 export default async function RecruiterShortlistPage(props: {
   searchParams: Promise<SearchParams>;
@@ -62,9 +62,8 @@ export default async function RecruiterShortlistPage(props: {
             Compare verified candidates against one role.
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-[var(--muted)]">
-            Paste a shortlist of TrueHire handles and a job description. The
-            dashboard ranks candidates by role fit, evidence coverage, gaps, and
-            their verified public-work score.
+            Paste a shortlist of TrueHire handles and a job description. The dashboard ranks
+            candidates by role fit, evidence coverage, gaps, and their verified public-work score.
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
@@ -74,7 +73,11 @@ export default async function RecruiterShortlistPage(props: {
             </Button>
           </Link>
           <Link href="/dashboard">
-            <Button variant="secondary" size="sm" leftIcon={<BriefcaseBusiness className="h-4 w-4" />}>
+            <Button
+              variant="secondary"
+              size="sm"
+              leftIcon={<BriefcaseBusiness className="h-4 w-4" />}
+            >
               Candidate dashboard
             </Button>
           </Link>
@@ -87,11 +90,12 @@ export default async function RecruiterShortlistPage(props: {
           <Badge tone="outline">2-8 handles</Badge>
         </CardHeader>
         <CardBody>
-          <form className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr_auto]" action="/recruiter/shortlist">
+          <form
+            className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr_auto]"
+            action="/recruiter/shortlist"
+          >
             <label className="block">
-              <span className="text-[12px] font-medium text-[var(--muted)]">
-                Candidate handles
-              </span>
+              <span className="text-[12px] font-medium text-[var(--muted)]">Candidate handles</span>
               <textarea
                 name="handles"
                 rows={5}
@@ -102,9 +106,7 @@ export default async function RecruiterShortlistPage(props: {
               />
             </label>
             <label className="block">
-              <span className="text-[12px] font-medium text-[var(--muted)]">
-                Job description
-              </span>
+              <span className="text-[12px] font-medium text-[var(--muted)]">Job description</span>
               <textarea
                 name="jd"
                 rows={5}
@@ -130,8 +132,8 @@ export default async function RecruiterShortlistPage(props: {
         <>
           <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
             <div className="text-[12px] text-[var(--muted)]">
-              Share this dashboard from the current URL, or export it as a PDF
-              from the print dialog.
+              Share this dashboard from the current URL, or export it as a PDF from the print
+              dialog.
             </div>
             <ExportReportButton />
           </div>
@@ -139,9 +141,12 @@ export default async function RecruiterShortlistPage(props: {
           <section className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <Metric label="Candidates" value={comparison.summary.candidateCount} />
             <Metric label="Avg fit" value={`${comparison.summary.averageFitScore}/100`} />
-            <Metric label="Best fit" value={comparison.summary.topCandidateHandle ?? "-"} />
-            <Metric label="Shared strength" value={comparison.summary.strongestRequirement ?? "-"} />
-            <Metric label="Common gap" value={comparison.summary.commonGap ?? "-"} />
+            <Metric label="Best fit" value={comparison.summary.topCandidateHandle ?? '-'} />
+            <Metric
+              label="Shared strength"
+              value={comparison.summary.strongestRequirement ?? '-'}
+            />
+            <Metric label="Common gap" value={comparison.summary.commonGap ?? '-'} />
           </section>
 
           {loaded.missing.length > 0 && <MissingCandidates candidates={loaded.missing} />}
@@ -203,13 +208,13 @@ async function loadCandidates(handles: string[]) {
   for (const handle of handles) {
     const user = await getUserByUsername(handle);
     if (!user) {
-      missing.push({ handle, reason: "not_found" });
+      missing.push({ handle, reason: 'not_found' });
       continue;
     }
 
     const score = await getLatestScore(user.id);
     if (!score) {
-      missing.push({ handle, reason: "no_score" });
+      missing.push({ handle, reason: 'no_score' });
       continue;
     }
 
@@ -224,7 +229,7 @@ async function loadCandidates(handles: string[]) {
       monthsActive: score.monthsActive,
       computedAt: score.computedAt,
       evidence: JSON.parse(score.evidenceJson) as EvidenceEntry[],
-      languages: JSON.parse(score.languagesJson) as ScoreBreakdown["languages"],
+      languages: JSON.parse(score.languagesJson) as ScoreBreakdown['languages'],
     });
   }
 
@@ -265,7 +270,7 @@ function CandidateCard({ candidate }: { candidate: ShortlistCandidateComparison 
         <CardTitle>
           #{candidate.rank} · @{candidate.handle}
         </CardTitle>
-        <Badge tone={candidate.rank === 1 ? "verified" : "outline"}>
+        <Badge tone={candidate.rank === 1 ? 'verified' : 'outline'}>
           {candidate.report.fitScore}/100 fit
         </Badge>
       </CardHeader>
@@ -334,12 +339,12 @@ function MissingCandidates({ candidates }: { candidates: MissingCandidate[] }) {
     <Card className="mt-6 border-[color:color-mix(in_srgb,var(--warn)_30%,var(--border))]">
       <CardBody>
         <div className="text-[12px] font-medium text-[var(--warn)]">
-          Skipped {candidates.length} handle{candidates.length === 1 ? "" : "s"}
+          Skipped {candidates.length} handle{candidates.length === 1 ? '' : 's'}
         </div>
         <div className="mt-2 flex flex-wrap gap-2">
           {candidates.map((candidate) => (
             <Badge key={candidate.handle} tone="outline">
-              @{candidate.handle}: {candidate.reason === "not_found" ? "not found" : "no score"}
+              @{candidate.handle}: {candidate.reason === 'not_found' ? 'not found' : 'no score'}
             </Badge>
           ))}
         </div>
@@ -356,8 +361,8 @@ function EmptyShortlist() {
           Try the evaluation loop
         </div>
         <p className="mt-1 max-w-2xl text-[14px] text-[var(--muted)]">
-          Paste a job description to see which verified GitHub signals TrueHire will
-          evaluate — before you add any candidates.
+          Paste a job description to see which verified GitHub signals TrueHire will evaluate —
+          before you add any candidates.
         </p>
       </div>
       <JdEvaluator />
@@ -394,7 +399,7 @@ function EvidencePill({
   label: string;
   detail?: string;
   score: number;
-  tone: "verified" | "outline";
+  tone: 'verified' | 'outline';
 }) {
   return (
     <div className="flex items-center justify-between gap-3 rounded-[var(--radius-sm)] border border-[var(--border)] px-3 py-2">
@@ -416,7 +421,7 @@ function EmptyLine({ label }: { label: string }) {
 }
 
 function getFirst(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] ?? "" : value ?? "";
+  return Array.isArray(value) ? (value[0] ?? '') : (value ?? '');
 }
 
 function parseHandles(value: string) {
@@ -424,14 +429,14 @@ function parseHandles(value: string) {
     new Set(
       value
         .split(/[\s,]+/)
-        .map((handle) => handle.trim().replace(/^@/, ""))
-        .filter((handle) => /^[a-zA-Z0-9-]{1,39}$/.test(handle)),
-    ),
+        .map((handle) => handle.trim().replace(/^@/, ''))
+        .filter((handle) => /^[a-zA-Z0-9-]{1,39}$/.test(handle))
+    )
   ).slice(0, 8);
 }
 
 function strongestEvidenceLabel(
-  evidence: ShortlistCandidateComparison["topStrengths"][number]["strengths"][number],
+  evidence: ShortlistCandidateComparison['topStrengths'][number]['strengths'][number]
 ) {
   return `${evidence.repoFullName} · ${evidence.commits} commits`;
 }
@@ -439,9 +444,9 @@ function strongestEvidenceLabel(
 function formatRelative(d: Date) {
   const diff = Date.now() - d.getTime();
   const h = Math.floor(diff / 3_600_000);
-  if (h < 1) return "just now";
+  if (h < 1) return 'just now';
   if (h < 24) return `${h}h ago`;
   const days = Math.floor(h / 24);
   if (days < 30) return `${days}d ago`;
-  return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 }

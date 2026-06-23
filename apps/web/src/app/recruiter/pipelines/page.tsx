@@ -1,11 +1,11 @@
-import Link from "next/link";
-import { Plus, GitBranch, ChevronRight, Activity } from "lucide-react";
-import { Button } from "@/components/atoms/button";
-import { Card, CardBody, CardHeader, CardTitle } from "@/components/atoms/card";
-import { Badge } from "@/components/atoms/badge";
-import { getHiringPipelines, getHiringRoles } from "@/lib/hiring-service";
+import Link from 'next/link';
+import { Plus, GitBranch, ChevronRight, Activity } from 'lucide-react';
+import { Button } from '@/components/atoms/button';
+import { Card, CardBody } from '@/components/atoms/card';
+import { Badge } from '@/components/atoms/badge';
+import { getHiringPipelines, getHiringRoles } from '@/lib/hiring-service';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 export default async function PipelinesPage() {
   const pipelines = await getHiringPipelines();
@@ -23,7 +23,8 @@ export default async function PipelinesPage() {
             Active hiring workflows.
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-[var(--muted)]">
-            Track candidates through stages, record decision notes, and maintain a repeatable evaluation process.
+            Track candidates through stages, record decision notes, and maintain a repeatable
+            evaluation process.
           </p>
         </div>
         <div className="flex gap-3">
@@ -81,10 +82,11 @@ export default async function PipelinesPage() {
                   <div>
                     <h3 className="text-lg font-semibold">{pipeline.name}</h3>
                     <p className="mt-1 text-sm text-[var(--muted)]">
-                      Based on: <span className="font-medium text-[var(--foreground)]">{role.name}</span>
+                      Based on:{' '}
+                      <span className="font-medium text-[var(--foreground)]">{role.name}</span>
                     </p>
                     <div className="mt-3 flex gap-2">
-                      <Badge tone={pipeline.status === "active" ? "verified" : "outline"}>
+                      <Badge tone={pipeline.status === 'active' ? 'verified' : 'outline'}>
                         {pipeline.status}
                       </Badge>
                       <Badge tone="outline">

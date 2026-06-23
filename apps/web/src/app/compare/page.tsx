@@ -1,15 +1,15 @@
-import type { Metadata } from "next";
-import Link from "next/link";
+import type { Metadata } from 'next';
+import Link from 'next/link';
 
-import { Card, CardBody, CardHeader, CardTitle } from "@/components/atoms/card";
-import { getLatestScore, getUserByUsername } from "@/lib/score-service";
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/atoms/card';
+import { getLatestScore, getUserByUsername } from '@/lib/score-service';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: "Compare profiles — TrueHire",
+  title: 'Compare profiles — TrueHire',
   description:
-    "Side-by-side TrueHire score comparison. Verified GitHub activity, no self-declared inputs.",
+    'Side-by-side TrueHire score comparison. Verified GitHub activity, no self-declared inputs.',
 };
 
 interface Stripped {
@@ -24,13 +24,15 @@ interface Stripped {
   specialization: number;
 }
 
-async function load(rawHandle: string): Promise<Stripped | { error: "handle" | "not_found" | "no_score" }> {
-  const clean = rawHandle.startsWith("@") ? rawHandle.slice(1) : rawHandle;
-  if (!/^[a-zA-Z0-9-]{1,39}$/.test(clean)) return { error: "handle" };
+async function load(
+  rawHandle: string
+): Promise<Stripped | { error: 'handle' | 'not_found' | 'no_score' }> {
+  const clean = rawHandle.startsWith('@') ? rawHandle.slice(1) : rawHandle;
+  if (!/^[a-zA-Z0-9-]{1,39}$/.test(clean)) return { error: 'handle' };
   const user = await getUserByUsername(clean);
-  if (!user) return { error: "not_found" };
+  if (!user) return { error: 'not_found' };
   const score = await getLatestScore(user.id);
-  if (!score) return { error: "no_score" };
+  if (!score) return { error: 'no_score' };
   return {
     handle: clean,
     overall: score.overall,
@@ -44,15 +46,17 @@ async function load(rawHandle: string): Promise<Stripped | { error: "handle" | "
   };
 }
 
-function isErr(x: Awaited<ReturnType<typeof load>>): x is { error: "handle" | "not_found" | "no_score" } {
-  return "error" in x;
+function isErr(
+  x: Awaited<ReturnType<typeof load>>
+): x is { error: 'handle' | 'not_found' | 'no_score' } {
+  return 'error' in x;
 }
 
 type SearchParams = { a?: string | string[]; b?: string | string[] };
 
 function first(v: string | string[] | undefined): string | null {
   if (!v) return null;
-  return Array.isArray(v) ? v[0] ?? null : v;
+  return Array.isArray(v) ? (v[0] ?? null) : v;
 }
 
 export default async function ComparePage({
@@ -69,8 +73,7 @@ export default async function ComparePage({
       <main className="mx-auto max-w-2xl px-4 py-16">
         <h1 className="text-3xl font-bold tracking-tight">Compare profiles</h1>
         <p className="mt-3 text-sm text-stone-600">
-          Pass two GitHub handles in the query string to render a side-by-side
-          score comparison.
+          Pass two GitHub handles in the query string to render a side-by-side score comparison.
         </p>
         <pre className="mt-6 rounded-md bg-stone-100 p-4 font-mono text-xs">
           /compare?a=alice&amp;b=bob
@@ -86,10 +89,10 @@ export default async function ComparePage({
       <header className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">Compare</h1>
         <p className="mt-2 text-sm text-stone-500">
-          Scores are derived from public GitHub activity only. See{" "}
+          Scores are derived from public GitHub activity only. See{' '}
           <Link href="/methodology" className="underline">
             /methodology
-          </Link>{" "}
+          </Link>{' '}
           for the algorithm.
         </p>
       </header>
@@ -108,14 +111,14 @@ function ProfileColumn({
   data,
 }: {
   handle: string;
-  data: Stripped | { error: "handle" | "not_found" | "no_score" };
+  data: Stripped | { error: 'handle' | 'not_found' | 'no_score' };
 }) {
   if (isErr(data)) {
     const msg =
-      data.error === "handle"
-        ? "Invalid handle format."
-        : data.error === "not_found"
-          ? "No TrueHire profile for this handle yet."
+      data.error === 'handle'
+        ? 'Invalid handle format.'
+        : data.error === 'not_found'
+          ? 'No TrueHire profile for this handle yet.'
           : "Profile exists but hasn't been scored yet.";
     return (
       <Card>
@@ -129,14 +132,14 @@ function ProfileColumn({
     );
   }
   const rows: Array<{ label: string; key: keyof Stripped }> = [
-    { label: "Overall", key: "overall" },
-    { label: "GitHub composite", key: "signal1" },
-    { label: "Verified employment", key: "signal2" },
-    { label: "Recognition", key: "recognition" },
-    { label: "Depth", key: "depth" },
-    { label: "Craft", key: "craft" },
-    { label: "Breadth", key: "breadth" },
-    { label: "Specialization", key: "specialization" },
+    { label: 'Overall', key: 'overall' },
+    { label: 'GitHub composite', key: 'signal1' },
+    { label: 'Verified employment', key: 'signal2' },
+    { label: 'Recognition', key: 'recognition' },
+    { label: 'Depth', key: 'depth' },
+    { label: 'Craft', key: 'craft' },
+    { label: 'Breadth', key: 'breadth' },
+    { label: 'Specialization', key: 'specialization' },
   ];
   return (
     <Card>
@@ -153,9 +156,7 @@ function ProfileColumn({
             {rows.map((r) => (
               <tr key={r.key} className="border-b border-stone-100">
                 <td className="py-2 text-stone-600">{r.label}</td>
-                <td className="py-2 text-right font-medium tabular-nums">
-                  {data[r.key]}
-                </td>
+                <td className="py-2 text-right font-medium tabular-nums">{data[r.key]}</td>
               </tr>
             ))}
           </tbody>

@@ -1,10 +1,6 @@
-import { Octokit } from "@octokit/rest";
-import { graphql } from "@octokit/graphql";
-import type {
-  ContributionInput,
-  CraftSignals,
-  MonthBucket,
-} from "../scoring/types";
+import { Octokit } from '@octokit/rest';
+import { graphql } from '@octokit/graphql';
+import type { ContributionInput, CraftSignals, MonthBucket } from '../scoring/types';
 
 export type IngestResult = {
   contributions: ContributionInput[];
@@ -29,15 +25,10 @@ type RepoSignals = CraftSignals & {
 export class GitHubIngestError extends Error {
   constructor(
     message: string,
-    public readonly reason:
-      | "rate_limited"
-      | "not_found"
-      | "auth"
-      | "network"
-      | "unknown",
+    public readonly reason: 'rate_limited' | 'not_found' | 'auth' | 'network' | 'unknown'
   ) {
     super(message);
-    this.name = "GitHubIngestError";
+    this.name = 'GitHubIngestError';
   }
 }
 
@@ -46,38 +37,37 @@ function sleep(ms: number) {
 }
 
 /** Classify an Octokit / GraphQL error into a stable failure reason. */
-function classifyGitHubError(err: unknown): GitHubIngestError["reason"] {
+function classifyGitHubError(err: unknown): GitHubIngestError['reason'] {
   const status =
     (err as { status?: number })?.status ??
     (err as { response?: { status?: number } })?.response?.status;
-  const message =
-    err instanceof Error ? err.message.toLowerCase() : String(err).toLowerCase();
+  const message = err instanceof Error ? err.message.toLowerCase() : String(err).toLowerCase();
 
   if (status === 403) {
-    return "rate_limited"; // GitHub uses 403 for primary + secondary rate limits
+    return 'rate_limited'; // GitHub uses 403 for primary + secondary rate limits
   }
-  if (status === 401) return "auth";
-  if (status === 404) return "not_found";
-  if (status === 429) return "rate_limited";
-  if (message.includes("rate limit") || message.includes("secondary rate")) {
-    return "rate_limited";
+  if (status === 401) return 'auth';
+  if (status === 404) return 'not_found';
+  if (status === 429) return 'rate_limited';
+  if (message.includes('rate limit') || message.includes('secondary rate')) {
+    return 'rate_limited';
   }
-  if (message.includes("not found")) return "not_found";
-  if (message.includes("bad credentials") || message.includes("unauthorized")) {
-    return "auth";
+  if (message.includes('not found')) return 'not_found';
+  if (message.includes('bad credentials') || message.includes('unauthorized')) {
+    return 'auth';
   }
   if (
-    message.includes("fetch failed") ||
-    message.includes("network") ||
-    message.includes("timeout") ||
-    message.includes("econnreset") ||
+    message.includes('fetch failed') ||
+    message.includes('network') ||
+    message.includes('timeout') ||
+    message.includes('econnreset') ||
     status === 502 ||
     status === 503 ||
     status === 504
   ) {
-    return "network";
+    return 'network';
   }
-  return "unknown";
+  return 'unknown';
 }
 
 /**
@@ -88,7 +78,7 @@ function classifyGitHubError(err: unknown): GitHubIngestError["reason"] {
 async function withGitHubRetry<T>(
   label: string,
   fn: () => Promise<T>,
-  opts: { maxAttempts?: number; baseDelayMs?: number } = {},
+  opts: { maxAttempts?: number; baseDelayMs?: number } = {}
 ): Promise<T> {
   const maxAttempts = opts.maxAttempts ?? 4;
   const baseDelayMs = opts.baseDelayMs ?? 1000;
@@ -102,12 +92,12 @@ async function withGitHubRetry<T>(
       const reason = classifyGitHubError(err);
 
       // Auth + not-found are not retryable — fail immediately with clear copy.
-      if (reason === "auth" || reason === "not_found") {
+      if (reason === 'auth' || reason === 'not_found') {
         throw new GitHubIngestError(
-          reason === "auth"
-            ? "GitHub rejected the access token. Reconnect GitHub and try again."
+          reason === 'auth'
+            ? 'GitHub rejected the access token. Reconnect GitHub and try again.'
             : `GitHub returned not-found for ${label}.`,
-          reason,
+          reason
         );
       }
 
@@ -115,10 +105,9 @@ async function withGitHubRetry<T>(
 
       // Prefer GitHub's own backoff hint when present.
       const headers =
-        (err as { response?: { headers?: Record<string, string> } })?.response
-          ?.headers ?? {};
-      const retryAfter = Number(headers["retry-after"]);
-      const reset = Number(headers["x-ratelimit-reset"]);
+        (err as { response?: { headers?: Record<string, string> } })?.response?.headers ?? {};
+      const retryAfter = Number(headers['retry-after']);
+      const reset = Number(headers['x-ratelimit-reset']);
       let delayMs = baseDelayMs * 2 ** (attempt - 1);
       if (Number.isFinite(retryAfter) && retryAfter > 0) {
         delayMs = Math.min(retryAfter * 1000, 60_000);
@@ -133,10 +122,10 @@ async function withGitHubRetry<T>(
 
   const reason = classifyGitHubError(lastErr);
   throw new GitHubIngestError(
-    reason === "rate_limited"
+    reason === 'rate_limited'
       ? "GitHub's rate limit was hit while reading this profile. Try again in a few minutes."
       : `Failed to read GitHub data for ${label} after ${maxAttempts} attempts.`,
-    reason,
+    reason
   );
 }
 
@@ -195,10 +184,10 @@ const CONTRIB_QUERY = /* GraphQL */ `
  * Strategy: query year-by-year back up to 6 years (GitHub limit is ~1yr per call).
  */
 export type IngestPhase =
-  | { type: "profile"; message: string }
-  | { type: "year"; year: number; total: number; message: string; pct: number }
-  | { type: "authored"; message: string; pct: number }
-  | { type: "done"; pct: 100; stats: { repos: number; months: number } };
+  | { type: 'profile'; message: string }
+  | { type: 'year'; year: number; total: number; message: string; pct: number }
+  | { type: 'authored'; message: string; pct: number }
+  | { type: 'done'; pct: 100; stats: { repos: number; months: number } };
 
 export type IngestProgress = (phase: IngestPhase) => void;
 
@@ -223,17 +212,17 @@ export async function ingestGitHubUser(params: {
 
   let profile: IngestResult | null = null;
 
-  progress({ type: "profile", message: `Fetching @${login} profile` });
+  progress({ type: 'profile', message: `Fetching @${login} profile` });
 
   for (let y = 0; y < yearsBack; y++) {
     const to = new Date(now.getTime() - y * 365 * 24 * 3600 * 1000);
     const from = new Date(to.getTime() - 365 * 24 * 3600 * 1000);
 
-    const label = `${from.getUTCFullYear()}-${String(from.getUTCMonth() + 1).padStart(2, "0")} → ${to.getUTCFullYear()}-${String(to.getUTCMonth() + 1).padStart(2, "0")}`;
+    const label = `${from.getUTCFullYear()}-${String(from.getUTCMonth() + 1).padStart(2, '0')} → ${to.getUTCFullYear()}-${String(to.getUTCMonth() + 1).padStart(2, '0')}`;
     // 10% reserved for authored-repo top-up, so years share 85%.
     const pct = 5 + Math.round(((y + 1) / yearsBack) * 85);
     progress({
-      type: "year",
+      type: 'year',
       year: yearsBack - y,
       total: yearsBack,
       message: `Scanning contributions ${label}`,
@@ -245,14 +234,11 @@ export async function ingestGitHubUser(params: {
         login,
         from: from.toISOString(),
         to: to.toISOString(),
-      }),
+      })
     );
     const u = res.user;
     if (!u) {
-      throw new GitHubIngestError(
-        `GitHub user @${login} not found`,
-        "not_found",
-      );
+      throw new GitHubIngestError(`GitHub user @${login} not found`, 'not_found');
     }
 
     if (!profile) {
@@ -308,13 +294,11 @@ export async function ingestGitHubUser(params: {
     // merged PRs per repo
     for (const pr of u.contributionsCollection.pullRequestContributionsByRepository) {
       const repo = pr.repository;
-      const merged = pr.contributions.nodes.filter(
-        (n: any) => n.pullRequest.merged,
-      ).length;
+      const merged = pr.contributions.nodes.filter((n: any) => n.pullRequest.merged).length;
       if (merged === 0) continue;
       const key = repo.nameWithOwner;
       const existing = repoAgg.get(key);
-      const isAuthor = key.split("/")[0]?.toLowerCase() === login.toLowerCase();
+      const isAuthor = key.split('/')[0]?.toLowerCase() === login.toLowerCase();
       const add: ContributionInput & { _starSync: boolean } = existing ?? {
         repoFullName: key,
         repoStars: repo.stargazerCount,
@@ -334,16 +318,16 @@ export async function ingestGitHubUser(params: {
     }
   }
 
-  progress({ type: "authored", message: "Topping up authored repos", pct: 88 });
+  progress({ type: 'authored', message: 'Topping up authored repos', pct: 88 });
 
   // Top up authored-repo metadata + mark isFork.
   try {
     const authored = await withGitHubRetry(`@${login} authored repos`, () =>
       rest.paginate(rest.repos.listForUser, {
         username: login,
-        type: "owner",
+        type: 'owner',
         per_page: 100,
-      }),
+      })
     );
     for (const r of authored) {
       const key = r.full_name;
@@ -378,7 +362,7 @@ export async function ingestGitHubUser(params: {
     /* non-fatal */
   }
 
-  progress({ type: "authored", message: "Reading repo craft signals", pct: 94 });
+  progress({ type: 'authored', message: 'Reading repo craft signals', pct: 94 });
 
   // Fetch craft signals for (a) authored non-fork repos with real engagement
   // and (b) top external "core-contributor" repos where the user has sunk
@@ -402,7 +386,7 @@ export async function ingestGitHubUser(params: {
         const signals = await withGitHubRetry(
           `craft signals for ${c.repoFullName}`,
           () => fetchCraftSignals(rest, c.repoFullName, login),
-          { maxAttempts: 2 },
+          { maxAttempts: 2 }
         );
         const { firstCommitAt, lastCommitAt, ...craft } = signals;
         c.craft = craft;
@@ -411,7 +395,7 @@ export async function ingestGitHubUser(params: {
       } catch {
         c.craft = null;
       }
-    }),
+    })
   );
 
   const months: MonthBucket[] = Array.from(monthBuckets.entries())
@@ -419,16 +403,16 @@ export async function ingestGitHubUser(params: {
     .sort((a, b) => (a.month < b.month ? -1 : 1));
 
   const contributions: ContributionInput[] = Array.from(repoAgg.values()).map(
-    ({ _starSync: _s, ...c }) => c,
+    ({ _starSync: _s, ...c }) => c
   );
 
   if (!profile) {
-    throw new GitHubIngestError("Empty GitHub response", "unknown");
+    throw new GitHubIngestError('Empty GitHub response', 'unknown');
   }
   profile.contributions = contributions;
   profile.months = months;
   progress({
-    type: "done",
+    type: 'done',
     pct: 100,
     stats: { repos: contributions.length, months: months.length },
   });
@@ -436,29 +420,35 @@ export async function ingestGitHubUser(params: {
 }
 
 const TEST_DIR = /^(?:tests?|__tests__|spec|e2e|t)$/i;
-const TEST_FILE = /\.(?:test|spec)\.(?:ts|tsx|js|jsx|py|go|rb|rs|c|cpp|java|kt)$|^(?:vitest|jest|playwright|cypress|karma|mocha|pytest)\.config\./i;
-const PACKAGE_MANIFEST = /^(?:package\.json|pyproject\.toml|Cargo\.toml|go\.mod|Gemfile|composer\.json|pom\.xml|build\.gradle(?:\.kts)?|Makefile|CMakeLists\.txt|configure\.ac|meson\.build|mix\.exs|deno\.json)$/i;
+const TEST_FILE =
+  /\.(?:test|spec)\.(?:ts|tsx|js|jsx|py|go|rb|rs|c|cpp|java|kt)$|^(?:vitest|jest|playwright|cypress|karma|mocha|pytest)\.config\./i;
+const PACKAGE_MANIFEST =
+  /^(?:package\.json|pyproject\.toml|Cargo\.toml|go\.mod|Gemfile|composer\.json|pom\.xml|build\.gradle(?:\.kts)?|Makefile|CMakeLists\.txt|configure\.ac|meson\.build|mix\.exs|deno\.json)$/i;
 // Non-GitHub-Actions CI file names
-const CI_FILE = /^(?:\.travis\.yml|\.circleci|\.drone\.yml|\.woodpecker(?:\.yml|\.yaml)?|Jenkinsfile|azure-pipelines\.yml|appveyor\.yml|bitbucket-pipelines\.yml|\.gitlab-ci\.yml|\.buildkite)$/i;
+const CI_FILE =
+  /^(?:\.travis\.yml|\.circleci|\.drone\.yml|\.woodpecker(?:\.yml|\.yaml)?|Jenkinsfile|azure-pipelines\.yml|appveyor\.yml|bitbucket-pipelines\.yml|\.gitlab-ci\.yml|\.buildkite)$/i;
 
 async function fetchCraftSignals(
   rest: Octokit,
   fullName: string,
-  login: string,
+  login: string
 ): Promise<RepoSignals> {
-  const [owner, repo] = fullName.split("/");
+  const [owner, repo] = fullName.split('/');
 
   // Run file listing + releases count + contributors count + commit sample in parallel.
   const [contentsRes, releasesRes, contributorsRes, commitsRes] = await Promise.all([
-    rest.repos.getContent({ owner, repo, path: "" }).catch(() => null),
+    rest.repos.getContent({ owner, repo, path: '' }).catch(() => null),
     rest.repos
       .listReleases({ owner, repo, per_page: 1 })
       .then((r) => extractTotalCountFromLinkHeader(r.headers.link) ?? r.data.length)
       .catch(() => 0),
     rest.repos
-      .listContributors({ owner, repo, per_page: 1, anon: "false" })
-      .then((r) => extractTotalCountFromLinkHeader(r.headers.link) ??
-        (Array.isArray(r.data) ? r.data.length : 0))
+      .listContributors({ owner, repo, per_page: 1, anon: 'false' })
+      .then(
+        (r) =>
+          extractTotalCountFromLinkHeader(r.headers.link) ??
+          (Array.isArray(r.data) ? r.data.length : 0)
+      )
       .catch(() => 0),
     rest.repos
       .listCommits({ owner, repo, author: login, per_page: 50 })
@@ -477,7 +467,7 @@ async function fetchCraftSignals(
   if (Array.isArray(contentsRes?.data)) {
     for (const entry of contentsRes.data) {
       const name = entry.name;
-      if (name === ".github" && entry.type === "dir") sawGithubDir = true;
+      if (name === '.github' && entry.type === 'dir') sawGithubDir = true;
       if (CI_FILE.test(name)) hasCi = true;
       if (/^README(\.|$)/i.test(name)) {
         hasReadme = true;
@@ -492,7 +482,7 @@ async function fetchCraftSignals(
   // If a `.github` dir exists, verify it contains workflows (GH Actions).
   if (sawGithubDir && !hasCi) {
     const wf = await rest.repos
-      .getContent({ owner, repo, path: ".github/workflows" })
+      .getContent({ owner, repo, path: '.github/workflows' })
       .catch(() => null);
     if (Array.isArray(wf?.data) && wf.data.length > 0) hasCi = true;
   }
@@ -510,7 +500,7 @@ async function fetchCraftSignals(
         author?: { date?: string | null } | null;
         committer?: { date?: string | null } | null;
       };
-    }>,
+    }>
   );
 
   return {
@@ -532,7 +522,7 @@ async function fetchCraftSignals(
 const TRIVIAL_MSG =
   /^(?:wip|tmp|temp|asdf|test|fix|update|updates?|minor(?:\s+update)?|typo|fix(?:ed)?\s+typo|stuff|things|merge\s+branch|initial\s+commit|init|commit|save|progress|work|y|\.{2,}|[a-z]{1,3}|updated?\s+readme)\s*$/i;
 const MEANINGFUL_VERB =
-  /^(?:feat|fix|refactor|docs?|test|perf|chore|style|ci|build|revert|add(?:s|ed)?|remove[sd]?|implement|introduce|handle|prevent|enable|disable|migrate|rename|move|extract|inline|bump|upgrade|downgrade|close|resolve)[\s(:\-]/i;
+  /^(?:feat|fix|refactor|docs?|test|perf|chore|style|ci|build|revert|add(?:s|ed)?|remove[sd]?|implement|introduce|handle|prevent|enable|disable|migrate|rename|move|extract|inline|bump|upgrade|downgrade|close|resolve)[\s(:-]/i;
 
 function computeCommitQuality(
   commits: Array<{
@@ -541,10 +531,10 @@ function computeCommitQuality(
       author?: { date?: string | null } | null;
       committer?: { date?: string | null } | null;
     };
-  }>,
+  }>
 ) {
   const msgs = commits
-    .map((c) => (c.commit?.message ?? "").split("\n")[0].trim())
+    .map((c) => (c.commit?.message ?? '').split('\n')[0].trim())
     .filter((m) => m.length > 0);
   const sampled = msgs.length;
   if (sampled === 0) {
@@ -553,9 +543,7 @@ function computeCommitQuality(
   const totalLen = msgs.reduce((s, m) => s + m.length, 0);
   const avgLen = Math.round(totalLen / sampled);
   const meaningfulCount = msgs.filter(
-    (m) =>
-      !TRIVIAL_MSG.test(m) &&
-      (MEANINGFUL_VERB.test(m) || m.length >= 30),
+    (m) => !TRIVIAL_MSG.test(m) && (MEANINGFUL_VERB.test(m) || m.length >= 30)
   ).length;
   const commitDates = commits
     .map((c) => c.commit?.author?.date ?? c.commit?.committer?.date ?? null)
@@ -571,9 +559,7 @@ function computeCommitQuality(
   };
 }
 
-function extractTotalCountFromLinkHeader(
-  link: string | undefined,
-): number | null {
+function extractTotalCountFromLinkHeader(link: string | undefined): number | null {
   if (!link) return null;
   const m = link.match(/[?&]page=(\d+)[^>]*>; rel="last"/);
   return m ? Number(m[1]) : null;

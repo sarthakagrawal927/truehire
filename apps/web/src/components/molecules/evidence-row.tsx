@@ -1,6 +1,6 @@
-import { Star, GitPullRequest, Code2, User } from "lucide-react";
-import { Badge } from "@/components/atoms/badge";
-import type { EvidenceEntry } from "@truehire/core";
+import { Star, GitPullRequest, Code2, User } from 'lucide-react';
+import { Badge } from '@/components/atoms/badge';
+import type { EvidenceEntry } from '@truehire/core';
 
 type Props = { entry: EvidenceEntry; maxWeight: number; rank: number };
 
@@ -15,7 +15,7 @@ export function EvidenceRow({ entry, maxWeight, rank }: Props) {
     >
       <div className="flex items-center gap-4">
         <div className="num w-6 text-right text-[11px] text-[var(--muted-2)]">
-          {String(rank).padStart(2, "0")}
+          {String(rank).padStart(2, '0')}
         </div>
 
         <div className="flex-1 min-w-0">

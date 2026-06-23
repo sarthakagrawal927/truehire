@@ -1,18 +1,18 @@
-import { redirect } from "next/navigation";
-import Link from "next/link";
-import { BriefcaseBusiness, Save } from "lucide-react";
-import { Button } from "@/components/atoms/button";
-import { Card, CardBody, CardHeader, CardTitle } from "@/components/atoms/card";
-import { createHiringRole } from "@/lib/hiring-service";
-import { extractRoleRequirements } from "@truehire/core";
+import { redirect } from 'next/navigation';
+import Link from 'next/link';
+import { BriefcaseBusiness, Save } from 'lucide-react';
+import { Button } from '@/components/atoms/button';
+import { Card, CardBody } from '@/components/atoms/card';
+import { createHiringRole } from '@/lib/hiring-service';
+import { extractRoleRequirements } from '@truehire/core';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 export default function NewRolePage() {
   async function action(formData: FormData) {
-    "use server";
-    const name = formData.get("name") as string;
-    const description = formData.get("description") as string;
+    'use server';
+    const name = formData.get('name') as string;
+    const description = formData.get('description') as string;
 
     const requirements = extractRoleRequirements(description);
 
@@ -22,7 +22,7 @@ export default function NewRolePage() {
       requirementsJson: JSON.stringify(requirements),
     });
 
-    redirect("/recruiter/roles");
+    redirect('/recruiter/roles');
   }
 
   return (
@@ -31,11 +31,10 @@ export default function NewRolePage() {
         <BriefcaseBusiness className="h-4 w-4" />
         New role template
       </div>
-      <h1 className="mt-2 text-[30px] font-semibold tracking-tight">
-        Define a new role.
-      </h1>
+      <h1 className="mt-2 text-[30px] font-semibold tracking-tight">Define a new role.</h1>
       <p className="mt-2 text-sm text-[var(--muted)]">
-        Provide a title and job description. We will automatically extract a rubric from the description, which you can refine later.
+        Provide a title and job description. We will automatically extract a rubric from the
+        description, which you can refine later.
       </p>
 
       <Card className="mt-8">
@@ -53,7 +52,9 @@ export default function NewRolePage() {
             </label>
 
             <label className="block">
-              <span className="text-[12px] font-medium text-[var(--muted)]">Job description / Rubric source</span>
+              <span className="text-[12px] font-medium text-[var(--muted)]">
+                Job description / Rubric source
+              </span>
               <textarea
                 name="description"
                 rows={10}

@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Check, Loader2 } from "lucide-react";
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Check, Loader2 } from 'lucide-react';
 
 type Phase = { id: string; label: string; pct: number; detail?: string };
 
 const INITIAL_PHASES: Phase[] = [
-  { id: "profile", label: "Fetching GitHub profile", pct: 5 },
-  { id: "year",    label: "Scanning 6 years of contributions", pct: 30 },
-  { id: "authored",label: "Topping up authored repos", pct: 92 },
-  { id: "scoring", label: "Computing depth, breadth, recognition, specialization", pct: 98 },
-  { id: "done",    label: "Saving score snapshot", pct: 100 },
+  { id: 'profile', label: 'Fetching GitHub profile', pct: 5 },
+  { id: 'year', label: 'Scanning 6 years of contributions', pct: 30 },
+  { id: 'authored', label: 'Topping up authored repos', pct: 92 },
+  { id: 'scoring', label: 'Computing depth, breadth, recognition, specialization', pct: 98 },
+  { id: 'done', label: 'Saving score snapshot', pct: 100 },
 ];
 
 /**
@@ -25,23 +25,18 @@ export function IngestBootstrapper({
   hasScore,
 }: {
   hasScore: boolean;
-  ingestStatus: "idle" | "queued" | "running" | "failed";
+  ingestStatus: 'idle' | 'queued' | 'running' | 'failed';
 }) {
   const [retryKey, setRetryKey] = useState(0);
 
   if (hasScore) return null;
 
-  return (
-    <IngestStream
-      key={retryKey}
-      onRetry={() => setRetryKey((k) => k + 1)}
-    />
-  );
+  return <IngestStream key={retryKey} onRetry={() => setRetryKey((k) => k + 1)} />;
 }
 
 function IngestStream({ onRetry }: { onRetry: () => void }) {
-  const [currentId, setCurrentId] = useState<string>("profile");
-  const [currentDetail, setCurrentDetail] = useState<string>("Starting");
+  const [currentId, setCurrentId] = useState<string>('profile');
+  const [currentDetail, setCurrentDetail] = useState<string>('Starting');
   const [currentPct, setCurrentPct] = useState<number>(2);
   const [completed, setCompleted] = useState<Record<string, boolean>>({});
   const [error, setError] = useState<string | null>(null);
@@ -51,51 +46,53 @@ function IngestStream({ onRetry }: { onRetry: () => void }) {
     // Opening a new EventSource per mount is safe — an existing running
     // ingest on the server short-circuits via `canRefresh`, and Vercel's
     // serverless model doesn't hold concurrent streams from the same user.
-    const es = new EventSource("/api/refresh/stream");
+    const es = new EventSource('/api/refresh/stream');
 
-    es.addEventListener("phase", (ev) => {
+    es.addEventListener('phase', (ev) => {
       try {
         const p = JSON.parse((ev as MessageEvent).data);
         if (p.pct != null) setCurrentPct(p.pct);
         if (p.message) setCurrentDetail(p.message);
-        if (p.type === "profile") {
-          setCurrentId("profile");
-        } else if (p.type === "year") {
-          setCurrentId("year");
+        if (p.type === 'profile') {
+          setCurrentId('profile');
+        } else if (p.type === 'year') {
+          setCurrentId('year');
           // Mark profile done once we start year scans
           setCompleted((c) => ({ ...c, profile: true }));
-        } else if (p.type === "authored") {
-          setCurrentId("authored");
+        } else if (p.type === 'authored') {
+          setCurrentId('authored');
           setCompleted((c) => ({ ...c, profile: true, year: true }));
-        } else if (p.type === "scoring") {
-          setCurrentId("scoring");
+        } else if (p.type === 'scoring') {
+          setCurrentId('scoring');
           setCompleted((c) => ({ ...c, profile: true, year: true, authored: true }));
-        } else if (p.type === "done") {
-          setCurrentId("done");
+        } else if (p.type === 'done') {
+          setCurrentId('done');
           setCompleted({ profile: true, year: true, authored: true, scoring: true });
         }
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     });
 
-    es.addEventListener("done", () => {
+    es.addEventListener('done', () => {
       setCompleted({ profile: true, year: true, authored: true, scoring: true, done: true });
       setCurrentPct(100);
       es.close();
       setTimeout(() => router.refresh(), 600);
     });
 
-    es.addEventListener("error", (ev) => {
+    es.addEventListener('error', (ev) => {
       const data = (ev as MessageEvent).data;
       if (data) {
         try {
           const p = JSON.parse(data);
-          setError(p.message ?? "Ingest failed");
-        } catch { setError("Ingest failed"); }
+          setError(p.message ?? 'Ingest failed');
+        } catch {
+          setError('Ingest failed');
+        }
       } else {
         // No payload → the connection itself dropped (network / server gone).
-        setError(
-          "Lost connection while scoring your profile. Check your network and try again.",
-        );
+        setError('Lost connection while scoring your profile. Check your network and try again.');
       }
       es.close();
     });
@@ -111,7 +108,7 @@ function IngestStream({ onRetry }: { onRetry: () => void }) {
           className="h-full rounded-r-full bg-[var(--score-fill)]"
           style={{
             width: `${Math.min(100, currentPct)}%`,
-            transition: "width 600ms cubic-bezier(0.22,0.61,0.36,1)",
+            transition: 'width 600ms cubic-bezier(0.22,0.61,0.36,1)',
           }}
         />
       </div>
@@ -123,7 +120,7 @@ function IngestStream({ onRetry }: { onRetry: () => void }) {
               Evaluating signal 1 — public work
             </div>
             <div className="mt-1 text-[17px] font-semibold tracking-tight">
-              {error ? "Ingest failed" : currentDetail}
+              {error ? 'Ingest failed' : currentDetail}
             </div>
           </div>
           <div className="num text-[32px] font-semibold tracking-tight text-[var(--foreground)]">
@@ -140,20 +137,18 @@ function IngestStream({ onRetry }: { onRetry: () => void }) {
               <li
                 key={p.id}
                 className={
-                  "flex items-center gap-3 rounded-[var(--radius-sm)] px-3 py-2 transition-colors " +
-                  (isActive
-                    ? "bg-[var(--surface-2)]"
-                    : "")
+                  'flex items-center gap-3 rounded-[var(--radius-sm)] px-3 py-2 transition-colors ' +
+                  (isActive ? 'bg-[var(--surface-2)]' : '')
                 }
               >
                 <span
                   className={
-                    "inline-flex h-5 w-5 items-center justify-center rounded-full " +
+                    'inline-flex h-5 w-5 items-center justify-center rounded-full ' +
                     (isDone
-                      ? "bg-[var(--verified-bg)] text-[var(--verified)]"
+                      ? 'bg-[var(--verified-bg)] text-[var(--verified)]'
                       : isActive
-                      ? "border border-[var(--border-strong)] text-[var(--foreground)]"
-                      : "border border-[var(--border)] text-[var(--muted-2)]")
+                        ? 'border border-[var(--border-strong)] text-[var(--foreground)]'
+                        : 'border border-[var(--border)] text-[var(--muted-2)]')
                   }
                 >
                   {isDone ? (
@@ -166,16 +161,16 @@ function IngestStream({ onRetry }: { onRetry: () => void }) {
                 </span>
                 <span
                   className={
-                    "text-[13px] " +
+                    'text-[13px] ' +
                     (isDone
-                      ? "text-[var(--foreground)]"
+                      ? 'text-[var(--foreground)]'
                       : isActive
-                      ? "text-[var(--foreground)] font-medium"
-                      : "text-[var(--muted)]")
+                        ? 'text-[var(--foreground)] font-medium'
+                        : 'text-[var(--muted)]')
                   }
                 >
                   {p.label}
-                  {isActive && currentDetail && p.id !== "done" && (
+                  {isActive && currentDetail && p.id !== 'done' && (
                     <span className="ml-2 text-[11px] text-[var(--muted)]">· {currentDetail}</span>
                   )}
                 </span>

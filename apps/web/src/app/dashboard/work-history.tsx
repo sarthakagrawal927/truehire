@@ -1,19 +1,11 @@
-"use client";
+'use client';
 
-import { useEffect, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
-import {
-  BadgeCheck,
-  Clock,
-  Loader2,
-  Mail,
-  Plus,
-  ShieldAlert,
-  Trash2,
-} from "lucide-react";
-import { Badge } from "@/components/atoms/badge";
-import { Button } from "@/components/atoms/button";
-import { Card, CardBody, CardHeader, CardTitle } from "@/components/atoms/card";
+import { useEffect, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { BadgeCheck, Clock, Loader2, Mail, Plus, ShieldAlert } from 'lucide-react';
+import { Badge } from '@/components/atoms/badge';
+import { Button } from '@/components/atoms/button';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/atoms/card';
 
 type Row = {
   id: string;
@@ -24,7 +16,7 @@ type Row = {
   endDate: string | null;
   verification: null | {
     id: string;
-    status: "pending" | "confirmed" | "denied" | "disputed" | "expired";
+    status: 'pending' | 'confirmed' | 'denied' | 'disputed' | 'expired';
     verifierEmail: string;
     requestedAt: number;
     respondedAt: number | null;
@@ -36,7 +28,7 @@ export function WorkHistorySection() {
   const [showAdd, setShowAdd] = useState(false);
 
   async function load() {
-    const res = await fetch("/api/work-history");
+    const res = await fetch('/api/work-history');
     if (res.ok) {
       const body = await res.json();
       setRows(body.rows);
@@ -46,7 +38,10 @@ export function WorkHistorySection() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
-  }, []);
+  }, [
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    load,
+  ]);
 
   return (
     <Card className="mt-6">
@@ -66,9 +61,8 @@ export function WorkHistorySection() {
       </CardHeader>
       <CardBody>
         <p className="mb-5 max-w-2xl text-[13px] text-[var(--muted)]">
-          Add roles you’ve held, then request a cryptographically signed
-          confirmation from HR. Verified entries appear on your public profile
-          and unlock the ceiling past Signal 1.
+          Add roles you’ve held, then request a cryptographically signed confirmation from HR.
+          Verified entries appear on your public profile and unlock the ceiling past Signal 1.
         </p>
 
         {showAdd && (
@@ -101,46 +95,46 @@ export function WorkHistorySection() {
 }
 
 function RoleRow({ row, onChanged }: { row: Row; onChanged: () => void }) {
-  const [verifierEmail, setVerifierEmail] = useState("");
+  const [verifierEmail, setVerifierEmail] = useState('');
   const [showRequest, setShowRequest] = useState(false);
   const [lastLink, setLastLink] = useState<string | null>(null);
   const [isPending, start] = useTransition();
 
   const v = row.verification;
   const tone =
-    v?.status === "confirmed"
-      ? "verified"
-      : v?.status === "pending"
-      ? "outline"
-      : v?.status === "denied" || v?.status === "disputed" || v?.status === "expired"
-      ? "neutral"
-      : "neutral";
+    v?.status === 'confirmed'
+      ? 'verified'
+      : v?.status === 'pending'
+        ? 'outline'
+        : v?.status === 'denied' || v?.status === 'disputed' || v?.status === 'expired'
+          ? 'neutral'
+          : 'neutral';
   const label =
-    v?.status === "confirmed"
-      ? "Confirmed"
-      : v?.status === "pending"
-      ? "Awaiting HR"
-      : v?.status === "denied"
-      ? "Denied"
-      : v?.status === "expired"
-      ? "Expired"
-      : v?.status === "disputed"
-      ? "Disputed"
-      : "Not verified";
+    v?.status === 'confirmed'
+      ? 'Confirmed'
+      : v?.status === 'pending'
+        ? 'Awaiting HR'
+        : v?.status === 'denied'
+          ? 'Denied'
+          : v?.status === 'expired'
+            ? 'Expired'
+            : v?.status === 'disputed'
+              ? 'Disputed'
+              : 'Not verified';
   const icon =
-    v?.status === "confirmed" ? (
+    v?.status === 'confirmed' ? (
       <BadgeCheck className="h-3 w-3" />
-    ) : v?.status === "pending" ? (
+    ) : v?.status === 'pending' ? (
       <Clock className="h-3 w-3" />
-    ) : v?.status === "denied" || v?.status === "disputed" ? (
+    ) : v?.status === 'denied' || v?.status === 'disputed' ? (
       <ShieldAlert className="h-3 w-3" />
     ) : null;
 
   async function request() {
     start(async () => {
       const res = await fetch(`/api/work-history/${row.id}/verify`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ verifierEmail }),
       });
       if (res.ok) {
@@ -162,8 +156,10 @@ function RoleRow({ row, onChanged }: { row: Row; onChanged: () => void }) {
             <span className="text-[14px] text-[var(--foreground)]">{row.title}</span>
           </div>
           <div className="num mt-1 text-[12px] text-[var(--muted)]">
-            {row.startDate} — {row.endDate ?? "present"}
-            {row.companyDomain && <span className="ml-2 text-[var(--muted-2)]">@ {row.companyDomain}</span>}
+            {row.startDate} — {row.endDate ?? 'present'}
+            {row.companyDomain && (
+              <span className="ml-2 text-[var(--muted-2)]">@ {row.companyDomain}</span>
+            )}
           </div>
         </div>
         <Badge tone={tone} className="gap-1">
@@ -173,7 +169,7 @@ function RoleRow({ row, onChanged }: { row: Row; onChanged: () => void }) {
       </div>
 
       {/* Request flow */}
-      {(!v || v.status === "denied" || v.status === "expired") && (
+      {(!v || v.status === 'denied' || v.status === 'expired') && (
         <div className="mt-3">
           {!showRequest ? (
             <Button
@@ -193,8 +189,12 @@ function RoleRow({ row, onChanged }: { row: Row; onChanged: () => void }) {
                 onChange={(e) => setVerifierEmail(e.target.value)}
                 className="h-9 min-w-0 flex-1 rounded-[var(--radius-xs)] border border-[var(--border)] bg-[var(--surface)] px-3 text-[13px] outline-none focus:border-[var(--border-strong)]"
               />
-              <Button size="sm" onClick={request} disabled={!verifierEmail.includes("@") || isPending}>
-                {isPending ? "Sending…" : "Send"}
+              <Button
+                size="sm"
+                onClick={request}
+                disabled={!verifierEmail.includes('@') || isPending}
+              >
+                {isPending ? 'Sending…' : 'Send'}
               </Button>
               <Button size="sm" variant="ghost" onClick={() => setShowRequest(false)}>
                 Cancel
@@ -217,9 +217,9 @@ function RoleRow({ row, onChanged }: { row: Row; onChanged: () => void }) {
         </div>
       )}
 
-      {v?.status === "pending" && !lastLink && (
+      {v?.status === 'pending' && !lastLink && (
         <div className="mt-2 text-[12px] text-[var(--muted)]">
-          Sent to <span className="num">{v.verifierEmail}</span> on{" "}
+          Sent to <span className="num">{v.verifierEmail}</span> on{' '}
           {new Date(v.requestedAt).toLocaleDateString()}. Expires in 14 days.
         </div>
       )}
@@ -228,20 +228,20 @@ function RoleRow({ row, onChanged }: { row: Row; onChanged: () => void }) {
 }
 
 function AddRoleForm({ onDone }: { onDone: () => void }) {
-  const [company, setCompany] = useState("");
-  const [companyDomain, setCompanyDomain] = useState("");
-  const [title, setTitle] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [company, setCompany] = useState('');
+  const [companyDomain, setCompanyDomain] = useState('');
+  const [title, setTitle] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [current, setCurrent] = useState(true);
   const [isPending, start] = useTransition();
   const router = useRouter();
 
   async function submit() {
     start(async () => {
-      const res = await fetch("/api/work-history", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
+      const res = await fetch('/api/work-history', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
           company,
           companyDomain: companyDomain || undefined,
@@ -251,11 +251,11 @@ function AddRoleForm({ onDone }: { onDone: () => void }) {
         }),
       });
       if (res.ok) {
-        setCompany("");
-        setCompanyDomain("");
-        setTitle("");
-        setStartDate("");
-        setEndDate("");
+        setCompany('');
+        setCompanyDomain('');
+        setTitle('');
+        setStartDate('');
+        setEndDate('');
         onDone();
         router.refresh();
       }
@@ -280,10 +280,10 @@ function AddRoleForm({ onDone }: { onDone: () => void }) {
           placeholder="2022-04"
         />
         <Field
-          label={current ? "End" : "End (YYYY-MM)"}
-          value={current ? "present" : endDate}
+          label={current ? 'End' : 'End (YYYY-MM)'}
+          value={current ? 'present' : endDate}
           onChange={(v) => {
-            if (v !== "present") setEndDate(v);
+            if (v !== 'present') setEndDate(v);
           }}
           placeholder="2024-08"
           disabled={current}
@@ -299,12 +299,8 @@ function AddRoleForm({ onDone }: { onDone: () => void }) {
         Current role
       </label>
       <div className="flex items-center gap-2 md:col-span-2">
-        <Button
-          size="sm"
-          onClick={submit}
-          disabled={!company || !title || !startDate || isPending}
-        >
-          {isPending ? "Adding…" : "Add role"}
+        <Button size="sm" onClick={submit} disabled={!company || !title || !startDate || isPending}>
+          {isPending ? 'Adding…' : 'Add role'}
         </Button>
         <Button size="sm" variant="ghost" onClick={onDone}>
           Cancel

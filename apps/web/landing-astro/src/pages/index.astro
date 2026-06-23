@@ -1,6 +1,4 @@
 ---
-import Layout from '@/layouts/Layout.astro';
-
 // TrueHire landing — Astro port of `src/app/page.tsx`.
 //
 // Port intent:
@@ -16,6 +14,8 @@ import Layout from '@/layouts/Layout.astro';
 // The diagnose agent flagged truehire's render delay (~680-780ms LCP)
 // was driven by Worker cold-start + client-JS handshake. Pure static
 // markup eliminates both.
+
+import Layout from '@/layouts/Layout.astro';
 
 const TITLE = 'TrueHire — the verified-candidate layer';
 const DESCRIPTION =
@@ -59,8 +59,9 @@ const FAQS = [
 
 // Commit-bar viz — same deterministic sin-based heights as page.tsx
 // SignalVizCommits so the static port is pixel-comparable.
-const COMMIT_BARS = Array.from({ length: 28 }, (_, i) =>
-  20 + Math.round(70 * Math.abs(Math.sin(i * 0.9))),
+const COMMIT_BARS = Array.from(
+  { length: 28 },
+  (_, i) => 20 + Math.round(70 * Math.abs(Math.sin(i * 0.9)))
 );
 const AUDITION_DAYS = Array.from({ length: 14 }, (_, i) => i);
 ---

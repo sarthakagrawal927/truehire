@@ -1,20 +1,20 @@
-import type { Metadata } from "next";
+import type { Metadata } from 'next';
 
-import { Card, CardBody, CardHeader, CardTitle } from "@/components/atoms/card";
-import { getFleetStats } from "@/lib/stats-service";
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/atoms/card';
+import { getFleetStats } from '@/lib/stats-service';
 
 export const metadata: Metadata = {
-  title: "Stats — TrueHire",
+  title: 'Stats — TrueHire',
   description:
-    "Aggregate stats across TrueHire profiles. Score distribution, top languages, transparent benchmarks.",
+    'Aggregate stats across TrueHire profiles. Score distribution, top languages, transparent benchmarks.',
 };
 
 // Recompute on each request — cheap query, and stats should reflect new
 // claims/refreshes promptly.
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 function formatNumber(n: number): string {
-  return new Intl.NumberFormat("en-US").format(n);
+  return new Intl.NumberFormat('en-US').format(n);
 }
 
 export default async function StatsPage() {
@@ -25,8 +25,8 @@ export default async function StatsPage() {
       <main className="mx-auto max-w-3xl px-4 py-16">
         <h1 className="text-3xl font-bold tracking-tight">Stats</h1>
         <p className="mt-4 text-sm text-stone-500">
-          No profiles have been scored yet. Once a few users sign in,
-          aggregate stats will appear here.
+          No profiles have been scored yet. Once a few users sign in, aggregate stats will appear
+          here.
         </p>
       </main>
     );
@@ -39,8 +39,8 @@ export default async function StatsPage() {
       <header className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">Stats</h1>
         <p className="mt-2 text-sm text-stone-500">
-          Aggregate view across all TrueHire profiles. Scores are derived from
-          public GitHub activity using the same algorithm documented in the README.
+          Aggregate view across all TrueHire profiles. Scores are derived from public GitHub
+          activity using the same algorithm documented in the README.
         </p>
       </header>
 
@@ -60,9 +60,7 @@ export default async function StatsPage() {
             <div className="space-y-2">
               {stats.scoreBuckets.map((b) => (
                 <div key={b.bucket} className="flex items-center gap-3 text-sm">
-                  <span className="w-16 text-right tabular-nums text-stone-500">
-                    {b.bucket}
-                  </span>
+                  <span className="w-16 text-right tabular-nums text-stone-500">{b.bucket}</span>
                   <div
                     className="h-3 rounded-sm bg-emerald-500"
                     style={{ width: `${Math.max(2, (b.count / maxBucketCount) * 100)}%` }}
@@ -90,18 +88,13 @@ export default async function StatsPage() {
             ) : (
               <ol className="divide-y divide-stone-200">
                 {stats.topLanguages.map((l, i) => (
-                  <li
-                    key={l.language}
-                    className="flex items-center justify-between py-2 text-sm"
-                  >
+                  <li key={l.language} className="flex items-center justify-between py-2 text-sm">
                     <span className="flex items-center gap-3">
-                      <span className="w-5 text-right tabular-nums text-stone-400">
-                        {i + 1}
-                      </span>
+                      <span className="w-5 text-right tabular-nums text-stone-400">{i + 1}</span>
                       <span className="font-medium text-stone-800">{l.language}</span>
                     </span>
                     <span className="tabular-nums text-stone-500">
-                      {l.profiles} profile{l.profiles === 1 ? "" : "s"}
+                      {l.profiles} profile{l.profiles === 1 ? '' : 's'}
                     </span>
                   </li>
                 ))}

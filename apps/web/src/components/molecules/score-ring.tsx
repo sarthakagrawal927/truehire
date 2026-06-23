@@ -1,4 +1,4 @@
-import { cn } from "@/lib/cn";
+import { cn } from '@/lib/cn';
 
 type Props = {
   score: number; // 0-100
@@ -7,7 +7,7 @@ type Props = {
   className?: string;
 };
 
-export function ScoreRing({ score, size = 168, label = "SCORE", className }: Props) {
+export function ScoreRing({ score, size = 168, label = 'SCORE', className }: Props) {
   const clamped = Math.max(0, Math.min(100, score));
   const stroke = 10;
   const r = (size - stroke) / 2;
@@ -16,7 +16,7 @@ export function ScoreRing({ score, size = 168, label = "SCORE", className }: Pro
 
   return (
     <div
-      className={cn("relative inline-flex items-center justify-center", className)}
+      className={cn('relative inline-flex items-center justify-center', className)}
       style={{ width: size, height: size }}
     >
       <svg width={size} height={size} className="-rotate-90">
@@ -39,7 +39,7 @@ export function ScoreRing({ score, size = 168, label = "SCORE", className }: Pro
           strokeDasharray={c}
           strokeDashoffset={offset}
           style={{
-            transition: "stroke-dashoffset 900ms cubic-bezier(0.22,0.61,0.36,1)",
+            transition: 'stroke-dashoffset 900ms cubic-bezier(0.22,0.61,0.36,1)',
           }}
         />
       </svg>

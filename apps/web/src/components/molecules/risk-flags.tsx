@@ -1,7 +1,7 @@
-import { Info, ExternalLink } from "lucide-react";
-import type { EvidenceEntry } from "@truehire/core";
-import { Card, CardHeader, CardTitle, CardBody } from "@/components/atoms/card";
-import { Badge } from "@/components/atoms/badge";
+import { Info, ExternalLink } from 'lucide-react';
+import type { EvidenceEntry } from '@truehire/core';
+import { Card, CardHeader, CardTitle, CardBody } from '@/components/atoms/card';
+import { Badge } from '@/components/atoms/badge';
 
 type MonthBucket = { month: string; commits: number };
 
@@ -45,16 +45,16 @@ function computeFlags({
   const now = new Date();
   const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 6, 1);
   const hasRecentActivity = months.some((m) => {
-    const [y, mo] = m.month.split("-").map(Number);
+    const [y, mo] = m.month.split('-').map(Number);
     return new Date(y, mo - 1, 1) >= sixMonthsAgo && m.commits > 0;
   });
 
   if (!hasRecentActivity) {
     flags.push({
-      id: "no-recent-activity",
-      title: "No public commits in the past 6 months",
+      id: 'no-recent-activity',
+      title: 'No public commits in the past 6 months',
       detail:
-        "Current work likely lives in private repositories or under a different account. Worth verifying recent output directly.",
+        'Current work likely lives in private repositories or under a different account. Worth verifying recent output directly.',
       evidenceUrl: `${githubUrl}?tab=overview`,
       evidenceLabel: `github.com/${githubUsername}`,
     });
@@ -62,23 +62,21 @@ function computeFlags({
 
   if (craft < 35) {
     flags.push({
-      id: "low-craft",
-      title: "Craft signals are sparse in public repos",
+      id: 'low-craft',
+      title: 'Craft signals are sparse in public repos',
       detail:
-        "CI pipelines, automated tests, and structured releases are absent or minimal across the top public repos. Ask about their engineering workflow on professional or private codebases.",
-      evidenceUrl: topAuthoredRepo
-        ? `https://github.com/${topAuthoredRepo}`
-        : githubUrl,
+        'CI pipelines, automated tests, and structured releases are absent or minimal across the top public repos. Ask about their engineering workflow on professional or private codebases.',
+      evidenceUrl: topAuthoredRepo ? `https://github.com/${topAuthoredRepo}` : githubUrl,
       evidenceLabel: topAuthoredRepo ?? `github.com/${githubUsername}`,
     });
   }
 
   if (monthsActive < 12) {
     flags.push({
-      id: "short-window",
-      title: "Fewer than 12 months of recorded public activity",
+      id: 'short-window',
+      title: 'Fewer than 12 months of recorded public activity',
       detail:
-        "Consistent output over 2+ years is a stronger predictor of sustained contribution. Explore whether earlier work exists in private repos or predates GitHub.",
+        'Consistent output over 2+ years is a stronger predictor of sustained contribution. Explore whether earlier work exists in private repos or predates GitHub.',
       evidenceUrl: `${githubUrl}?tab=overview`,
       evidenceLabel: `github.com/${githubUsername}`,
     });
@@ -87,8 +85,8 @@ function computeFlags({
   const hasAuthoredInEvidence = evidence.some((e) => e.isAuthor);
   if (!hasAuthoredInEvidence && evidence.length > 0) {
     flags.push({
-      id: "no-authored-repos",
-      title: "No authored public repos in top evidence",
+      id: 'no-authored-repos',
+      title: 'No authored public repos in top evidence',
       detail:
         "Top contributions are all to others' codebases — a strong contributor signal, but there's limited public data on their ability to start, own, and ship a project independently.",
       evidenceUrl: `${githubUrl}?tab=repositories`,
@@ -98,8 +96,8 @@ function computeFlags({
 
   if (specialization > 85) {
     flags.push({
-      id: "single-language",
-      title: "Single-language public portfolio",
+      id: 'single-language',
+      title: 'Single-language public portfolio',
       detail:
         "Public work is heavily concentrated in one language. Cross-stack experience or adaptability isn't visible from GitHub alone — worth exploring in the interview.",
     });
@@ -107,8 +105,8 @@ function computeFlags({
 
   if (totalStars < 15 && totalRepos >= 5) {
     flags.push({
-      id: "low-traction",
-      title: "Multiple repos, limited community traction",
+      id: 'low-traction',
+      title: 'Multiple repos, limited community traction',
       detail:
         "Several public repos with few accumulated stars often indicate coursework, internal tooling, or work not intended for public use. Ask what the candidate's most impactful professional projects look like.",
       evidenceUrl: `${githubUrl}?tab=repositories`,
@@ -135,12 +133,8 @@ export function RiskFlags(props: Props) {
             <div key={flag.id} className="flex gap-3 px-5 py-4">
               <Info className="mt-0.5 h-4 w-4 shrink-0 text-amber-500/80" />
               <div className="min-w-0">
-                <div className="text-[13px] font-medium text-[var(--foreground)]">
-                  {flag.title}
-                </div>
-                <div className="mt-0.5 text-[12px] text-[var(--muted)]">
-                  {flag.detail}
-                </div>
+                <div className="text-[13px] font-medium text-[var(--foreground)]">{flag.title}</div>
+                <div className="mt-0.5 text-[12px] text-[var(--muted)]">{flag.detail}</div>
                 {flag.evidenceUrl && (
                   <a
                     href={flag.evidenceUrl}
@@ -158,8 +152,8 @@ export function RiskFlags(props: Props) {
         </div>
         <div className="border-t border-[var(--border)] px-5 py-3">
           <p className="text-[11px] text-[var(--muted-2)]">
-            These are data gaps, not disqualifiers — each flags something the
-            score cannot verify from public GitHub alone.
+            These are data gaps, not disqualifiers — each flags something the score cannot verify
+            from public GitHub alone.
           </p>
         </div>
       </CardBody>

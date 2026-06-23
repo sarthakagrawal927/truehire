@@ -21,9 +21,9 @@
   --muted-2: #a3a29f;
 
   /* signal accents — used sparingly */
-  --accent: #0d0d0e;        /* primary action */
+  --accent: #0d0d0e; /* primary action */
   --accent-contrast: #ffffff;
-  --verified: #18794e;      /* green "verified" */
+  --verified: #18794e; /* green "verified" */
   --verified-bg: #e7f2eb;
   --warn: #a45600;
   --score-track: #eae8e4;
@@ -113,25 +113,24 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
-  font-feature-settings:
-    "cv11", "ss01", "ss03";
+  font-feature-settings: "cv11", "ss01", "ss03";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
 /* tabular numerics across the app — credential products must align numbers */
-.num, .tabular {
+.num,
+.tabular {
   font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum" 1, "cv11" 1;
+  font-feature-settings:
+    "tnum" 1,
+    "cv11" 1;
 }
 
 /* subtle dotted grid backdrop used on hero */
 .dot-grid {
-  background-image: radial-gradient(
-    currentColor 0.8px,
-    transparent 0.8px
-  );
+  background-image: radial-gradient(currentColor 0.8px, transparent 0.8px);
   background-size: 22px 22px;
   color: color-mix(in srgb, var(--muted) 22%, transparent);
 }
@@ -145,8 +144,14 @@ body {
 
 /* bar animations for score + activity charts */
 @keyframes th-rise {
-  from { transform: scaleY(0); opacity: 0; }
-  to   { transform: scaleY(1); opacity: 1; }
+  from {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+  to {
+    transform: scaleY(1);
+    opacity: 1;
+  }
 }
 .th-rise {
   animation: th-rise 0.5s cubic-bezier(0.22, 0.61, 0.36, 1) both;
@@ -154,6 +159,10 @@ body {
 }
 
 @keyframes th-fill {
-  from { stroke-dashoffset: var(--dash, 100); }
-  to   { stroke-dashoffset: 0; }
+  from {
+    stroke-dashoffset: var(--dash, 100);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
 }

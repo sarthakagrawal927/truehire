@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from 'next/link';
 
 export function SiteFooter() {
   return (
@@ -9,18 +9,42 @@ export function SiteFooter() {
           The verified-candidate layer. Costly signals, not tailored resumes.
         </div>
         <div className="text-sm">
-          <div className="mb-2 text-[11px] uppercase tracking-[0.1em] text-[var(--muted-2)]">Product</div>
+          <div className="mb-2 text-[11px] uppercase tracking-[0.1em] text-[var(--muted-2)]">
+            Product
+          </div>
           <ul className="space-y-1 text-[var(--muted)]">
-            <li><Link href="/#signals" className="hover:text-[var(--foreground)]">Signal stack</Link></li>
-            <li><Link href="/#how" className="hover:text-[var(--foreground)]">Scoring methodology</Link></li>
-            <li><Link href="/#faq" className="hover:text-[var(--foreground)]">FAQ</Link></li>
+            <li>
+              <Link href="/#signals" className="hover:text-[var(--foreground)]">
+                Signal stack
+              </Link>
+            </li>
+            <li>
+              <Link href="/#how" className="hover:text-[var(--foreground)]">
+                Scoring methodology
+              </Link>
+            </li>
+            <li>
+              <Link href="/#faq" className="hover:text-[var(--foreground)]">
+                FAQ
+              </Link>
+            </li>
           </ul>
         </div>
         <div className="text-sm">
-          <div className="mb-2 text-[11px] uppercase tracking-[0.1em] text-[var(--muted-2)]">Legal</div>
+          <div className="mb-2 text-[11px] uppercase tracking-[0.1em] text-[var(--muted-2)]">
+            Legal
+          </div>
           <ul className="space-y-1 text-[var(--muted)]">
-            <li><Link href="/privacy" className="hover:text-[var(--foreground)]">Privacy</Link></li>
-            <li><Link href="/terms" className="hover:text-[var(--foreground)]">Terms</Link></li>
+            <li>
+              <Link href="/privacy" className="hover:text-[var(--foreground)]">
+                Privacy
+              </Link>
+            </li>
+            <li>
+              <Link href="/terms" className="hover:text-[var(--foreground)]">
+                Terms
+              </Link>
+            </li>
           </ul>
         </div>
       </div>
