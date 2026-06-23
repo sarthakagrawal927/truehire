@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Check, Link as LinkIcon } from "lucide-react";
-import { Button } from "@/components/atoms/button";
+import { useState } from 'react';
+import { Check, Link as LinkIcon } from 'lucide-react';
+import { Button } from '@/components/atoms/button';
 
 export function CopyProfileLink({ username }: { username: string }) {
   const [copied, setCopied] = useState(false);
@@ -24,9 +24,15 @@ export function CopyProfileLink({ username }: { username: string }) {
       variant="secondary"
       size="sm"
       onClick={handle}
-      leftIcon={copied ? <Check className="h-4 w-4 text-[var(--verified)]" /> : <LinkIcon className="h-4 w-4" />}
+      leftIcon={
+        copied ? (
+          <Check className="h-4 w-4 text-[var(--verified)]" />
+        ) : (
+          <LinkIcon className="h-4 w-4" />
+        )
+      }
     >
-      {copied ? "Copied" : "Copy profile link"}
+      {copied ? 'Copied' : 'Copy profile link'}
     </Button>
   );
 }

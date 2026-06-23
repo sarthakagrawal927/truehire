@@ -20,9 +20,10 @@
       "!**/local.db",
       "!**/next-env.d.ts",
       "!**/pnpm-lock.yaml",
-      "!**/drizzle/**",
+      "!**/drizzle",
       "!**/public/**/*.svg",
-      "!**/*.css"
+      "!**/*.css",
+      "!**/design.html"
     ]
   },
   "formatter": {

@@ -1,10 +1,10 @@
-import { cn } from "@/lib/cn";
+import { cn } from '@/lib/cn';
 
 type Row = { label: string; value: number; weight: number; hint?: string };
 
 export function ScoreBreakdown({ rows, className }: { rows: Row[]; className?: string }) {
   return (
-    <div className={cn("divide-y divide-[var(--border)]", className)}>
+    <div className={cn('divide-y divide-[var(--border)]', className)}>
       {rows.map((r) => (
         <div key={r.label} className="flex items-center gap-4 py-3">
           <div className="w-36 shrink-0">
@@ -20,7 +20,7 @@ export function ScoreBreakdown({ rows, className }: { rows: Row[]; className?: s
               className="absolute inset-y-0 left-0 rounded-full bg-[var(--score-fill)]"
               style={{
                 width: `${Math.max(0, Math.min(100, r.value))}%`,
-                transition: "width 700ms cubic-bezier(0.22,0.61,0.36,1)",
+                transition: 'width 700ms cubic-bezier(0.22,0.61,0.36,1)',
               }}
             />
           </div>

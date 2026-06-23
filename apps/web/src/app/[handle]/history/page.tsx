@@ -1,21 +1,17 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-import { notFound } from "next/navigation";
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
-import { Card, CardBody, CardHeader, CardTitle } from "@/components/atoms/card";
-import { getScoreHistory, getUserByUsername } from "@/lib/score-service";
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/atoms/card';
+import { getScoreHistory, getUserByUsername } from '@/lib/score-service';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 type Params = { handle: string };
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<Params>;
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { handle } = await params;
-  const clean = handle.startsWith("@") ? handle.slice(1) : handle;
+  const clean = handle.startsWith('@') ? handle.slice(1) : handle;
   return {
     title: `${clean} · score history · TrueHire`,
     description: `Per-recompute TrueHire score history for @${clean}.`,
@@ -34,13 +30,9 @@ interface HistoryRow {
   specialization: number;
 }
 
-export default async function HistoryPage({
-  params,
-}: {
-  params: Promise<Params>;
-}) {
+export default async function HistoryPage({ params }: { params: Promise<Params> }) {
   const { handle } = await params;
-  const clean = handle.startsWith("@") ? handle.slice(1) : handle;
+  const clean = handle.startsWith('@') ? handle.slice(1) : handle;
   if (!/^[a-zA-Z0-9-]{1,39}$/.test(clean)) notFound();
   const user = await getUserByUsername(clean);
   if (!user) notFound();
@@ -55,8 +47,8 @@ export default async function HistoryPage({
         </Link>
         <h1 className="mt-3 text-3xl font-bold tracking-tight">Score history</h1>
         <p className="mt-3 text-sm text-stone-600">
-          No score snapshots yet for @{clean}. Scores are written each
-          time the profile is refreshed.
+          No score snapshots yet for @{clean}. Scores are written each time the profile is
+          refreshed.
         </p>
       </main>
     );
@@ -70,11 +62,10 @@ export default async function HistoryPage({
   const H = 200;
   const pad = 24;
   const stepX = rows.length > 1 ? (W - pad * 2) / (rows.length - 1) : 0;
-  const yOf = (v: number) =>
-    H - pad - ((v - min) / Math.max(1, max - min)) * (H - pad * 2);
+  const yOf = (v: number) => H - pad - ((v - min) / Math.max(1, max - min)) * (H - pad * 2);
   const path = rows
-    .map((r, i) => `${i === 0 ? "M" : "L"} ${pad + i * stepX} ${yOf(r.overall)}`)
-    .join(" ");
+    .map((r, i) => `${i === 0 ? 'M' : 'L'} ${pad + i * stepX} ${yOf(r.overall)}`)
+    .join(' ');
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-12">
@@ -83,7 +74,7 @@ export default async function HistoryPage({
       </Link>
       <h1 className="mt-3 text-3xl font-bold tracking-tight">Score history</h1>
       <p className="mt-2 text-sm text-stone-500">
-        {rows.length} snapshot{rows.length === 1 ? "" : "s"} — most recent on the right.
+        {rows.length} snapshot{rows.length === 1 ? '' : 's'} — most recent on the right.
       </p>
 
       <Card className="mt-6">
@@ -109,7 +100,9 @@ export default async function HistoryPage({
             <path d={path} fill="none" stroke="#059669" strokeWidth={2} />
             {rows.map((r, i) => (
               <circle
-                key={r.computedAt instanceof Date ? r.computedAt.toISOString() : String(r.computedAt)}
+                key={
+                  r.computedAt instanceof Date ? r.computedAt.toISOString() : String(r.computedAt)
+                }
                 cx={pad + i * stepX}
                 cy={yOf(r.overall)}
                 r={3}
@@ -118,7 +111,7 @@ export default async function HistoryPage({
             ))}
           </svg>
           <p className="mt-3 text-xs text-stone-500 tabular-nums">
-            min {min} · max {max} · latest {rows[rows.length - 1]!.overall}
+            min {min} · max {max} · latest {rows[rows.length - 1]?.overall}
           </p>
         </CardBody>
       </Card>
@@ -145,9 +138,7 @@ export default async function HistoryPage({
                 const d = r.computedAt instanceof Date ? r.computedAt : new Date(r.computedAt);
                 return (
                   <tr key={d.toISOString()} className="border-b border-stone-100">
-                    <td className="py-1.5 text-stone-600">
-                      {d.toISOString().slice(0, 10)}
-                    </td>
+                    <td className="py-1.5 text-stone-600">{d.toISOString().slice(0, 10)}</td>
                     <td className="py-1.5 text-right font-medium tabular-nums">{r.overall}</td>
                     <td className="py-1.5 text-right tabular-nums">{r.recognition}</td>
                     <td className="py-1.5 text-right tabular-nums">{r.depth}</td>

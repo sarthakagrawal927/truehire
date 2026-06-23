@@ -1,14 +1,11 @@
-import { Suspense } from "react";
-import Link from "next/link";
-import {
-  ShieldCheck, GitBranch, Award, Coins, Activity, ArrowRight,
-  Star, GitPullRequest, Code2, Sparkles,
-} from "lucide-react";
-import { GithubIcon as Github } from "@/components/atoms/github-icon";
-import { Button } from "@/components/atoms/button";
-import { Badge } from "@/components/atoms/badge";
-import { Card, CardBody } from "@/components/atoms/card";
-import { LiveHeroProfileDemo } from "./live-hero-profile-demo";
+import { Suspense } from 'react';
+import Link from 'next/link';
+import { ShieldCheck, ArrowRight } from 'lucide-react';
+import { GithubIcon as Github } from '@/components/atoms/github-icon';
+import { Button } from '@/components/atoms/button';
+import { Badge } from '@/components/atoms/badge';
+import { Card, CardBody } from '@/components/atoms/card';
+import { LiveHeroProfileDemo } from './live-hero-profile-demo';
 
 export default function LandingPage() {
   return (
@@ -19,7 +16,10 @@ export default function LandingPage() {
         <div className="pointer-events-none absolute inset-0 dot-grid" aria-hidden />
         <div
           className="pointer-events-none absolute -left-40 -top-40 h-[520px] w-[520px] rounded-full blur-3xl"
-          style={{ background: "radial-gradient(closest-side, color-mix(in srgb, var(--foreground) 10%, transparent), transparent)" }}
+          style={{
+            background:
+              'radial-gradient(closest-side, color-mix(in srgb, var(--foreground) 10%, transparent), transparent)',
+          }}
           aria-hidden
         />
         <div className="relative mx-auto grid w-full max-w-6xl grid-cols-1 gap-16 px-6 pb-20 pt-14 md:grid-cols-[1.08fr_1fr] md:gap-10 md:pb-28 md:pt-24">
@@ -38,9 +38,9 @@ export default function LandingPage() {
             </h1>
 
             <p className="mt-8 max-w-[34ch] text-[16px] leading-[1.55] text-[var(--muted)]">
-              AI tailors every resume into a 95% match. Recruiters stopped reading them.
-              TrueHire replaces the resume with signals that are too expensive to fake —
-              starting with years of verified public code.
+              AI tailors every resume into a 95% match. Recruiters stopped reading them. TrueHire
+              replaces the resume with signals that are too expensive to fake — starting with years
+              of verified public code.
             </p>
 
             <div className="mt-10 flex flex-wrap items-center gap-3">
@@ -89,18 +89,17 @@ export default function LandingPage() {
               Hiring broke in a new way.
             </h2>
             <p className="mt-5 max-w-lg text-[15px] leading-relaxed text-[var(--muted)]">
-              When every applicant can ship a tailored resume in 30 seconds, top-tier
-              candidates look identical to average ones. Recruiters bias toward warm
-              intros, great engineers without networks go invisible, and everyone pays
-              more for worse hires.
+              When every applicant can ship a tailored resume in 30 seconds, top-tier candidates
+              look identical to average ones. Recruiters bias toward warm intros, great engineers
+              without networks go invisible, and everyone pays more for worse hires.
             </p>
           </div>
           <ul className="grid grid-cols-1 gap-3 self-start">
             {[
-              "A single posting now draws hundreds of applicants — most with an AI-tailored resume.",
-              "Resumes converge: a strong engineer and an average one read almost identically.",
-              "Recruiters fall back on warm intros, so great engineers without a network go unseen.",
-              "Time-to-hire stretches, and a bad hire is expensive to unwind.",
+              'A single posting now draws hundreds of applicants — most with an AI-tailored resume.',
+              'Resumes converge: a strong engineer and an average one read almost identically.',
+              'Recruiters fall back on warm intros, so great engineers without a network go unseen.',
+              'Time-to-hire stretches, and a bad hire is expensive to unwind.',
             ].map((line) => (
               <li
                 key={line}
@@ -123,8 +122,8 @@ export default function LandingPage() {
               Four orthogonal signals. Stacked.
             </h2>
             <p className="mt-5 text-[15px] leading-relaxed text-[var(--muted)]">
-              Any one costly signal can be partially gamed. Four, layered, can only
-              be produced by someone who actually is who they claim to be.
+              Any one costly signal can be partially gamed. Four, layered, can only be produced by
+              someone who actually is who they claim to be.
             </p>
           </div>
 
@@ -170,27 +169,36 @@ export default function LandingPage() {
               Derived, not declared.
             </h2>
             <p className="mt-5 text-[15px] leading-relaxed text-[var(--muted)]">
-              You cannot write your own bio, summary, or skills list. Everything on
-              your profile is computed from verified sources. That is the point.
+              You cannot write your own bio, summary, or skills list. Everything on your profile is
+              computed from verified sources. That is the point.
             </p>
           </div>
 
           <ol className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            <Step n="01" title="Connect GitHub"
-              body="OAuth only — we never ask for a resume, a headline, or a self-description." />
-            <Step n="02" title="We read your work"
-              body="Commits, releases, stars, merged PRs to high-reputation repos — no heuristics, no ML black box." />
-            <Step n="03" title="Score + evidence"
-              body="A transparent 0–100 composite with the receipts behind every number. Recomputed weekly." />
+            <Step
+              n="01"
+              title="Connect GitHub"
+              body="OAuth only — we never ask for a resume, a headline, or a self-description."
+            />
+            <Step
+              n="02"
+              title="We read your work"
+              body="Commits, releases, stars, merged PRs to high-reputation repos — no heuristics, no ML black box."
+            />
+            <Step
+              n="03"
+              title="Score + evidence"
+              body="A transparent 0–100 composite with the receipts behind every number. Recomputed weekly."
+            />
           </ol>
 
           <div className="mt-12 grid grid-cols-1 gap-3 md:grid-cols-5">
             {[
-              ["Recognition", "30%", "Stars + merged PRs to 100★+ repos"],
-              ["Depth", "20%", "Months active, recency-weighted"],
-              ["Craft", "20%", "CI, tests, reviews, commit quality"],
-              ["Breadth", "15%", "Distinct meaningful repos, capped at 40"],
-              ["Specialization", "15%", "Concentration in a top language"],
+              ['Recognition', '30%', 'Stars + merged PRs to 100★+ repos'],
+              ['Depth', '20%', 'Months active, recency-weighted'],
+              ['Craft', '20%', 'CI, tests, reviews, commit quality'],
+              ['Breadth', '15%', 'Distinct meaningful repos, capped at 40'],
+              ['Specialization', '15%', 'Concentration in a top language'],
             ].map(([n, w, d]) => (
               <Card key={n}>
                 <CardBody>
@@ -220,7 +228,9 @@ export default function LandingPage() {
               <details key={f.q} className="group py-4 [&>summary::-webkit-details-marker]:hidden">
                 <summary className="flex cursor-pointer items-center justify-between gap-4 font-medium text-[var(--foreground)]">
                   {f.q}
-                  <span className="text-[var(--muted)] transition-transform group-open:rotate-45">＋</span>
+                  <span className="text-[var(--muted)] transition-transform group-open:rotate-45">
+                    ＋
+                  </span>
                 </summary>
                 <p className="mt-3 text-[14px] text-[var(--muted)]">{f.a}</p>
               </details>
@@ -268,39 +278,33 @@ function SectionEyebrow({ index, label }: { index: string; label: string }) {
 function Metric({ k, v }: { k: string; v: string }) {
   return (
     <div>
-      <dt className="num text-[20px] font-semibold leading-none tracking-tight">
-        {k}
-      </dt>
+      <dt className="num text-[20px] font-semibold leading-none tracking-tight">{k}</dt>
       <dd className="mt-2 text-[12px] leading-[1.4] text-[var(--muted)]">{v}</dd>
     </div>
   );
 }
 
 function SignalCard({
-  state, index, title, body, visual,
+  state,
+  index,
+  title,
+  body,
+  visual,
 }: {
-  state: "live" | "next" | "soon";
+  state: 'live' | 'next' | 'soon';
   index: string;
   title: string;
   body: string;
   visual: React.ReactNode;
 }) {
-  const label =
-    state === "live" ? "Live" : state === "next" ? "Next" : "Roadmap";
-  const tone =
-    state === "live"
-      ? "verified"
-      : state === "next"
-      ? "outline"
-      : "neutral";
+  const label = state === 'live' ? 'Live' : state === 'next' ? 'Next' : 'Roadmap';
+  const tone = state === 'live' ? 'verified' : state === 'next' ? 'outline' : 'neutral';
   return (
     <div className="relative flex flex-col gap-5 border-b border-r border-[var(--border)] p-6 last:border-r-0 md:[&:nth-child(2)]:border-r-0 lg:[&:nth-child(2)]:border-r lg:[&:nth-child(4)]:border-r-0 md:[&:nth-child(n+3)]:border-b-0 lg:[&:nth-child(n+2)]:border-b-0">
       <div className="flex items-center justify-between">
-        <span className="num text-[11px] tracking-[0.14em] text-[var(--muted-2)]">
-          {index}
-        </span>
+        <span className="num text-[11px] tracking-[0.14em] text-[var(--muted-2)]">{index}</span>
         <Badge tone={tone}>
-          {state === "live" && <span className="h-1.5 w-1.5 rounded-full bg-[var(--verified)]" />}
+          {state === 'live' && <span className="h-1.5 w-1.5 rounded-full bg-[var(--verified)]" />}
           {label}
         </Badge>
       </div>
@@ -346,8 +350,8 @@ function SignalVizVerify() {
   return (
     <div className="flex h-full flex-col justify-center gap-1.5 px-4">
       {[
-        { line: "hr@stripe.com", k: "Confirmed Staff Eng · 2022–2024" },
-        { line: "hr@datadog.com", k: "Confirmed Senior SWE · 2019–2022" },
+        { line: 'hr@stripe.com', k: 'Confirmed Staff Eng · 2022–2024' },
+        { line: 'hr@datadog.com', k: 'Confirmed Senior SWE · 2019–2022' },
       ].map((r) => (
         <div key={r.line} className="flex items-center gap-2 text-[11px]">
           <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[var(--verified-bg)] text-[var(--verified)]">
@@ -370,7 +374,10 @@ function SignalVizBonds() {
       </div>
       <div className="relative z-10 flex gap-2">
         {[200, 500, 1000].map((v) => (
-          <div key={v} className="num rounded-[var(--radius-xs)] border border-[var(--border-strong)] bg-[var(--surface)] px-2 py-1 text-[11px]">
+          <div
+            key={v}
+            className="num rounded-[var(--radius-xs)] border border-[var(--border-strong)] bg-[var(--surface)] px-2 py-1 text-[11px]"
+          >
             ${v}
           </div>
         ))}
@@ -389,10 +396,10 @@ function SignalVizAudition() {
           <div
             key={d}
             className={
-              "h-5 w-5 rounded-[3px] " +
+              'h-5 w-5 rounded-[3px] ' +
               (d < 10
-                ? "bg-[var(--foreground)]"
-                : "border border-[var(--border-strong)] bg-transparent")
+                ? 'bg-[var(--foreground)]'
+                : 'border border-[var(--border-strong)] bg-transparent')
             }
           />
         ))}
@@ -426,11 +433,11 @@ function HeroProfileDemoSkeleton() {
 
 const faqs = [
   {
-    q: "Why GitHub first?",
+    q: 'Why GitHub first?',
     a: "Because it's the one signal that exists at scale today without asking anyone's permission. Years of public commits cannot be fabricated in a weekend. Other signals — employer verification, reputation bonds, paid auditions — come next.",
   },
   {
-    q: "Can I edit my profile?",
+    q: 'Can I edit my profile?',
     a: "No. The entire point is that nothing on a TrueHire profile is written by the candidate. If it's on your profile, it came from a verifiable source. We surface the raw evidence so recruiters can audit every number.",
   },
   {
@@ -438,11 +445,11 @@ const faqs = [
     a: "MVP focuses on engineers with public code. If that's not you yet, the score will be low — that's honest. As we ship signals 2–4, non-code credentials (verified employment, references, auditions) open the door for more profiles.",
   },
   {
-    q: "How do you stop gaming (bot commits, bought stars)?",
-    a: "Recognition credits only high-star repos and merged PRs into them. Depth requires sustained months of activity, not a recent burst. We detect and discount star-spikes. Gaming enough signals to materially move a score is substantially harder than real work.",
+    q: 'How do you stop gaming (bot commits, bought stars)?',
+    a: 'Recognition credits only high-star repos and merged PRs into them. Depth requires sustained months of activity, not a recent burst. We detect and discount star-spikes. Gaming enough signals to materially move a score is substantially harder than real work.',
   },
   {
-    q: "Is this free?",
-    a: "Yes — public profiles and weekly score refresh will stay free. Paid tiers (manual refresh, private mode, verified PDF export, recruiter search) come later.",
+    q: 'Is this free?',
+    a: 'Yes — public profiles and weekly score refresh will stay free. Paid tiers (manual refresh, private mode, verified PDF export, recruiter search) come later.',
   },
 ];

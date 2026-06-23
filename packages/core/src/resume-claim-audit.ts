@@ -1,17 +1,17 @@
-import type { EvidenceEntry, ScoreBreakdown } from "./scoring/types";
+import type { EvidenceEntry, ScoreBreakdown } from './scoring/types';
 import {
   buildRoleFitReport,
   extractRoleRequirements,
   type RoleFitEvidence,
   type RoleFitRequirementResult,
-} from "./role-fit";
+} from './role-fit';
 
-export type ResumeClaimStatus = "verified" | "partial" | "unverified";
+export type ResumeClaimStatus = 'verified' | 'partial' | 'unverified';
 
 export type ResumeClaimAuditFinding = {
   id: string;
   claim: string;
-  category: "language" | "framework" | "practice" | "domain";
+  category: 'language' | 'framework' | 'practice' | 'domain';
   status: ResumeClaimStatus;
   score: number;
   reason: string;
@@ -41,7 +41,7 @@ export type ResumeClaimAuditReport = {
 
 export function buildResumeClaimAuditReport(params: {
   resumeText: string;
-  score: Pick<ScoreBreakdown, "languages">;
+  score: Pick<ScoreBreakdown, 'languages'>;
   evidence: EvidenceEntry[];
 }): ResumeClaimAuditReport {
   const requirements = extractRoleRequirements(params.resumeText);
@@ -61,19 +61,18 @@ export function buildResumeClaimAuditReport(params: {
         strengths: [],
         gap: true,
         remediation: `No public GitHub evidence was found for ${requirement.label}.`,
-      },
+      }
     );
   });
 
-  const verifiedClaims = findings.filter((finding) => finding.status === "verified");
-  const partialClaims = findings.filter((finding) => finding.status === "partial");
-  const unverifiedClaims = findings.filter((finding) => finding.status === "unverified");
+  const verifiedClaims = findings.filter((finding) => finding.status === 'verified');
+  const partialClaims = findings.filter((finding) => finding.status === 'partial');
+  const unverifiedClaims = findings.filter((finding) => finding.status === 'unverified');
   const coverageScore =
     findings.length === 0
       ? 0
       : Math.round(
-          findings.reduce((sum, finding) => sum + statusWeight(finding.status), 0) /
-            findings.length,
+          findings.reduce((sum, finding) => sum + statusWeight(finding.status), 0) / findings.length
         );
 
   return {
@@ -90,9 +89,9 @@ export function buildResumeClaimAuditReport(params: {
     unverifiedClaims,
     evidenceLinks: buildEvidenceLinks(params.evidence),
     caveats: [
-      "Resume text is treated as candidate-supplied claims, not proof.",
-      "Unverified means public GitHub evidence did not support the claim; it does not prove the candidate lacks the skill.",
-      "Do not use absent public work as a proxy for protected attributes, employment constraints, private-repo work, or non-GitHub ecosystems.",
+      'Resume text is treated as candidate-supplied claims, not proof.',
+      'Unverified means public GitHub evidence did not support the claim; it does not prove the candidate lacks the skill.',
+      'Do not use absent public work as a proxy for protected attributes, employment constraints, private-repo work, or non-GitHub ecosystems.',
     ],
   };
 }
@@ -112,39 +111,39 @@ function buildFinding(result: RoleFitRequirementResult): ResumeClaimAuditFinding
 }
 
 function deriveStatus(score: number, evidenceCount: number): ResumeClaimStatus {
-  if (score >= 65 && evidenceCount > 0) return "verified";
-  if (score >= 25 || evidenceCount > 0) return "partial";
-  return "unverified";
+  if (score >= 65 && evidenceCount > 0) return 'verified';
+  if (score >= 25 || evidenceCount > 0) return 'partial';
+  return 'unverified';
 }
 
 function buildReason(result: RoleFitRequirementResult, status: ResumeClaimStatus) {
-  if (status === "verified") {
+  if (status === 'verified') {
     const topRepo = result.strengths[0]?.repoFullName;
     return topRepo
       ? `Supported by public evidence, led by ${topRepo}.`
-      : "Supported by public language-share and contribution evidence.";
+      : 'Supported by public language-share and contribution evidence.';
   }
-  if (status === "partial") {
+  if (status === 'partial') {
     return result.strengths.length > 0
-      ? "Some public evidence matched, but coverage is not strong enough to treat the claim as verified."
-      : "Language-share evidence matched, but no specific repository evidence supported the claim.";
+      ? 'Some public evidence matched, but coverage is not strong enough to treat the claim as verified.'
+      : 'Language-share evidence matched, but no specific repository evidence supported the claim.';
   }
-  return "No matching public GitHub evidence was found for this resume claim.";
+  return 'No matching public GitHub evidence was found for this resume claim.';
 }
 
 function buildFollowUpQuestion(claim: string, status: ResumeClaimStatus) {
-  if (status === "verified") {
+  if (status === 'verified') {
     return `Which design tradeoff in your ${claim} work mattered most?`;
   }
-  if (status === "partial") {
+  if (status === 'partial') {
     return `Can you share a concrete project or PR that proves your ${claim} experience?`;
   }
   return `The resume claims ${claim}; where can we verify that work?`;
 }
 
 function statusWeight(status: ResumeClaimStatus) {
-  if (status === "verified") return 100;
-  if (status === "partial") return 50;
+  if (status === 'verified') return 100;
+  if (status === 'partial') return 50;
   return 0;
 }
 
@@ -153,13 +152,13 @@ function buildEvidenceLinks(evidence: EvidenceEntry[]) {
     repoFullName: entry.repoFullName,
     url: `https://github.com/${entry.repoFullName}`,
     reason: [
-      entry.isAuthor ? "authored repo" : "external contribution",
+      entry.isAuthor ? 'authored repo' : 'external contribution',
       `${entry.commits} commits`,
       `${entry.mergedPrs} merged PRs`,
       `${entry.stars} stars`,
       entry.primaryLanguage,
     ]
       .filter(Boolean)
-      .join(" / "),
+      .join(' / '),
   }));
 }

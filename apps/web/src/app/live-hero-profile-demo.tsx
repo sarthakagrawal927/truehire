@@ -1,54 +1,49 @@
-import Image from "next/image";
-import {
-  ShieldCheck,
-  Star,
-  GitPullRequest,
-  Sparkles,
-} from "lucide-react";
-import { Badge } from "@/components/atoms/badge";
-import { Card } from "@/components/atoms/card";
-import { ScoreRing } from "@/components/molecules/score-ring";
-import { getUserByUsername, getLatestScore } from "@/lib/score-service";
-import type { EvidenceEntry } from "@truehire/core";
+import Image from 'next/image';
+import { ShieldCheck, Star, GitPullRequest, Sparkles } from 'lucide-react';
+import { Badge } from '@/components/atoms/badge';
+import { Card } from '@/components/atoms/card';
+import { ScoreRing } from '@/components/molecules/score-ring';
+import { getUserByUsername, getLatestScore } from '@/lib/score-service';
+import type { EvidenceEntry } from '@truehire/core';
 
 const SAMPLE_EVIDENCE: EvidenceEntry[] = [
   {
-    repoFullName: "kubernetes/kubernetes",
+    repoFullName: 'kubernetes/kubernetes',
     stars: 112000,
     commits: 28,
     mergedPrs: 14,
     isAuthor: false,
-    primaryLanguage: "Go",
+    primaryLanguage: 'Go',
     weight: 96,
-    craftTags: ["CI", "tests", "docs"],
+    craftTags: ['CI', 'tests', 'docs'],
   },
   {
-    repoFullName: "sample-dev/warp-cache",
+    repoFullName: 'sample-dev/warp-cache',
     stars: 3200,
     commits: 612,
     mergedPrs: 0,
     isAuthor: true,
-    primaryLanguage: "Rust",
+    primaryLanguage: 'Rust',
     weight: 72,
-    craftTags: ["CI", "tests", "releases"],
+    craftTags: ['CI', 'tests', 'releases'],
   },
   {
-    repoFullName: "grafana/loki",
+    repoFullName: 'grafana/loki',
     stars: 24000,
     commits: 11,
     mergedPrs: 6,
     isAuthor: false,
-    primaryLanguage: "Go",
+    primaryLanguage: 'Go',
     weight: 61,
-    craftTags: ["CI", "docs"],
+    craftTags: ['CI', 'docs'],
   },
 ];
 
 const SAMPLE_PROFILE = {
   user: {
-    id: "sample",
-    githubUsername: "sample-dev",
-    name: "Sam Devlin",
+    id: 'sample',
+    githubUsername: 'sample-dev',
+    name: 'Sam Devlin',
     image: null,
   },
   score: {
@@ -74,9 +69,9 @@ async function loadProfile(handle: string) {
 }
 
 export async function LiveHeroProfileDemo() {
-  const data = await loadProfile("torvalds");
+  const data = await loadProfile('torvalds');
 
-  if (!data || !data.score) {
+  if (!data?.score) {
     return (
       <div className="relative mx-auto w-full max-w-[460px]">
         <Card className="relative overflow-hidden shadow-[0_40px_80px_-40px_rgba(0,0,0,0.45),0_0_0_1px_var(--border)]">
@@ -182,8 +177,13 @@ export async function LiveHeroProfileDemo() {
       {/* floating score chip — the share badge */}
       <div className="absolute -right-4 -top-4 hidden rotate-[3deg] md:block">
         <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-3 shadow-lg">
-          <div className="text-[10px] uppercase tracking-[0.14em] text-[var(--muted)]">TrueHire</div>
-          <div className="num mt-1 text-3xl font-semibold leading-none">{score.overall}<span className="text-base text-[var(--muted)]">/100</span></div>
+          <div className="text-[10px] uppercase tracking-[0.14em] text-[var(--muted)]">
+            TrueHire
+          </div>
+          <div className="num mt-1 text-3xl font-semibold leading-none">
+            {score.overall}
+            <span className="text-base text-[var(--muted)]">/100</span>
+          </div>
         </div>
       </div>
     </div>
@@ -193,11 +193,12 @@ export async function LiveHeroProfileDemo() {
 function MiniBar({ label, value }: { label: string; value: number }) {
   return (
     <div className="flex items-center gap-3">
-      <div className="w-24 text-[11px] uppercase tracking-[0.1em] text-[var(--muted)]">
-        {label}
-      </div>
+      <div className="w-24 text-[11px] uppercase tracking-[0.1em] text-[var(--muted)]">{label}</div>
       <div className="relative h-1 w-28 rounded-full bg-[var(--score-track)] overflow-hidden">
-        <div className="h-full rounded-full bg-[var(--score-fill)]" style={{ width: `${value}%` }} />
+        <div
+          className="h-full rounded-full bg-[var(--score-fill)]"
+          style={{ width: `${value}%` }}
+        />
       </div>
       <div className="num w-8 text-right text-[12px]">{value}</div>
     </div>
@@ -207,9 +208,9 @@ function MiniBar({ label, value }: { label: string; value: number }) {
 function formatRelative(d: Date) {
   const diff = Date.now() - d.getTime();
   const h = Math.floor(diff / 3_600_000);
-  if (h < 1) return "just now";
+  if (h < 1) return 'just now';
   if (h < 24) return `${h}h ago`;
   const days = Math.floor(h / 24);
   if (days < 30) return `${days}d ago`;
-  return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 }

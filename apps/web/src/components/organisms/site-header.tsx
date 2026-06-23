@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useState } from "react";
-import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
-import { useSession } from "next-auth/react";
-import { Button } from "@/components/atoms/button";
-import { GithubIcon as Github } from "@/components/atoms/github-icon";
+import Link from 'next/link';
+import { useState } from 'react';
+import { usePathname } from 'next/navigation';
+import { Menu, X } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { Button } from '@/components/atoms/button';
+import { GithubIcon as Github } from '@/components/atoms/github-icon';
 
 const NAV_LINKS = [
-  { href: "/#signals", label: "Signals" },
-  { href: "/methodology", label: "Methodology" },
-  { href: "/recruiter/shortlist", label: "Recruiters" },
-  { href: "/#faq", label: "FAQ" },
+  { href: '/#signals', label: 'Signals' },
+  { href: '/methodology', label: 'Methodology' },
+  { href: '/recruiter/shortlist', label: 'Recruiters' },
+  { href: '/#faq', label: 'FAQ' },
 ];
 
 export function SiteHeader() {
@@ -42,10 +42,14 @@ export function SiteHeader() {
           {username ? (
             <>
               <Link href={`/${username}`} className="hidden sm:block">
-                <Button variant="ghost" size="sm">My profile</Button>
+                <Button variant="ghost" size="sm">
+                  My profile
+                </Button>
               </Link>
               <Link href="/dashboard">
-                <Button variant="secondary" size="sm">Dashboard</Button>
+                <Button variant="secondary" size="sm">
+                  Dashboard
+                </Button>
               </Link>
             </>
           ) : (
@@ -59,7 +63,7 @@ export function SiteHeader() {
           {/* Hamburger — mobile only. */}
           <button
             type="button"
-            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((o) => !o)}
             className="inline-flex h-11 w-11 items-center justify-center rounded-[var(--radius-sm)] text-[var(--muted)] hover:bg-[var(--surface-2)] hover:text-[var(--foreground)] md:hidden"
@@ -112,7 +116,13 @@ function LogoMark() {
       aria-hidden
     >
       <svg viewBox="0 0 24 24" width="14" height="14" fill="none">
-        <path d="M5 13l4 4 10-10" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path
+          d="M5 13l4 4 10-10"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       </svg>
     </span>
   );

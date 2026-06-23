@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { BriefcaseBusiness } from "lucide-react";
-import { Button } from "@/components/atoms/button";
-import { Card, CardBody, CardHeader, CardTitle } from "@/components/atoms/card";
+import { BriefcaseBusiness } from 'lucide-react';
+import { Button } from '@/components/atoms/button';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/atoms/card';
 
 export function RoleFitForm({ username }: { username: string }) {
   return (
@@ -11,7 +11,11 @@ export function RoleFitForm({ username }: { username: string }) {
         <CardTitle>Role-fit report</CardTitle>
       </CardHeader>
       <CardBody>
-        <form action={`/${encodeURIComponent(username)}/role-fit`} method="get" className="space-y-4">
+        <form
+          action={`/${encodeURIComponent(username)}/role-fit`}
+          method="get"
+          className="space-y-4"
+        >
           <textarea
             name="jd"
             required

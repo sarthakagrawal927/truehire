@@ -14,14 +14,12 @@
  * capture API so server-triggered events (`activated`, `core_action`) land.
  */
 
-const PROJECT = "truehire" as const;
+const PROJECT = 'truehire' as const;
 
 // Shared with foundry-monitoring.ts — the same PostHog project.
 const POSTHOG_KEY =
-  process.env["NEXT_PUBLIC_POSTHOG_KEY"] ??
-  "phc_qgiAarw4Co4pw9fz3Fxj4UJaHmqzFetqs4JrXhGc35Nd";
-const POSTHOG_HOST =
-  process.env["NEXT_PUBLIC_POSTHOG_HOST"] ?? "https://us.i.posthog.com";
+  process.env.NEXT_PUBLIC_POSTHOG_KEY ?? 'phc_qgiAarw4Co4pw9fz3Fxj4UJaHmqzFetqs4JrXhGc35Nd';
+const POSTHOG_HOST = process.env.NEXT_PUBLIC_POSTHOG_HOST ?? 'https://us.i.posthog.com';
 
 /**
  * The product-specific action behind a `core_action` event.
@@ -30,10 +28,7 @@ const POSTHOG_HOST =
  *  - `role_fit_run`     — a job description was scored against a profile.
  *  - `work_history_added` — the candidate added a verifiable employment entry.
  */
-export type CoreAction =
-  | "score_refreshed"
-  | "role_fit_run"
-  | "work_history_added";
+export type CoreAction = 'score_refreshed' | 'role_fit_run' | 'work_history_added';
 
 /**
  * The fixed taxonomy. Do NOT add events here — the whole point is that all
@@ -53,8 +48,8 @@ interface AnalyticsEventMap {
 
 function emitServer(event: string, props: Record<string, unknown>, distinctId?: string): void {
   void fetch(`${POSTHOG_HOST}/i/v0/e/`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       api_key: POSTHOG_KEY,
       event,
@@ -69,17 +64,17 @@ function emitServer(event: string, props: Record<string, unknown>, distinctId?: 
 export function trackEvent(
   event: string,
   properties: Record<string, unknown> = {},
-  distinctId?: string,
+  distinctId?: string
 ): void {
   const payload = { project_id: PROJECT, ...properties };
   try {
-    if (typeof window === "undefined") {
+    if (typeof window === 'undefined') {
       // Server context (server action / route handler).
       emitServer(event, payload, distinctId);
     } else {
       // Browser context. Load the browser client lazily so the React-dependent
       // `posthog-js` entry is never evaluated during SSR.
-      void import("posthog-js")
+      void import('posthog-js')
         .then(({ default: posthog }) => {
           posthog.capture(event, payload);
         })
@@ -94,8 +89,8 @@ export function trackEvent(
 
 function emit<K extends keyof AnalyticsEventMap>(
   event: K,
-  props: Omit<AnalyticsEventMap[K], "project_id">,
-  distinctId?: string,
+  props: Omit<AnalyticsEventMap[K], 'project_id'>,
+  distinctId?: string
 ): void {
   trackEvent(event, props, distinctId);
 }
@@ -106,7 +101,7 @@ function emit<K extends keyof AnalyticsEventMap>(
  * so the event attaches to the right user.
  */
 export function trackSignup(distinctId?: string): void {
-  emit("signup", {}, distinctId);
+  emit('signup', {}, distinctId);
 }
 
 /**
@@ -115,12 +110,12 @@ export function trackSignup(distinctId?: string): void {
  * event attaches to the right user.
  */
 export function trackActivated(distinctId?: string): void {
-  emit("activated", {}, distinctId);
+  emit('activated', {}, distinctId);
 }
 
 /** Fire on each completion of a core product action. */
 export function trackCoreAction(action: CoreAction, distinctId?: string): void {
-  emit("core_action", { action }, distinctId);
+  emit('core_action', { action }, distinctId);
 }
 
 /**
@@ -129,5 +124,5 @@ export function trackCoreAction(action: CoreAction, distinctId?: string): void {
  * to the right user.
  */
 export function trackReturned(distinctId?: string): void {
-  emit("returned", {}, distinctId);
+  emit('returned', {}, distinctId);
 }

@@ -1,9 +1,9 @@
-import type { EvidenceEntry, ScoreBreakdown } from "./scoring/types";
+import type { EvidenceEntry, ScoreBreakdown } from './scoring/types';
 
 export type RoleRequirement = {
   id: string;
   label: string;
-  category: "language" | "framework" | "practice" | "domain";
+  category: 'language' | 'framework' | 'practice' | 'domain';
   weight: number;
   keywords: string[];
 };
@@ -50,7 +50,7 @@ export type ShortlistCandidateInput = {
   monthsActive: number;
   computedAt: Date | string | number;
   evidence: EvidenceEntry[];
-  languages: ScoreBreakdown["languages"];
+  languages: ScoreBreakdown['languages'];
 };
 
 export type ShortlistCandidateComparison = {
@@ -107,84 +107,84 @@ export type RecruiterCandidateIntelligenceReport = {
   }>;
 };
 
-const REQUIREMENT_CATALOG: Array<Omit<RoleRequirement, "id" | "weight">> = [
+const REQUIREMENT_CATALOG: Array<Omit<RoleRequirement, 'id' | 'weight'>> = [
   {
-    label: "TypeScript",
-    category: "language",
-    keywords: ["typescript", "ts", "next", "next.js", "nextjs", "react"],
+    label: 'TypeScript',
+    category: 'language',
+    keywords: ['typescript', 'ts', 'next', 'next.js', 'nextjs', 'react'],
   },
   {
-    label: "JavaScript",
-    category: "language",
-    keywords: ["javascript", "node", "node.js"],
+    label: 'JavaScript',
+    category: 'language',
+    keywords: ['javascript', 'node', 'node.js'],
   },
   {
-    label: "Python",
-    category: "language",
-    keywords: ["python", "django", "fastapi", "flask"],
+    label: 'Python',
+    category: 'language',
+    keywords: ['python', 'django', 'fastapi', 'flask'],
   },
   {
-    label: "Go",
-    category: "language",
-    keywords: ["go", "golang"],
+    label: 'Go',
+    category: 'language',
+    keywords: ['go', 'golang'],
   },
   {
-    label: "Rust",
-    category: "language",
-    keywords: ["rust"],
+    label: 'Rust',
+    category: 'language',
+    keywords: ['rust'],
   },
   {
-    label: "Frontend product engineering",
-    category: "framework",
-    keywords: ["frontend", "react", "next", "next.js", "nextjs", "ui", "ux"],
+    label: 'Frontend product engineering',
+    category: 'framework',
+    keywords: ['frontend', 'react', 'next', 'next.js', 'nextjs', 'ui', 'ux'],
   },
   {
-    label: "Backend/API engineering",
-    category: "framework",
-    keywords: ["backend", "api", "server", "database", "db", "worker", "cloudflare"],
+    label: 'Backend/API engineering',
+    category: 'framework',
+    keywords: ['backend', 'api', 'server', 'database', 'db', 'worker', 'cloudflare'],
   },
   {
-    label: "Testing discipline",
-    category: "practice",
-    keywords: ["test", "testing", "vitest", "jest", "playwright", "qa"],
+    label: 'Testing discipline',
+    category: 'practice',
+    keywords: ['test', 'testing', 'vitest', 'jest', 'playwright', 'qa'],
   },
   {
-    label: "CI and release hygiene",
-    category: "practice",
-    keywords: ["ci", "github actions", "deployment", "deploy", "release", "devops"],
+    label: 'CI and release hygiene',
+    category: 'practice',
+    keywords: ['ci', 'github actions', 'deployment', 'deploy', 'release', 'devops'],
   },
   {
-    label: "Documentation",
-    category: "practice",
-    keywords: ["documentation", "docs", "readme", "technical writing"],
+    label: 'Documentation',
+    category: 'practice',
+    keywords: ['documentation', 'docs', 'readme', 'technical writing'],
   },
   {
-    label: "Open-source collaboration",
-    category: "domain",
-    keywords: ["open source", "oss", "pull request", "pr", "collaboration", "maintainer"],
+    label: 'Open-source collaboration',
+    category: 'domain',
+    keywords: ['open source', 'oss', 'pull request', 'pr', 'collaboration', 'maintainer'],
   },
 ];
 
 const STOPWORDS = new Set([
-  "and",
-  "are",
-  "for",
-  "the",
-  "with",
-  "you",
-  "our",
-  "that",
-  "this",
-  "will",
-  "from",
-  "have",
-  "has",
-  "into",
-  "using",
-  "build",
-  "work",
-  "team",
-  "role",
+  'and',
+  'are',
+  'for',
+  'the',
+  'with',
+  'you',
+  'our',
+  'that',
+  'this',
+  'will',
+  'from',
+  'have',
+  'has',
+  'into',
+  'using',
+  'build',
+  'work',
+  'team',
+  'role',
 ]);
 
 export function extractRoleRequirements(jobDescription: string): RoleRequirement[] {
@@ -197,7 +197,7 @@ export function extractRoleRequirements(jobDescription: string): RoleRequirement
     requirements.push({
       ...item,
       id: slugify(item.label),
-      weight: item.category === "language" ? 1.15 : 1,
+      weight: item.category === 'language' ? 1.15 : 1,
       keywords: Array.from(new Set(item.keywords.map(normalize))),
     });
   }
@@ -208,7 +208,7 @@ export function extractRoleRequirements(jobDescription: string): RoleRequirement
     requirements.push({
       id: slugify(keyword),
       label: toTitle(keyword),
-      category: "domain",
+      category: 'domain',
       weight: 0.7,
       keywords: [keyword],
     });
@@ -219,17 +219,17 @@ export function extractRoleRequirements(jobDescription: string): RoleRequirement
 
 export function buildRoleFitReport(params: {
   jobDescription: string;
-  score: Pick<ScoreBreakdown, "languages">;
+  score: Pick<ScoreBreakdown, 'languages'>;
   evidence: EvidenceEntry[];
 }): RoleFitReport {
   const requirements = extractRoleRequirements(params.jobDescription);
   const results = requirements.map((requirement) =>
-    matchRequirement(requirement, params.evidence, params.score.languages),
+    matchRequirement(requirement, params.evidence, params.score.languages)
   );
   const totalWeight = results.reduce((sum, result) => sum + result.requirement.weight, 0);
   const weighted = results.reduce(
     (sum, result) => sum + result.score * result.requirement.weight,
-    0,
+    0
   );
   const fitScore = totalWeight > 0 ? Math.round(weighted / totalWeight) : 0;
 
@@ -267,7 +267,7 @@ export function buildShortlistComparisonReport(params: {
           jobDescription: params.jobDescription,
           evidence: candidate.evidence,
           score: { languages: candidate.languages },
-        }),
+        })
       );
 
       return {
@@ -302,7 +302,7 @@ export function buildShortlistComparisonReport(params: {
       averageFitScore: average(candidates.map((candidate) => candidate.report.fitScore)),
       topCandidateHandle: candidates[0]?.handle ?? null,
       strongestRequirement: mostCommonRequirement(
-        candidates.flatMap((candidate) => candidate.topStrengths),
+        candidates.flatMap((candidate) => candidate.topStrengths)
       ),
       commonGap: mostCommonRequirement(candidates.flatMap((candidate) => candidate.topGaps)),
     },
@@ -311,7 +311,7 @@ export function buildShortlistComparisonReport(params: {
 
 export function buildRecruiterCandidateIntelligenceReport(params: {
   jobDescription: string;
-  score: Pick<ScoreBreakdown, "languages">;
+  score: Pick<ScoreBreakdown, 'languages'>;
   evidence: EvidenceEntry[];
 }): RecruiterCandidateIntelligenceReport {
   const roleFit = serializePublicRoleFitReport(
@@ -319,7 +319,7 @@ export function buildRecruiterCandidateIntelligenceReport(params: {
       jobDescription: params.jobDescription,
       score: params.score,
       evidence: params.evidence,
-    }),
+    })
   );
 
   const strengths = roleFit.verifiedStrengths
@@ -343,19 +343,19 @@ export function buildRecruiterCandidateIntelligenceReport(params: {
 
   if (params.evidence.length === 0) {
     risks.unshift({
-      title: "No repository evidence available",
-      reason: "Wait for GitHub ingest or ask for public work that maps to this role.",
+      title: 'No repository evidence available',
+      reason: 'Wait for GitHub ingest or ask for public work that maps to this role.',
       evidence: [],
     });
   }
 
   const followUpQuestions = [
     ...risks.slice(0, 2).map((risk) => ({
-      question: `Can you walk through a project that proves ${risk.title.replace(/:.*$/, "")}?`,
+      question: `Can you walk through a project that proves ${risk.title.replace(/:.*$/, '')}?`,
       evidence: risk.evidence,
     })),
     ...strengths.slice(0, 2).map((strength) => ({
-      question: `Which design tradeoff in ${strength.evidence[0]?.repoFullName ?? "this work"} mattered most?`,
+      question: `Which design tradeoff in ${strength.evidence[0]?.repoFullName ?? 'this work'} mattered most?`,
       evidence: strength.evidence.slice(0, 1),
     })),
   ].slice(0, 4);
@@ -383,7 +383,7 @@ export function buildRecruiterCandidateIntelligenceReport(params: {
 function matchRequirement(
   requirement: RoleRequirement,
   evidence: EvidenceEntry[],
-  languages: ScoreBreakdown["languages"],
+  languages: ScoreBreakdown['languages']
 ): RoleFitRequirementResult {
   const strengths = evidence
     .map((entry) => matchEvidence(entry, requirement))
@@ -392,7 +392,7 @@ function matchRequirement(
     .slice(0, 4);
 
   const languageHit = languages.find((language) =>
-    requirement.keywords.some((keyword) => normalize(language.language) === normalize(keyword)),
+    requirement.keywords.some((keyword) => normalize(language.language) === normalize(keyword))
   );
   const baseScore = strengths.reduce((sum, item) => sum + item.scoreEvidenceWeight, 0);
   const languageScore = languageHit ? Math.min(35, Math.round(languageHit.share * 100)) : 0;
@@ -411,12 +411,14 @@ function matchEvidence(entry: EvidenceEntry, requirement: RoleRequirement): Role
   const haystack = normalize(
     [
       entry.repoFullName,
-      entry.primaryLanguage ?? "",
+      entry.primaryLanguage ?? '',
       ...(entry.craftTags ?? []),
-      entry.isAuthor ? "authored maintainer owner" : "pull request collaboration",
-    ].join(" "),
+      entry.isAuthor ? 'authored maintainer owner' : 'pull request collaboration',
+    ].join(' ')
   );
-  const matchedSignals = requirement.keywords.filter((keyword) => haystack.includes(normalize(keyword)));
+  const matchedSignals = requirement.keywords.filter((keyword) =>
+    haystack.includes(normalize(keyword))
+  );
   if (matchedSignals.length === 0) return null;
 
   return {
@@ -431,33 +433,34 @@ function matchEvidence(entry: EvidenceEntry, requirement: RoleRequirement): Role
 }
 
 function buildRemediation(requirement: RoleRequirement, score: number) {
-  if (score >= 70) return "Keep this proof fresh with recent commits and visible releases.";
-  if (score >= 35) return `Add clearer README, tests, or recent commits that mention ${requirement.label}.`;
+  if (score >= 70) return 'Keep this proof fresh with recent commits and visible releases.';
+  if (score >= 35)
+    return `Add clearer README, tests, or recent commits that mention ${requirement.label}.`;
   return `Create or update a public repo that directly demonstrates ${requirement.label}, with tests, CI, and a short README.`;
 }
 
 function summarizeFit(report: RoleFitReport): string {
   if (report.summary.totalRequirements === 0) {
-    return "No role requirements were extracted from the job description; use the raw score evidence as the starting point.";
+    return 'No role requirements were extracted from the job description; use the raw score evidence as the starting point.';
   }
   if (report.fitScore >= 70) {
-    return "Strong verified match against the pasted job description.";
+    return 'Strong verified match against the pasted job description.';
   }
   if (report.fitScore >= 40) {
-    return "Partial verified match; review gaps before advancing.";
+    return 'Partial verified match; review gaps before advancing.';
   }
-  return "Limited verified match from current GitHub evidence.";
+  return 'Limited verified match from current GitHub evidence.';
 }
 
 function evidenceReason(entry: EvidenceEntry): string {
   const parts = [
-    entry.isAuthor ? "authored repo" : "external contribution",
+    entry.isAuthor ? 'authored repo' : 'external contribution',
     `${entry.commits} commits`,
     `${entry.mergedPrs} merged PRs`,
     `${entry.stars} stars`,
   ];
   if (entry.primaryLanguage) parts.push(entry.primaryLanguage);
-  return parts.join(" · ");
+  return parts.join(' · ');
 }
 
 function serializeResult(result: RoleFitRequirementResult): RoleFitRequirementResult {
@@ -471,8 +474,8 @@ function serializeResult(result: RoleFitRequirementResult): RoleFitRequirementRe
 }
 
 function compareShortlistCandidates(
-  a: Omit<ShortlistCandidateComparison, "rank">,
-  b: Omit<ShortlistCandidateComparison, "rank">,
+  a: Omit<ShortlistCandidateComparison, 'rank'>,
+  b: Omit<ShortlistCandidateComparison, 'rank'>
 ) {
   return (
     b.report.fitScore - a.report.fitScore ||
@@ -494,7 +497,10 @@ function mostCommonRequirement(results: RoleFitRequirementResult[]) {
   for (const result of results) {
     counts.set(result.requirement.label, (counts.get(result.requirement.label) ?? 0) + 1);
   }
-  return Array.from(counts.entries()).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0]?.[0] ?? null;
+  return (
+    Array.from(counts.entries()).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0]?.[0] ??
+    null
+  );
 }
 
 function extractExtraKeywords(normalized: string) {
@@ -511,11 +517,13 @@ function extractExtraKeywords(normalized: string) {
 }
 
 function normalize(value: string) {
-  return value.toLowerCase().replace(/\s+/g, " ").trim();
+  return value.toLowerCase().replace(/\s+/g, ' ').trim();
 }
 
 function slugify(value: string) {
-  return normalize(value).replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  return normalize(value)
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
 }
 
 function toTitle(value: string) {
@@ -523,5 +531,5 @@ function toTitle(value: string) {
     .split(/[-_\s]+/)
     .filter(Boolean)
     .map((part) => part[0].toUpperCase() + part.slice(1))
-    .join(" ");
+    .join(' ');
 }

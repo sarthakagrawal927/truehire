@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactNode } from 'react';
 
 export function Stat({
   label,
@@ -17,9 +17,7 @@ export function Stat({
         {icon}
         {label}
       </div>
-      <div className="num text-2xl font-medium text-[var(--foreground)]">
-        {value}
-      </div>
+      <div className="num text-2xl font-medium text-[var(--foreground)]">{value}</div>
       {hint && <div className="text-[11px] text-[var(--muted-2)]">{hint}</div>}
     </div>
   );

@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useEffect } from "react";
+import Link from 'next/link';
+import { useEffect } from 'react';
 
-import { captureError } from "@/lib/foundry-monitoring";
+import { captureError } from '@/lib/foundry-monitoring';
 
 export default function EvaluationError({
   error,
@@ -14,7 +14,7 @@ export default function EvaluationError({
 }) {
   useEffect(() => {
     console.error(error);
-    captureError(error, { scope: "recruiter", digest: error.digest });
+    captureError(error, { scope: 'recruiter', digest: error.digest });
   }, [error]);
 
   return (
@@ -23,8 +23,8 @@ export default function EvaluationError({
         <div className="max-w-md text-center">
           <h2 className="text-xl font-bold">Couldn&apos;t load this review</h2>
           <p className="mt-3 text-sm text-[var(--muted)]">
-            Something went wrong while loading the candidate workspace. Your
-            saved evaluations are safe — try again or return to the pipeline.
+            Something went wrong while loading the candidate workspace. Your saved evaluations are
+            safe — try again or return to the pipeline.
           </p>
           <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
             <button
@@ -41,9 +41,7 @@ export default function EvaluationError({
             </Link>
           </div>
           {error.digest ? (
-            <p className="mt-6 text-xs text-[var(--muted-2)]">
-              Reference: {error.digest}
-            </p>
+            <p className="mt-6 text-xs text-[var(--muted-2)]">Reference: {error.digest}</p>
           ) : null}
         </div>
       </div>

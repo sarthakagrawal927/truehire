@@ -17,19 +17,19 @@ export type ContributionInput = {
 };
 
 export type CraftSignals = {
-  hasCi: boolean;           // .github/workflows
-  hasTests: boolean;        // tests dir OR test file OR vitest/jest/playwright config
-  hasReadme: boolean;       // README.md present and non-trivial
+  hasCi: boolean; // .github/workflows
+  hasTests: boolean; // tests dir OR test file OR vitest/jest/playwright config
+  hasReadme: boolean; // README.md present and non-trivial
   hasLicense: boolean;
-  readmeSize: number;       // bytes
-  releases: number;         // tag / release count
-  collaborators: number;    // non-owner contributors
+  readmeSize: number; // bytes
+  releases: number; // tag / release count
+  collaborators: number; // non-owner contributors
 
   // Commit-message quality sampled from the most recent ~50 commits by the
   // author. Both unitless 0..1 quantities — the scorer converts.
-  avgCommitMsgLen?: number;       // chars
-  meaningfulMsgRatio?: number;    // 0..1 (fraction of commits that look non-trivial)
-  sampledCommits?: number;        // how many commits actually sampled
+  avgCommitMsgLen?: number; // chars
+  meaningfulMsgRatio?: number; // 0..1 (fraction of commits that look non-trivial)
+  sampledCommits?: number; // how many commits actually sampled
 };
 
 export type MonthBucket = { month: string; commits: number }; // "YYYY-MM"

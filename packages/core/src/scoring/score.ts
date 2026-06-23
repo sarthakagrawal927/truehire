@@ -5,7 +5,7 @@ import type {
   MonthBucket,
   ScoreBreakdown,
   ScoreInput,
-} from "./types";
+} from './types';
 
 // Weights sum to 1.0. Recognition carries the most weight (the PRD premise:
 // costly, publicly verifiable signals). Craft complements it rather than
@@ -40,7 +40,8 @@ const logScale = (value: number, cap: number) =>
  * first-PR / meme-list repos. Massive star counts from educational value,
  * but contributing to them says nothing about engineering ability.
  */
-const LOW_SIGNAL_REPO = /(?:^|\/)(?:first[-_]?contributions?|your[-_]?first[-_]?pr|hacktoberfest|good[-_]?first[-_]?issue|30[-_]?days[-_]?of|100[-_]?days[-_]?of|365[-_]?days|github[-_]?graduation|coding[-_]?interview|tech[-_]?interview|awesome[-_]?[a-z0-9-]+|morethanfaang|system[-_]?design[-_]?primer|build[-_]?your[-_]?own|every[-_]?programmer|project[-_]?based[-_]?learning|developer[-_]?roadmap|free[-_]?programming|public[-_]?apis|cheatsheet|leetcode|interview[-_]?prep)/i;
+const LOW_SIGNAL_REPO =
+  /(?:^|\/)(?:first[-_]?contributions?|your[-_]?first[-_]?pr|hacktoberfest|good[-_]?first[-_]?issue|30[-_]?days[-_]?of|100[-_]?days[-_]?of|365[-_]?days|github[-_]?graduation|coding[-_]?interview|tech[-_]?interview|awesome[-_]?[a-z0-9-]+|morethanfaang|system[-_]?design[-_]?primer|build[-_]?your[-_]?own|every[-_]?programmer|project[-_]?based[-_]?learning|developer[-_]?roadmap|free[-_]?programming|public[-_]?apis|cheatsheet|leetcode|interview[-_]?prep)/i;
 
 /**
  * `isFork` from GitHub is authoritative: if the user "owns" a fork (login
@@ -76,7 +77,7 @@ function isMeaningful(c: ContributionInput): boolean {
 function freshnessMultiplier(pushedAt: number | null | undefined, nowMs: number): number {
   if (!pushedAt) return 1;
   const ageMonths = Math.max(0, (nowMs - pushedAt) / MS_PER_MONTH);
-  return Math.pow(0.5, ageMonths / FRESHNESS_HALF_LIFE_MONTHS);
+  return 0.5 ** (ageMonths / FRESHNESS_HALF_LIFE_MONTHS);
 }
 
 // ─────────────────── components ───────────────────
@@ -88,11 +89,11 @@ function depthScore(months: MonthBucket[], nowMs: number): number {
   let weighted = 0;
   for (const { month, commits } of months) {
     if (commits <= 0) continue;
-    const [y, m] = month.split("-").map(Number);
+    const [y, m] = month.split('-').map(Number);
     if (!y || !m) continue;
     const monthIdx = y * 12 + (m - 1);
     const agoMonths = Math.max(0, nowIdx - monthIdx);
-    weighted += Math.pow(0.5, agoMonths / DEPTH_HALF_LIFE_MONTHS);
+    weighted += 0.5 ** (agoMonths / DEPTH_HALF_LIFE_MONTHS);
   }
   return logScale(weighted, DEPTH_CAP_MONTHS);
 }
@@ -112,10 +113,7 @@ function recognitionScore(contributions: ContributionInput[], nowMs: number): nu
       // Core contributor to an external repo — heavy committers to
       // facebook/react, vercel/next.js, etc. Get star credit proportional
       // to their commit share (capped). Freshness weighted.
-      const share = Math.min(
-        1,
-        (c.commits + c.mergedPrs * 3) / CORE_SHARE_DENOM,
-      );
+      const share = Math.min(1, (c.commits + c.mergedPrs * 3) / CORE_SHARE_DENOM);
       const fresh = freshnessMultiplier(c.lastCommitAt, nowMs);
       total += Math.min(c.repoStars, 200_000) * share * fresh;
     } else if (c.mergedPrs >= 2 && c.commits >= 3 && c.repoStars >= 100) {
@@ -135,10 +133,7 @@ function recognitionScore(contributions: ContributionInput[], nowMs: number): nu
  */
 function craftScore(contributions: ContributionInput[], nowMs: number): number {
   const candidates = contributions.filter(
-    (c) =>
-      isMeaningful(c) &&
-      c.craft &&
-      (effectiveIsAuthor(c) || isCoreContributor(c)),
+    (c) => isMeaningful(c) && c.craft && (effectiveIsAuthor(c) || isCoreContributor(c))
   );
   if (candidates.length === 0) return 0;
 
@@ -196,7 +191,7 @@ function commitQualityPoints(s: CraftSignals): number {
   return Math.round(lenPts + ratioPts);
 }
 
-function specializationScore(languages: ScoreBreakdown["languages"]): number {
+function specializationScore(languages: ScoreBreakdown['languages']): number {
   if (languages.length === 0) return 0;
   const top = languages[0]?.share ?? 0;
   if (top < 0.2) return 0;
@@ -228,11 +223,11 @@ function buildEvidence(contributions: ContributionInput[]): EvidenceEntry[] {
       let weight: number;
       const craftTags: string[] = [];
       if (c.craft) {
-        if (c.craft.hasCi) craftTags.push("CI");
-        if (c.craft.hasTests) craftTags.push("tests");
-        if (c.craft.hasReadme && c.craft.readmeSize >= 800) craftTags.push("docs");
-        if (c.craft.releases >= 3) craftTags.push("releases");
-        if (c.craft.collaborators >= 2) craftTags.push("team");
+        if (c.craft.hasCi) craftTags.push('CI');
+        if (c.craft.hasTests) craftTags.push('tests');
+        if (c.craft.hasReadme && c.craft.readmeSize >= 800) craftTags.push('docs');
+        if (c.craft.releases >= 3) craftTags.push('releases');
+        if (c.craft.collaborators >= 2) craftTags.push('team');
       }
       if (author) {
         const starWeight = Math.log1p(c.repoStars) * 12;
@@ -245,7 +240,7 @@ function buildEvidence(contributions: ContributionInput[]): EvidenceEntry[] {
         const starWeight = Math.log1p(c.repoStars) * 10 * share;
         const prWeight = c.mergedPrs * 6;
         weight = starWeight + commitWeight + prWeight;
-        craftTags.push("core contributor");
+        craftTags.push('core contributor');
       } else {
         const prWeight = c.mergedPrs * 6;
         const starBonus = Math.log1p(Math.min(c.repoStars, 20_000)) * 2;
@@ -284,15 +279,12 @@ export function computeScore(input: ScoreInput): ScoreBreakdown {
       breadth * W.breadth +
       recognition * W.recognition +
       craft * W.craft +
-      specialization * W.specialization,
+      specialization * W.specialization
   );
 
   const totals = {
     commits: input.contributions.reduce((s, c) => s + c.commits, 0),
-    stars: input.contributions.reduce(
-      (s, c) => (effectiveIsAuthor(c) ? s + c.repoStars : s),
-      0,
-    ),
+    stars: input.contributions.reduce((s, c) => (effectiveIsAuthor(c) ? s + c.repoStars : s), 0),
     repos: input.contributions.length,
     monthsActive: input.months.filter((m) => m.commits > 0).length,
   };

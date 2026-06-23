@@ -1,9 +1,9 @@
-import Link from "next/link";
-import { ShieldCheck } from "lucide-react";
-import { Card, CardBody } from "@/components/atoms/card";
-import { SignInButton } from "./sign-in-button";
-import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
+import Link from 'next/link';
+import { ShieldCheck } from 'lucide-react';
+import { Card, CardBody } from '@/components/atoms/card';
+import { SignInButton } from './sign-in-button';
+import { redirect } from 'next/navigation';
+import { auth } from '@/lib/auth';
 
 export default async function LoginPage({
   searchParams,
@@ -12,7 +12,7 @@ export default async function LoginPage({
 }) {
   const sp = await searchParams;
   const session = await auth();
-  if (session?.user?.githubUsername) redirect("/dashboard");
+  if (session?.user?.githubUsername) redirect('/dashboard');
 
   return (
     <div className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-5xl items-center px-6 py-12">
@@ -25,9 +25,8 @@ export default async function LoginPage({
             Sign in with GitHub.
           </h1>
           <p className="mt-4 max-w-md text-[15px] text-[var(--muted)]">
-            We read your public work — repos, commits, merged PRs, stars — and
-            compute a verifiable profile. We never ask for a resume, a headline,
-            or a self-description.
+            We read your public work — repos, commits, merged PRs, stars — and compute a verifiable
+            profile. We never ask for a resume, a headline, or a self-description.
           </p>
 
           <ul className="mt-8 space-y-3 text-[13px] text-[var(--muted)]">
@@ -44,20 +43,25 @@ export default async function LoginPage({
             </div>
             <div className="mt-3 text-[20px] font-semibold">Connect GitHub</div>
             <p className="mt-2 text-[13px] text-[var(--muted)]">
-              We request <code className="font-mono">read:user</code>,{" "}
-              <code className="font-mono">user:email</code>, and{" "}
+              We request <code className="font-mono">read:user</code>,{' '}
+              <code className="font-mono">user:email</code>, and{' '}
               <code className="font-mono">public_repo</code>. Nothing else.
             </p>
 
             <div className="mt-6">
-              <SignInButton callbackUrl={sp.callbackUrl ?? "/dashboard"} />
+              <SignInButton callbackUrl={sp.callbackUrl ?? '/dashboard'} />
             </div>
 
             <p className="mt-4 text-[11px] leading-relaxed text-[var(--muted-2)]">
-              By continuing you agree to our{" "}
-              <Link href="/terms" className="underline hover:text-[var(--foreground)]">terms</Link>{" "}
-              and{" "}
-              <Link href="/privacy" className="underline hover:text-[var(--foreground)]">privacy policy</Link>.
+              By continuing you agree to our{' '}
+              <Link href="/terms" className="underline hover:text-[var(--foreground)]">
+                terms
+              </Link>{' '}
+              and{' '}
+              <Link href="/privacy" className="underline hover:text-[var(--foreground)]">
+                privacy policy
+              </Link>
+              .
             </p>
           </CardBody>
         </Card>

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from 'next/link';
 import {
   ArrowLeft,
   CheckCircle2,
@@ -6,23 +6,23 @@ import {
   FileSearch,
   HelpCircle,
   ShieldCheck,
-} from "lucide-react";
+} from 'lucide-react';
 import {
   buildResumeClaimAuditReport,
   type ResumeClaimAuditFinding,
   type ResumeClaimStatus,
-} from "@truehire/core";
-import { Badge } from "@/components/atoms/badge";
-import { Button } from "@/components/atoms/button";
-import { Card, CardBody, CardHeader, CardTitle } from "@/components/atoms/card";
-import { FIXTURE_CANDIDATES } from "../../shortlist/demo/fixtures";
+} from '@truehire/core';
+import { Badge } from '@/components/atoms/badge';
+import { Button } from '@/components/atoms/button';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/atoms/card';
+import { FIXTURE_CANDIDATES } from '../../shortlist/demo/fixtures';
 
 type SearchParams = {
   resume?: string | string[];
   candidate?: string | string[];
 };
 
-const DEFAULT_CANDIDATE = "ada-the-builder";
+const DEFAULT_CANDIDATE = 'ada-the-builder';
 
 const FIXTURE_RESUME = `Senior TypeScript product engineer.
 Built React and Next.js dashboards for SaaS teams.
@@ -31,14 +31,11 @@ Contributor to open-source frontend and API projects.
 Also claims Rust systems programming and Kubernetes observability experience.`;
 
 export const metadata = {
-  title: "Resume claim audit (demo) · TrueHire",
-  description:
-    "Audit candidate-supplied resume claims against verified public GitHub evidence.",
+  title: 'Resume claim audit (demo) · TrueHire',
+  description: 'Audit candidate-supplied resume claims against verified public GitHub evidence.',
 };
 
-export default async function ResumeAuditDemoPage(props: {
-  searchParams: Promise<SearchParams>;
-}) {
+export default async function ResumeAuditDemoPage(props: { searchParams: Promise<SearchParams> }) {
   const searchParams = await props.searchParams;
   const candidateHandle = getFirst(searchParams.candidate) || DEFAULT_CANDIDATE;
   const candidate =
@@ -62,17 +59,13 @@ export default async function ResumeAuditDemoPage(props: {
             Separate resume claims from verified public proof.
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-[var(--muted)]">
-            Candidate-supplied text is parsed into technical claims, then checked
-            against the selected TrueHire fixture profile. The audit labels each
-            claim by evidence coverage, not confidence in the person.
+            Candidate-supplied text is parsed into technical claims, then checked against the
+            selected TrueHire fixture profile. The audit labels each claim by evidence coverage, not
+            confidence in the person.
           </p>
         </div>
         <Link href="/recruiter/shortlist">
-          <Button
-            variant="secondary"
-            size="sm"
-            leftIcon={<ArrowLeft className="h-4 w-4" />}
-          >
+          <Button variant="secondary" size="sm" leftIcon={<ArrowLeft className="h-4 w-4" />}>
             Shortlist
           </Button>
         </Link>
@@ -89,9 +82,7 @@ export default async function ResumeAuditDemoPage(props: {
             action="/recruiter/resume-audit/demo"
           >
             <label className="block">
-              <span className="text-[12px] font-medium text-[var(--muted)]">
-                TrueHire fixture
-              </span>
+              <span className="text-[12px] font-medium text-[var(--muted)]">TrueHire fixture</span>
               <select
                 name="candidate"
                 defaultValue={candidate.handle}
@@ -105,9 +96,7 @@ export default async function ResumeAuditDemoPage(props: {
               </select>
             </label>
             <label className="block">
-              <span className="text-[12px] font-medium text-[var(--muted)]">
-                Resume excerpt
-              </span>
+              <span className="text-[12px] font-medium text-[var(--muted)]">Resume excerpt</span>
               <textarea
                 name="resume"
                 rows={7}
@@ -222,7 +211,7 @@ export default async function ResumeAuditDemoPage(props: {
 }
 
 function FindingRow({ finding }: { finding: ResumeClaimAuditFinding }) {
-  const Icon = finding.status === "verified" ? CheckCircle2 : CircleAlert;
+  const Icon = finding.status === 'verified' ? CheckCircle2 : CircleAlert;
   return (
     <div className="rounded-[var(--radius-sm)] border border-[var(--border)] px-3 py-3">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -230,9 +219,9 @@ function FindingRow({ finding }: { finding: ResumeClaimAuditFinding }) {
           <div className="flex items-center gap-2">
             <Icon
               className={
-                finding.status === "verified"
-                  ? "h-4 w-4 text-[var(--verified)]"
-                  : "h-4 w-4 text-[var(--warn)]"
+                finding.status === 'verified'
+                  ? 'h-4 w-4 text-[var(--verified)]'
+                  : 'h-4 w-4 text-[var(--warn)]'
               }
             />
             <span className="text-sm font-medium">{finding.claim}</span>
@@ -266,9 +255,7 @@ function Metric({ label, value }: { label: string; value: number | string }) {
   return (
     <Card>
       <CardBody>
-        <div className="text-[11px] uppercase tracking-[0.14em] text-[var(--muted)]">
-          {label}
-        </div>
+        <div className="text-[11px] uppercase tracking-[0.14em] text-[var(--muted)]">{label}</div>
         <div className="num mt-1 truncate text-2xl font-semibold">{value}</div>
       </CardBody>
     </Card>
@@ -284,17 +271,17 @@ function EmptyLine({ label }: { label: string }) {
 }
 
 function getFirst(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] ?? "" : value ?? "";
+  return Array.isArray(value) ? (value[0] ?? '') : (value ?? '');
 }
 
 function toneForStatus(status: ResumeClaimStatus) {
-  if (status === "verified") return "verified";
-  if (status === "partial") return "outline";
-  return "neutral";
+  if (status === 'verified') return 'verified';
+  if (status === 'partial') return 'outline';
+  return 'neutral';
 }
 
 function labelForStatus(status: ResumeClaimStatus) {
-  if (status === "verified") return "verified";
-  if (status === "partial") return "partial";
-  return "unverified";
+  if (status === 'verified') return 'verified';
+  if (status === 'partial') return 'partial';
+  return 'unverified';
 }

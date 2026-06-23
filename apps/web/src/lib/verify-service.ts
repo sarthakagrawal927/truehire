@@ -12,14 +12,14 @@
  * Not wired to a real email sender yet. Stub returns the link for manual copy
  * during bootstrap; swap in Resend/Cloudflare Email when ready.
  */
-import { createHmac, randomBytes } from "node:crypto";
-import { createId } from "@paralleldrive/cuid2";
-import { db, schema } from "@truehire/db";
-import { eq, inArray } from "drizzle-orm";
+import { createHmac, randomBytes } from 'node:crypto';
+import { createId } from '@paralleldrive/cuid2';
+import { db, schema } from '@truehire/db';
+import { eq, inArray } from 'drizzle-orm';
 
 const HMAC_SECRET = () => {
   const s = process.env.AUTH_SECRET;
-  if (!s) throw new Error("AUTH_SECRET is required for verify token signing");
+  if (!s) throw new Error('AUTH_SECRET is required for verify token signing');
   return s;
 };
 
@@ -34,44 +34,44 @@ export type VerificationLink = {
 export async function createVerificationRequest(params: {
   workHistoryId: string;
   verifierEmail: string;
-  method?: "email_hr" | "email_manager" | "peer";
+  method?: 'email_hr' | 'email_manager' | 'peer';
   baseUrl: string;
 }): Promise<VerificationLink> {
   const { workHistoryId, verifierEmail } = params;
-  const verifierDomain = verifierEmail.split("@")[1]?.toLowerCase();
-  if (!verifierDomain) throw new Error("invalid verifier email");
+  const verifierDomain = verifierEmail.split('@')[1]?.toLowerCase();
+  if (!verifierDomain) throw new Error('invalid verifier email');
 
   const verificationId = createId();
-  const rawToken = randomBytes(32).toString("base64url");
-  const tokenHash = createHmac("sha256", HMAC_SECRET())
+  const rawToken = randomBytes(32).toString('base64url');
+  const tokenHash = createHmac('sha256', HMAC_SECRET())
     .update(`${verificationId}:${rawToken}`)
-    .digest("hex");
+    .digest('hex');
 
   const expiresAt = new Date(Date.now() + TOKEN_TTL_DAYS * 24 * 3_600_000);
 
   await db.insert(schema.employerVerifications).values({
     id: verificationId,
     workHistoryId,
-    status: "pending",
+    status: 'pending',
     verifierEmail,
     verifierDomain,
-    method: params.method ?? "email_hr",
+    method: params.method ?? 'email_hr',
     tokenHash,
     expiresAt,
   });
 
-  const url = `${params.baseUrl.replace(/\/+$/, "")}/verify/${verificationId}.${rawToken}`;
+  const url = `${params.baseUrl.replace(/\/+$/, '')}/verify/${verificationId}.${rawToken}`;
   return { verificationId, url, expiresAt };
 }
 
 export async function readVerificationByToken(compoundToken: string) {
-  const dot = compoundToken.indexOf(".");
+  const dot = compoundToken.indexOf('.');
   if (dot <= 0) return null;
   const verificationId = compoundToken.slice(0, dot);
   const raw = compoundToken.slice(dot + 1);
-  const expected = createHmac("sha256", HMAC_SECRET())
+  const expected = createHmac('sha256', HMAC_SECRET())
     .update(`${verificationId}:${raw}`)
-    .digest("hex");
+    .digest('hex');
 
   const rows = await db
     .select()
@@ -84,29 +84,29 @@ export async function readVerificationByToken(compoundToken: string) {
   if (v.expiresAt.getTime() < Date.now()) {
     await db
       .update(schema.employerVerifications)
-      .set({ status: "expired" })
+      .set({ status: 'expired' })
       .where(eq(schema.employerVerifications.id, verificationId));
-    return { verification: v, status: "expired" as const };
+    return { verification: v, status: 'expired' as const };
   }
   return { verification: v, status: v.status };
 }
 
 export async function respondToVerification(
   compoundToken: string,
-  decision: "confirmed" | "denied" | "disputed",
-  notes?: string,
+  decision: 'confirmed' | 'denied' | 'disputed',
+  notes?: string
 ) {
   const loaded = await readVerificationByToken(compoundToken);
-  if (!loaded || loaded.status === "expired") {
-    return { ok: false as const, reason: "invalid_or_expired" };
+  if (!loaded || loaded.status === 'expired') {
+    return { ok: false as const, reason: 'invalid_or_expired' };
   }
   // Signature records the decision for later audit. HMAC over
   // (id | decision | timestamp) with the app secret. Rotating AUTH_SECRET
   // invalidates past signatures — acceptable for a launch product.
   const signedAt = Date.now();
-  const signature = createHmac("sha256", HMAC_SECRET())
+  const signature = createHmac('sha256', HMAC_SECRET())
     .update(`${loaded.verification.id}:${decision}:${signedAt}`)
-    .digest("hex");
+    .digest('hex');
 
   await db
     .update(schema.employerVerifications)
@@ -142,10 +142,7 @@ export async function addWorkHistory(params: {
 }
 
 export async function listWorkHistory(userId: string) {
-  return db
-    .select()
-    .from(schema.workHistory)
-    .where(eq(schema.workHistory.userId, userId));
+  return db.select().from(schema.workHistory).where(eq(schema.workHistory.userId, userId));
 }
 
 type Verification = typeof schema.employerVerifications.$inferSelect;
@@ -174,7 +171,7 @@ function isMoreRelevant(candidate: Verification, current: Verification): boolean
  * the work-history list endpoint). Returns a map keyed by workHistoryId.
  */
 export async function latestVerificationsForWorkHistories(
-  workHistoryIds: string[],
+  workHistoryIds: string[]
 ): Promise<Map<string, Verification>> {
   const latest = new Map<string, Verification>();
   if (workHistoryIds.length === 0) return latest;
@@ -225,11 +222,11 @@ export function computeSignal2(input: Signal2Input): number {
 }
 
 function tenureFromDates(startYM: string, endYM: string | null): number {
-  const [sy, sm] = startYM.split("-").map(Number);
+  const [sy, sm] = startYM.split('-').map(Number);
   if (!sy || !sm) return 0;
   let end: { y: number; m: number };
   if (endYM) {
-    const [ey, em] = endYM.split("-").map(Number);
+    const [ey, em] = endYM.split('-').map(Number);
     // Malformed end date would otherwise produce NaN that propagates into
     // the stored signal2/overall score.
     if (!ey || !em) return 0;

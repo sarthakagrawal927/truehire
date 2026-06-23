@@ -1,11 +1,11 @@
-import { Info } from "lucide-react";
+import { Info } from 'lucide-react';
 
 type Row = {
   label: string;
-  value: number;        // 0-100 raw score
-  weight: number;       // 0-1 weight
-  formula: string;      // human-readable formula
-  improve: string[];    // actionable levers
+  value: number; // 0-100 raw score
+  weight: number; // 0-1 weight
+  formula: string; // human-readable formula
+  improve: string[]; // actionable levers
 };
 
 export function ScoringDetail({ rows, overall }: { rows: Row[]; overall: number }) {
@@ -15,10 +15,10 @@ export function ScoringDetail({ rows, overall }: { rows: Row[]; overall: number 
         <div className="flex items-start gap-2">
           <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--muted-2)]" />
           <div>
-            Every number on your profile is derived from public GitHub data.
-            Overall score = <span className="num text-[var(--foreground)]">{overall}</span> =
+            Every number on your profile is derived from public GitHub data. Overall score ={' '}
+            <span className="num text-[var(--foreground)]">{overall}</span> =
             <span className="mx-1 num">
-              {rows.map((r) => `${r.value}×${r.weight}`).join(" + ")}
+              {rows.map((r) => `${r.value}×${r.weight}`).join(' + ')}
             </span>
             (rounded). Recomputed weekly, or on manual refresh.
           </div>
@@ -42,13 +42,13 @@ export function ScoringDetail({ rows, overall }: { rows: Row[]; overall: number 
                   contributes <span className="num text-[var(--foreground)]">+{contribution}</span>
                 </div>
                 <div className="num text-lg font-semibold">{r.value}</div>
-                <span className="text-[var(--muted)] transition-transform group-open:rotate-45">＋</span>
+                <span className="text-[var(--muted)] transition-transform group-open:rotate-45">
+                  ＋
+                </span>
               </div>
             </summary>
             <div className="border-t border-[var(--border)] px-5 py-4 text-[13px]">
-              <div className="mb-3 font-mono text-[12px] text-[var(--muted)]">
-                {r.formula}
-              </div>
+              <div className="mb-3 font-mono text-[12px] text-[var(--muted)]">{r.formula}</div>
               {r.improve.length > 0 && (
                 <>
                   <div className="mb-2 text-[11px] uppercase tracking-[0.1em] text-[var(--muted)]">
@@ -84,64 +84,62 @@ export function buildScoringRows(score: {
 }): Row[] {
   return [
     {
-      label: "Depth",
+      label: 'Depth',
       value: score.depth,
       weight: 0.2,
-      formula:
-        "log₁(Σ recency-weighted months active) / log₁(48) × 100 · half-life 30 months",
+      formula: 'log₁(Σ recency-weighted months active) / log₁(48) × 100 · half-life 30 months',
       improve: [
-        "Commit even once/month — gaps pull this down more than volume ever compensates.",
-        "Old contributions decay: work older than 2 years is worth half a recent month.",
-        "Consistency beats burst — five spread months beat fifty commits in one week.",
+        'Commit even once/month — gaps pull this down more than volume ever compensates.',
+        'Old contributions decay: work older than 2 years is worth half a recent month.',
+        'Consistency beats burst — five spread months beat fifty commits in one week.',
       ],
     },
     {
-      label: "Breadth",
+      label: 'Breadth',
       value: score.breadth,
       weight: 0.15,
       formula:
-        "log₁(distinct meaningful repos) / log₁(50) × 100 · external repos need ≥2 merged PRs AND ≥3 commits",
+        'log₁(distinct meaningful repos) / log₁(50) × 100 · external repos need ≥2 merged PRs AND ≥3 commits',
       improve: [
         "Land ≥2 merged PRs in an external repo — single-PR repos don't count.",
-        "Author public tools with real commit history — each repo crossing the bar adds breadth.",
-        `You have ${score.totalRepos} repo${score.totalRepos === 1 ? "" : "s"} on record — adding a few more meaningful ones moves this ~10 points.`,
+        'Author public tools with real commit history — each repo crossing the bar adds breadth.',
+        `You have ${score.totalRepos} repo${score.totalRepos === 1 ? '' : 's'} on record — adding a few more meaningful ones moves this ~10 points.`,
       ],
     },
     {
-      label: "Recognition",
+      label: 'Recognition',
       value: score.recognition,
       weight: 0.3,
       formula:
-        "log₁₀(authored stars × freshness + core-contrib stars × share + PR credit to 100★+ repos) / 5.5 × 100",
+        'log₁₀(authored stars × freshness + core-contrib stars × share + PR credit to 100★+ repos) / 5.5 × 100',
       improve: [
-        "Keep authored repos fresh — a 5-year-dead star ≈ 38% of a live one.",
-        "Merged PRs into high-star production repos (React, Next.js, Kubernetes) move this most.",
-        "Trivial PRs (<2) to external repos add zero — target depth in real projects.",
+        'Keep authored repos fresh — a 5-year-dead star ≈ 38% of a live one.',
+        'Merged PRs into high-star production repos (React, Next.js, Kubernetes) move this most.',
+        'Trivial PRs (<2) to external repos add zero — target depth in real projects.',
       ],
     },
     {
-      label: "Craft",
+      label: 'Craft',
       value: score.craft,
       weight: 0.2,
       formula:
-        "avg over top-10 repos (authored + core-contrib): CI 18 + tests 18 + README 12 + LICENSE 6 + releases ≤14 + collabs ≤14 + commit-msg quality ≤18",
+        'avg over top-10 repos (authored + core-contrib): CI 18 + tests 18 + README 12 + LICENSE 6 + releases ≤14 + collabs ≤14 + commit-msg quality ≤18',
       improve: [
-        "Add GitHub Actions / any CI to your main authored repos — biggest single bump.",
-        "Add a test directory or vitest/jest/playwright config — even a sanity-check suite counts.",
-        "Write a substantive README (>800 chars). LICENSE + release tags stack small bonuses.",
-        "Invite collaborators or attract contributors — solo repos lose the team signal.",
+        'Add GitHub Actions / any CI to your main authored repos — biggest single bump.',
+        'Add a test directory or vitest/jest/playwright config — even a sanity-check suite counts.',
+        'Write a substantive README (>800 chars). LICENSE + release tags stack small bonuses.',
+        'Invite collaborators or attract contributors — solo repos lose the team signal.',
       ],
     },
     {
-      label: "Specialization",
+      label: 'Specialization',
       value: score.specialization,
       weight: 0.15,
-      formula:
-        "piecewise on dominant-language share of weighted activity · below 20% share = 0",
+      formula: 'piecewise on dominant-language share of weighted activity · below 20% share = 0',
       improve: [
-        "Pick a primary language and double down — 70% Rust beats 30% in each of four stacks.",
-        "Merged PRs weigh 5× commits here — language of your PRs matters most.",
-        "Polyglot hobby repos dilute this. Keep them, ship depth elsewhere.",
+        'Pick a primary language and double down — 70% Rust beats 30% in each of four stacks.',
+        'Merged PRs weigh 5× commits here — language of your PRs matters most.',
+        'Polyglot hobby repos dilute this. Keep them, ship depth elsewhere.',
       ],
     },
   ];

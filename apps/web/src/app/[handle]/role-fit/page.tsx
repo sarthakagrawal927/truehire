@@ -1,16 +1,16 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import { ArrowLeft, BriefcaseBusiness, CheckCircle2, CircleAlert } from "lucide-react";
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { ArrowLeft, BriefcaseBusiness, CheckCircle2, CircleAlert } from 'lucide-react';
 import {
   buildRoleFitReport,
   serializePublicRoleFitReport,
   type RoleFitReport,
-} from "@truehire/core";
-import { Badge } from "@/components/atoms/badge";
-import { Card, CardBody, CardHeader, CardTitle } from "@/components/atoms/card";
-import { getLatestScore, getUserByUsername } from "@/lib/score-service";
-import { trackCoreAction } from "@/lib/analytics";
-import type { EvidenceEntry, ScoreBreakdown } from "@truehire/core";
+} from '@truehire/core';
+import { Badge } from '@/components/atoms/badge';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/atoms/card';
+import { getLatestScore, getUserByUsername } from '@/lib/score-service';
+import { trackCoreAction } from '@/lib/analytics';
+import type { EvidenceEntry, ScoreBreakdown } from '@truehire/core';
 
 type Params = { handle: string };
 type SearchParams = { jd?: string | string[] };
@@ -20,7 +20,7 @@ export default async function RoleFitPage(props: {
   searchParams: Promise<SearchParams>;
 }) {
   const [{ handle }, searchParams] = await Promise.all([props.params, props.searchParams]);
-  const clean = handle.startsWith("@") ? handle.slice(1) : handle;
+  const clean = handle.startsWith('@') ? handle.slice(1) : handle;
   if (!/^[a-zA-Z0-9-]{1,39}$/.test(clean)) notFound();
 
   const user = await getUserByUsername(clean);
@@ -29,21 +29,21 @@ export default async function RoleFitPage(props: {
   if (!score) notFound();
 
   const rawDescription = Array.isArray(searchParams.jd) ? searchParams.jd[0] : searchParams.jd;
-  const jobDescription = (rawDescription ?? "").trim();
+  const jobDescription = (rawDescription ?? '').trim();
   const evidence: EvidenceEntry[] = JSON.parse(score.evidenceJson);
-  const languages: ScoreBreakdown["languages"] = JSON.parse(score.languagesJson);
+  const languages: ScoreBreakdown['languages'] = JSON.parse(score.languagesJson);
   const report = jobDescription
     ? serializePublicRoleFitReport(
         buildRoleFitReport({
           jobDescription,
           evidence,
           score: { languages },
-        }),
+        })
       )
     : null;
 
   // Owner-facing analytics: a role-fit report was generated against a profile.
-  if (report) trackCoreAction("role_fit_run", user.id);
+  if (report) trackCoreAction('role_fit_run', user.id);
 
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-10">
@@ -51,8 +51,7 @@ export default async function RoleFitPage(props: {
         href={`/${encodeURIComponent(clean)}`}
         className="inline-flex items-center gap-2 text-sm text-[var(--muted)] hover:text-[var(--foreground)]"
       >
-        <ArrowLeft className="h-4 w-4" />
-        @{clean}
+        <ArrowLeft className="h-4 w-4" />@{clean}
       </Link>
 
       <section className="mt-8 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
@@ -153,7 +152,7 @@ function RequirementResult({
   result,
   compact = false,
 }: {
-  result: RoleFitReport["requirements"][number];
+  result: RoleFitReport['requirements'][number];
   compact?: boolean;
 }) {
   return (
@@ -170,7 +169,7 @@ function RequirementResult({
           </div>
           <p className="mt-1 text-[12px] text-[var(--muted)]">{result.remediation}</p>
         </div>
-        <Badge tone={result.gap ? "outline" : "verified"}>{result.score}/100</Badge>
+        <Badge tone={result.gap ? 'outline' : 'verified'}>{result.score}/100</Badge>
       </div>
 
       {!compact && result.strengths.length > 0 && (
@@ -182,7 +181,7 @@ function RequirementResult({
             >
               <div className="font-medium">{strength.repoFullName}</div>
               <div className="mt-1 text-[var(--muted)]">
-                {strength.primaryLanguage ?? "Unknown"} · {strength.commits} commits ·{" "}
+                {strength.primaryLanguage ?? 'Unknown'} · {strength.commits} commits ·{' '}
                 {strength.mergedPrs} merged PRs · {strength.stars} stars
               </div>
             </div>
@@ -194,5 +193,9 @@ function RequirementResult({
 }
 
 function EmptyState({ label }: { label: string }) {
-  return <div className="rounded-[var(--radius-sm)] bg-[var(--surface-2)] p-4 text-sm text-[var(--muted)]">{label}</div>;
+  return (
+    <div className="rounded-[var(--radius-sm)] bg-[var(--surface-2)] p-4 text-sm text-[var(--muted)]">
+      {label}
+    </div>
+  );
 }

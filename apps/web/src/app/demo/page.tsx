@@ -1,23 +1,23 @@
-import Link from "next/link";
-import type { Metadata } from "next";
-import { Clock, ShieldCheck } from "lucide-react";
-import { GithubIcon as Github } from "@/components/atoms/github-icon";
-import { Button } from "@/components/atoms/button";
-import { Badge } from "@/components/atoms/badge";
-import { Card, CardBody, CardHeader, CardTitle } from "@/components/atoms/card";
-import { ScoreRing } from "@/components/molecules/score-ring";
-import { ScoreBreakdown } from "@/components/molecules/score-breakdown";
-import { ScoringDetail, buildScoringRows } from "@/components/molecules/scoring-detail";
-import { EvidenceRow } from "@/components/molecules/evidence-row";
-import { LanguageBar } from "@/components/molecules/language-bar";
-import { ActivityTimeline } from "@/components/molecules/activity-timeline";
-import { Stat } from "@/components/molecules/stat";
-import type { EvidenceEntry } from "@truehire/core";
+import Link from 'next/link';
+import type { Metadata } from 'next';
+import { Clock, ShieldCheck } from 'lucide-react';
+import { GithubIcon as Github } from '@/components/atoms/github-icon';
+import { Button } from '@/components/atoms/button';
+import { Badge } from '@/components/atoms/badge';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/atoms/card';
+import { ScoreRing } from '@/components/molecules/score-ring';
+import { ScoreBreakdown } from '@/components/molecules/score-breakdown';
+import { ScoringDetail, buildScoringRows } from '@/components/molecules/scoring-detail';
+import { EvidenceRow } from '@/components/molecules/evidence-row';
+import { LanguageBar } from '@/components/molecules/language-bar';
+import { ActivityTimeline } from '@/components/molecules/activity-timeline';
+import { Stat } from '@/components/molecules/stat';
+import type { EvidenceEntry } from '@truehire/core';
 
 export const metadata: Metadata = {
-  title: "Sample profile · TrueHire",
+  title: 'Sample profile · TrueHire',
   description:
-    "See what a TrueHire verified score profile looks like — a transparent 0–100 score derived entirely from public GitHub data.",
+    'See what a TrueHire verified score profile looks like — a transparent 0–100 score derived entirely from public GitHub data.',
 };
 
 const SCORE = {
@@ -33,84 +33,84 @@ const SCORE = {
 
 const EVIDENCE: EvidenceEntry[] = [
   {
-    repoFullName: "kubernetes/kubernetes",
+    repoFullName: 'kubernetes/kubernetes',
     stars: 112000,
     commits: 28,
     mergedPrs: 14,
     isAuthor: false,
-    primaryLanguage: "Go",
+    primaryLanguage: 'Go',
     weight: 96,
-    craftTags: ["CI", "tests", "docs"],
+    craftTags: ['CI', 'tests', 'docs'],
   },
   {
-    repoFullName: "sample-dev/warp-cache",
+    repoFullName: 'sample-dev/warp-cache',
     stars: 3200,
     commits: 612,
     mergedPrs: 0,
     isAuthor: true,
-    primaryLanguage: "Rust",
+    primaryLanguage: 'Rust',
     weight: 72,
-    craftTags: ["CI", "tests", "releases"],
+    craftTags: ['CI', 'tests', 'releases'],
   },
   {
-    repoFullName: "grafana/loki",
+    repoFullName: 'grafana/loki',
     stars: 24000,
     commits: 11,
     mergedPrs: 6,
     isAuthor: false,
-    primaryLanguage: "Go",
+    primaryLanguage: 'Go',
     weight: 61,
-    craftTags: ["CI", "docs"],
+    craftTags: ['CI', 'docs'],
   },
   {
-    repoFullName: "sample-dev/orbit-rpc",
+    repoFullName: 'sample-dev/orbit-rpc',
     stars: 910,
     commits: 388,
     mergedPrs: 0,
     isAuthor: true,
-    primaryLanguage: "TypeScript",
+    primaryLanguage: 'TypeScript',
     weight: 48,
-    craftTags: ["CI", "tests"],
+    craftTags: ['CI', 'tests'],
   },
   {
-    repoFullName: "tokio-rs/tokio",
+    repoFullName: 'tokio-rs/tokio',
     stars: 26000,
     commits: 7,
     mergedPrs: 4,
     isAuthor: false,
-    primaryLanguage: "Rust",
+    primaryLanguage: 'Rust',
     weight: 44,
-    craftTags: ["CI"],
+    craftTags: ['CI'],
   },
   {
-    repoFullName: "sample-dev/cfg-gen",
+    repoFullName: 'sample-dev/cfg-gen',
     stars: 210,
     commits: 94,
     mergedPrs: 0,
     isAuthor: true,
-    primaryLanguage: "Go",
+    primaryLanguage: 'Go',
     weight: 31,
     craftTags: [],
   },
   {
-    repoFullName: "prometheus/prometheus",
+    repoFullName: 'prometheus/prometheus',
     stars: 55000,
     commits: 4,
     mergedPrs: 2,
     isAuthor: false,
-    primaryLanguage: "Go",
+    primaryLanguage: 'Go',
     weight: 28,
-    craftTags: ["CI"],
+    craftTags: ['CI'],
   },
 ];
 
 const LANGUAGES = [
-  { language: "Go", share: 0.38 },
-  { language: "Rust", share: 0.27 },
-  { language: "TypeScript", share: 0.18 },
-  { language: "Python", share: 0.09 },
-  { language: "Shell", share: 0.05 },
-  { language: "Dockerfile", share: 0.03 },
+  { language: 'Go', share: 0.38 },
+  { language: 'Rust', share: 0.27 },
+  { language: 'TypeScript', share: 0.18 },
+  { language: 'Python', share: 0.09 },
+  { language: 'Shell', share: 0.05 },
+  { language: 'Dockerfile', share: 0.03 },
 ];
 
 function makeMonths(): { month: string; commits: number }[] {
@@ -120,7 +120,7 @@ function makeMonths(): { month: string; commits: number }[] {
   const gapMonths = new Set([3, 11, 19, 31, 47]);
   for (let i = 59; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
     const base = i < 36 ? 45 : 22;
     const noise = Math.round(base * Math.abs(Math.sin(i * 1.3 + 0.5)));
     out.push({ month: key, commits: gapMonths.has(i) ? 0 : Math.max(3, noise) });
@@ -141,8 +141,8 @@ export default function DemoPage() {
             Sample profile · Demo
           </div>
           <p className="mt-1 text-[14px] text-[var(--muted)]">
-            This is what your TrueHire profile looks like — derived entirely from GitHub data.
-            Every number is real math on real public signals.
+            This is what your TrueHire profile looks like — derived entirely from GitHub data. Every
+            number is real math on real public signals.
           </p>
         </div>
         <Link href="/login" className="shrink-0">
@@ -193,11 +193,16 @@ export default function DemoPage() {
           <CardBody>
             <ScoreBreakdown
               rows={[
-                { label: "Depth", value: SCORE.depth, weight: 0.2, hint: "consistency" },
-                { label: "Breadth", value: SCORE.breadth, weight: 0.15, hint: "public GitHub" },
-                { label: "Recognition", value: SCORE.recognition, weight: 0.3, hint: "portfolio" },
-                { label: "Craft", value: SCORE.craft, weight: 0.2, hint: "portfolio" },
-                { label: "Specialization", value: SCORE.specialization, weight: 0.15, hint: "activity" },
+                { label: 'Depth', value: SCORE.depth, weight: 0.2, hint: 'consistency' },
+                { label: 'Breadth', value: SCORE.breadth, weight: 0.15, hint: 'public GitHub' },
+                { label: 'Recognition', value: SCORE.recognition, weight: 0.3, hint: 'portfolio' },
+                { label: 'Craft', value: SCORE.craft, weight: 0.2, hint: 'portfolio' },
+                {
+                  label: 'Specialization',
+                  value: SCORE.specialization,
+                  weight: 0.15,
+                  hint: 'activity',
+                },
               ]}
             />
             <div className="mt-6 grid grid-cols-2 gap-6 border-t border-[var(--border)] pt-6 sm:grid-cols-4">
@@ -256,8 +261,8 @@ export default function DemoPage() {
             Exactly how each number was computed.
           </h2>
           <p className="mt-2 max-w-2xl text-[13px] text-[var(--muted)]">
-            No ML, no black box. Each component is a transparent formula on verifiable GitHub
-            data. Tap any row to see the math.
+            No ML, no black box. Each component is a transparent formula on verifiable GitHub data.
+            Tap any row to see the math.
           </p>
         </div>
         <ScoringDetail

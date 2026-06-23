@@ -1,19 +1,19 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
 import {
   addWorkHistory,
   latestVerificationsForWorkHistories,
   listWorkHistory,
-} from "@/lib/verify-service";
-import { trackCoreAction } from "@/lib/analytics";
+} from '@/lib/verify-service';
+import { trackCoreAction } from '@/lib/analytics';
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
   const rows = await listWorkHistory(session.user.id);
   // Batch all verifications in one query instead of one per work-history row.
@@ -44,22 +44,24 @@ export async function GET() {
 export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
   const body = await req.json().catch(() => null);
   if (
-    typeof body?.company !== "string" || !body.company.trim() ||
-    typeof body?.title !== "string" || !body.title.trim() ||
-    typeof body?.startDate !== "string"
+    typeof body?.company !== 'string' ||
+    !body.company.trim() ||
+    typeof body?.title !== 'string' ||
+    !body.title.trim() ||
+    typeof body?.startDate !== 'string'
   ) {
-    return NextResponse.json({ error: "bad_request" }, { status: 400 });
+    return NextResponse.json({ error: 'bad_request' }, { status: 400 });
   }
   // Dates are stored as "YYYY-MM" strings — tenure math and the public
   // profile sort both depend on this exact shape. Empty end date = ongoing.
   const YM = /^\d{4}-(0[1-9]|1[0-2])$/;
-  const endDate = typeof body.endDate === "string" && body.endDate ? body.endDate : null;
+  const endDate = typeof body.endDate === 'string' && body.endDate ? body.endDate : null;
   if (!YM.test(body.startDate) || (endDate !== null && !YM.test(endDate))) {
-    return NextResponse.json({ error: "bad_date" }, { status: 400 });
+    return NextResponse.json({ error: 'bad_date' }, { status: 400 });
   }
   const id = await addWorkHistory({
     userId: session.user.id,
@@ -70,6 +72,6 @@ export async function POST(req: Request) {
     endDate,
   });
   // Owner-facing analytics: a verifiable employment entry was added.
-  trackCoreAction("work_history_added", session.user.id);
+  trackCoreAction('work_history_added', session.user.id);
   return NextResponse.json({ id });
 }

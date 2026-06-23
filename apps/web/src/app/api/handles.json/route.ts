@@ -1,10 +1,10 @@
-import { db, schema } from "@truehire/db";
-import { desc, eq } from "drizzle-orm";
-import { NextResponse } from "next/server";
+import { db, schema } from '@truehire/db';
+import { desc, eq } from 'drizzle-orm';
+import { NextResponse } from 'next/server';
 
-import { getLatestScore } from "@/lib/score-service";
+import { getLatestScore } from '@/lib/score-service';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 /**
  * Public JSON dump of every claimed handle on TrueHire with its current
@@ -34,7 +34,7 @@ export async function GET() {
           overall: score?.overall ?? null,
           lastScoredAt: u.lastScoredAt,
         };
-      }),
+      })
   );
 
   return NextResponse.json(
@@ -45,8 +45,8 @@ export async function GET() {
     },
     {
       headers: {
-        "Cache-Control": "public, s-maxage=120, stale-while-revalidate=600",
+        'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=600',
       },
-    },
+    }
   );
 }

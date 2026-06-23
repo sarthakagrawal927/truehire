@@ -1,12 +1,12 @@
-import { BadgeCheck, ShieldAlert } from "lucide-react";
-import { Badge } from "@/components/atoms/badge";
+import { BadgeCheck, ShieldAlert } from 'lucide-react';
+import { Badge } from '@/components/atoms/badge';
 
 export type PublicWorkEntry = {
   company: string;
   title: string;
   startDate: string;
   endDate: string | null;
-  status: "confirmed" | "pending" | "denied" | "disputed" | "expired" | null;
+  status: 'confirmed' | 'pending' | 'denied' | 'disputed' | 'expired' | null;
   verifierDomain?: string | null;
   respondedAt?: number | null;
 };
@@ -22,8 +22,8 @@ export function PublicWorkHistory({ entries }: { entries: PublicWorkEntry[] }) {
   return (
     <ul className="divide-y divide-[var(--border)]">
       {entries.map((e, i) => {
-        const confirmed = e.status === "confirmed";
-        const disputed = e.status === "disputed" || e.status === "denied";
+        const confirmed = e.status === 'confirmed';
+        const disputed = e.status === 'disputed' || e.status === 'denied';
         return (
           <li key={i} className="flex items-start justify-between gap-4 py-4">
             <div className="min-w-0">
@@ -33,11 +33,9 @@ export function PublicWorkHistory({ entries }: { entries: PublicWorkEntry[] }) {
                 <span className="text-[14px]">{e.title}</span>
               </div>
               <div className="num mt-1 text-[12px] text-[var(--muted)]">
-                {e.startDate} — {e.endDate ?? "present"}
+                {e.startDate} — {e.endDate ?? 'present'}
                 {confirmed && e.verifierDomain && (
-                  <span className="ml-2 text-[var(--muted-2)]">
-                    signed by {e.verifierDomain}
-                  </span>
+                  <span className="ml-2 text-[var(--muted-2)]">signed by {e.verifierDomain}</span>
                 )}
               </div>
             </div>

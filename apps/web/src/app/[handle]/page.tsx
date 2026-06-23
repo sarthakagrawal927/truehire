@@ -1,29 +1,29 @@
-import { notFound } from "next/navigation";
-import type { Metadata } from "next";
-import Image from "next/image";
-import Link from "next/link";
-import { cache } from "react";
-import { Activity, ArrowUpRight, Clock, Info, ShieldCheck } from "lucide-react";
-import { GithubIcon as Github } from "@/components/atoms/github-icon";
-import { Badge } from "@/components/atoms/badge";
-import { Card, CardBody, CardHeader, CardTitle } from "@/components/atoms/card";
-import { ScoreRing } from "@/components/molecules/score-ring";
-import { ScoreBreakdown } from "@/components/molecules/score-breakdown";
-import { ScoringDetail, buildScoringRows } from "@/components/molecules/scoring-detail";
-import { EvidenceRow } from "@/components/molecules/evidence-row";
-import { LanguageBar } from "@/components/molecules/language-bar";
-import { ActivityTimeline } from "@/components/molecules/activity-timeline";
-import { Stat } from "@/components/molecules/stat";
+import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
+import Image from 'next/image';
+import Link from 'next/link';
+import { cache } from 'react';
+import { Activity, ArrowUpRight, Clock, Info, ShieldCheck } from 'lucide-react';
+import { GithubIcon as Github } from '@/components/atoms/github-icon';
+import { Badge } from '@/components/atoms/badge';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/atoms/card';
+import { ScoreRing } from '@/components/molecules/score-ring';
+import { ScoreBreakdown } from '@/components/molecules/score-breakdown';
+import { ScoringDetail, buildScoringRows } from '@/components/molecules/scoring-detail';
+import { EvidenceRow } from '@/components/molecules/evidence-row';
+import { LanguageBar } from '@/components/molecules/language-bar';
+import { ActivityTimeline } from '@/components/molecules/activity-timeline';
+import { Stat } from '@/components/molecules/stat';
 import {
   getActivityMonths,
   getLatestScore,
   getPublicWorkHistory,
   getUserByUsername,
-} from "@/lib/score-service";
-import { PublicWorkHistory } from "@/components/molecules/work-history-public";
-import { RiskFlags } from "@/components/molecules/risk-flags";
-import type { EvidenceEntry } from "@truehire/core";
-import { CopyProfileLink } from "./copy-profile-link";
+} from '@/lib/score-service';
+import { PublicWorkHistory } from '@/components/molecules/work-history-public';
+import { RiskFlags } from '@/components/molecules/risk-flags';
+import type { EvidenceEntry } from '@truehire/core';
+import { CopyProfileLink } from './copy-profile-link';
 
 type Params = { handle: string };
 
@@ -34,7 +34,7 @@ export const revalidate = 300;
 // under load while background revalidation happens.
 export async function headers() {
   return {
-    "Cache-Control": "s-maxage=300, stale-while-revalidate=900",
+    'Cache-Control': 's-maxage=300, stale-while-revalidate=900',
   };
 }
 
@@ -42,7 +42,7 @@ export async function headers() {
 // generateMetadata() and the page component call loadProfile() for the
 // same handle, so this turns 2 DB round-trips into 1.
 const loadProfile = cache(async (handleRaw: string) => {
-  const handle = handleRaw.startsWith("@") ? handleRaw.slice(1) : handleRaw;
+  const handle = handleRaw.startsWith('@') ? handleRaw.slice(1) : handleRaw;
   const user = await getUserByUsername(handle);
   if (!user) return null;
   const score = await getLatestScore(user.id);
@@ -51,19 +51,16 @@ const loadProfile = cache(async (handleRaw: string) => {
   return { user, score, months, work };
 });
 
-export async function generateMetadata(props: {
-  params: Promise<Params>;
-}): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<Params> }): Promise<Metadata> {
   const { handle } = await props.params;
-  const clean = handle.startsWith("@") ? handle.slice(1) : handle;
+  const clean = handle.startsWith('@') ? handle.slice(1) : handle;
   const data = await loadProfile(clean);
   const score = data?.score?.overall;
-  const title = score != null
-    ? `${clean} · TrueHire ${score}`
-    : `${clean} · TrueHire`;
-  const description = score != null
-    ? `TrueHire profile — verified public-work score ${score}/100.`
-    : `TrueHire profile for @${clean}.`;
+  const title = score != null ? `${clean} · TrueHire ${score}` : `${clean} · TrueHire`;
+  const description =
+    score != null
+      ? `TrueHire profile — verified public-work score ${score}/100.`
+      : `TrueHire profile for @${clean}.`;
   return {
     title,
     description,
@@ -73,7 +70,7 @@ export async function generateMetadata(props: {
       images: [`/api/og/${encodeURIComponent(clean)}`],
     },
     twitter: {
-      card: "summary_large_image",
+      card: 'summary_large_image',
       title,
       description,
       images: [`/api/og/${encodeURIComponent(clean)}`],
@@ -86,7 +83,7 @@ export default async function ProfilePage(props: { params: Promise<Params> }) {
   // Accept both /@username (canonical) and /username. Next.js on some
   // runtimes strips the leading `@` from the dynamic segment; rather than
   // fight that, we normalise both forms.
-  const clean = handle.startsWith("@") ? handle.slice(1) : handle;
+  const clean = handle.startsWith('@') ? handle.slice(1) : handle;
   if (!/^[a-zA-Z0-9-]{1,39}$/.test(clean)) notFound();
 
   const data = await loadProfile(clean);
@@ -134,7 +131,7 @@ export default async function ProfilePage(props: { params: Promise<Params> }) {
               {hasScore && (
                 <span className="inline-flex items-center gap-1">
                   <Clock className="h-3.5 w-3.5" />
-                  last verified{" "}
+                  last verified{' '}
                   <time dateTime={new Date(score.computedAt).toISOString()}>
                     {formatRelative(new Date(score.computedAt))}
                   </time>
@@ -159,8 +156,8 @@ export default async function ProfilePage(props: { params: Promise<Params> }) {
             </div>
             <div className="mt-4 text-lg font-semibold">Scoring…</div>
             <p className="mx-auto mt-2 max-w-md text-sm text-[var(--muted)]">
-              We’re reading this account’s public work. This takes up to 5 minutes
-              on first sign-in. Check back shortly.
+              We’re reading this account’s public work. This takes up to 5 minutes on first sign-in.
+              Check back shortly.
             </p>
           </CardBody>
         </Card>
@@ -182,8 +179,8 @@ export default async function ProfilePage(props: { params: Promise<Params> }) {
                 )}
                 <div className="text-[11px] uppercase tracking-[0.14em] text-[var(--muted)]">
                   {score.signal2 > 0
-                    ? "Signals 1 + 2 · blended"
-                    : "TrueHire signal 1 · public work"}
+                    ? 'Signals 1 + 2 · blended'
+                    : 'TrueHire signal 1 · public work'}
                 </div>
                 <div className="mt-1 text-[13px] text-[var(--muted)]">
                   Derived weekly. Evidence below.
@@ -199,11 +196,21 @@ export default async function ProfilePage(props: { params: Promise<Params> }) {
               <CardBody>
                 <ScoreBreakdown
                   rows={[
-                    { label: "Depth", value: score.depth, weight: 0.2, hint: "consistency" },
-                    { label: "Breadth", value: score.breadth, weight: 0.15, hint: "public GitHub" },
-                    { label: "Recognition", value: score.recognition, weight: 0.3, hint: "portfolio" },
-                    { label: "Craft", value: score.craft, weight: 0.2, hint: "portfolio" },
-                    { label: "Specialization", value: score.specialization, weight: 0.15, hint: "activity" },
+                    { label: 'Depth', value: score.depth, weight: 0.2, hint: 'consistency' },
+                    { label: 'Breadth', value: score.breadth, weight: 0.15, hint: 'public GitHub' },
+                    {
+                      label: 'Recognition',
+                      value: score.recognition,
+                      weight: 0.3,
+                      hint: 'portfolio',
+                    },
+                    { label: 'Craft', value: score.craft, weight: 0.2, hint: 'portfolio' },
+                    {
+                      label: 'Specialization',
+                      value: score.specialization,
+                      weight: 0.15,
+                      hint: 'activity',
+                    },
                   ]}
                 />
                 <div className="mt-6 grid grid-cols-2 gap-6 border-t border-[var(--border)] pt-6 sm:grid-cols-4">
@@ -220,10 +227,14 @@ export default async function ProfilePage(props: { params: Promise<Params> }) {
           <div className="mt-4 flex gap-3 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-2)] px-4 py-3">
             <Info className="mt-0.5 h-4 w-4 shrink-0 text-[var(--muted)]" />
             <p className="text-[12px] text-[var(--muted)]">
-              <span className="font-medium text-[var(--foreground)]">What this score measures:</span>{" "}
-              public GitHub activity — consistency, project breadth, community recognition, and craft signals.{" "}
-              <span className="font-medium text-[var(--foreground)]">What it does not claim:</span>{" "}
-              intelligence, personality, culture fit, or interview performance. Treat it as one signal among many — not a hiring decision on its own.
+              <span className="font-medium text-[var(--foreground)]">
+                What this score measures:
+              </span>{' '}
+              public GitHub activity — consistency, project breadth, community recognition, and
+              craft signals.{' '}
+              <span className="font-medium text-[var(--foreground)]">What it does not claim:</span>{' '}
+              intelligence, personality, culture fit, or interview performance. Treat it as one
+              signal among many — not a hiring decision on its own.
             </p>
           </div>
 
@@ -235,7 +246,9 @@ export default async function ProfilePage(props: { params: Promise<Params> }) {
                 <Badge tone="outline">recency weighted</Badge>
               </CardHeader>
               <CardBody>
-                <ActivityTimeline months={months.map((m) => ({ month: m.month, commits: m.commits }))} />
+                <ActivityTimeline
+                  months={months.map((m) => ({ month: m.month, commits: m.commits }))}
+                />
               </CardBody>
             </Card>
 
@@ -305,7 +318,9 @@ export default async function ProfilePage(props: { params: Promise<Params> }) {
                   <div className="text-[11px] uppercase tracking-[0.14em] text-[var(--muted)]">
                     Community signal
                   </div>
-                  <div className="num mt-1 text-[22px] font-semibold">{formatNumber(score.totalStars)}</div>
+                  <div className="num mt-1 text-[22px] font-semibold">
+                    {formatNumber(score.totalStars)}
+                  </div>
                   <div className="mt-0.5 text-[12px] text-[var(--muted)]">
                     stars on authored repos — other engineers bookmarked this work.
                   </div>
@@ -327,9 +342,9 @@ export default async function ProfilePage(props: { params: Promise<Params> }) {
               <div className="mt-5 flex gap-3 rounded-[var(--radius-sm)] bg-[var(--surface-2)] p-4">
                 <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[var(--verified)]" />
                 <p className="text-[12px] text-[var(--muted)]">
-                  No ML, no self-reported data. Every number is a deterministic formula
-                  on verified public GitHub activity — the algorithm is open source and
-                  any result can be independently reproduced.
+                  No ML, no self-reported data. Every number is a deterministic formula on verified
+                  public GitHub activity — the algorithm is open source and any result can be
+                  independently reproduced.
                 </p>
               </div>
 
@@ -368,15 +383,15 @@ export default async function ProfilePage(props: { params: Promise<Params> }) {
               <CardHeader>
                 <CardTitle>Employment — Signal 2</CardTitle>
                 <Badge tone="outline">
-                  {work.filter((w) => w.status === "confirmed").length} verified
+                  {work.filter((w) => w.status === 'confirmed').length} verified
                 </Badge>
               </CardHeader>
               <CardBody>
                 <PublicWorkHistory entries={work} />
                 <p className="mt-4 text-[11px] text-[var(--muted-2)]">
-                  Verified entries are confirmed by an HR email at the company
-                  domain, then cryptographically signed. Self-claimed entries
-                  are shown for transparency and contribute zero to the score.
+                  Verified entries are confirmed by an HR email at the company domain, then
+                  cryptographically signed. Self-claimed entries are shown for transparency and
+                  contribute zero to the score.
                 </p>
               </CardBody>
             </Card>
@@ -392,8 +407,8 @@ export default async function ProfilePage(props: { params: Promise<Params> }) {
                 Exactly how each number was computed.
               </h2>
               <p className="mt-2 max-w-2xl text-[13px] text-[var(--muted)]">
-                No ML, no black box. Each component is a transparent formula on
-                verifiable GitHub data. Tap any row to see the math.
+                No ML, no black box. Each component is a transparent formula on verifiable GitHub
+                data. Tap any row to see the math.
               </p>
             </div>
             <ScoringDetail
@@ -413,8 +428,7 @@ export default async function ProfilePage(props: { params: Promise<Params> }) {
 
           <div className="mt-10 flex items-center justify-between text-[12px] text-[var(--muted-2)]">
             <span>
-              Every number is derived from verifiable GitHub data. Nothing is
-              self-written.
+              Every number is derived from verifiable GitHub data. Nothing is self-written.
             </span>
             <Link href="/#how" className="hover:text-[var(--foreground)]">
               Full methodology →
@@ -429,11 +443,11 @@ export default async function ProfilePage(props: { params: Promise<Params> }) {
 function formatRelative(d: Date) {
   const diff = Date.now() - d.getTime();
   const h = Math.floor(diff / 3_600_000);
-  if (h < 1) return "just now";
+  if (h < 1) return 'just now';
   if (h < 24) return `${h}h ago`;
   const days = Math.floor(h / 24);
   if (days < 30) return `${days}d ago`;
-  return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 function formatNumber(n: number) {

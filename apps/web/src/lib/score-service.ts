@@ -1,8 +1,8 @@
-import { db, schema } from "@truehire/db";
-import { and, count, desc, eq, inArray, isNull, sql } from "drizzle-orm";
-import { computeScore, ingestGitHubUser } from "@truehire/core";
-import { computeSignal2, signal2OverallBonus } from "./verify-service";
-import { trackActivated, trackCoreAction } from "./analytics";
+import { db, schema } from '@truehire/db';
+import { and, count, desc, eq, inArray, isNull, sql } from 'drizzle-orm';
+import { computeScore, ingestGitHubUser } from '@truehire/core';
+import { computeSignal2, signal2OverallBonus } from './verify-service';
+import { trackActivated, trackCoreAction } from './analytics';
 
 const INGEST_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 
@@ -24,7 +24,7 @@ export async function getLatestScore(userId: string) {
  * Returns a Map keyed by userId; users with no score map to null.
  */
 export async function getLatestScoresForUsers(
-  userIds: string[],
+  userIds: string[]
 ): Promise<Map<string, typeof schema.scores.$inferSelect | null>> {
   const result = new Map<string, typeof schema.scores.$inferSelect | null>();
   for (const id of userIds) result.set(id, null);
@@ -35,12 +35,12 @@ export async function getLatestScoresForUsers(
   const latest = db
     .select({
       userId: schema.scores.userId,
-      maxComputedAt: sql<Date>`max(${schema.scores.computedAt})`.as("max_computed_at"),
+      maxComputedAt: sql<Date>`max(${schema.scores.computedAt})`.as('max_computed_at'),
     })
     .from(schema.scores)
     .where(inArray(schema.scores.userId, userIds))
     .groupBy(schema.scores.userId)
-    .as("latest");
+    .as('latest');
 
   const rows = await db
     .select({ score: schema.scores })
@@ -49,8 +49,8 @@ export async function getLatestScoresForUsers(
       latest,
       and(
         eq(schema.scores.userId, latest.userId),
-        eq(schema.scores.computedAt, latest.maxComputedAt),
-      ),
+        eq(schema.scores.computedAt, latest.maxComputedAt)
+      )
     );
 
   for (const row of rows) {
@@ -121,19 +121,29 @@ export async function getPublicWorkHistory(userId: string) {
   const verifications = await db
     .select()
     .from(schema.employerVerifications)
-    .where(inArray(schema.employerVerifications.workHistoryId, history.map((h) => h.id)));
-  const latestByWh = new Map<string, typeof verifications[number]>();
+    .where(
+      inArray(
+        schema.employerVerifications.workHistoryId,
+        history.map((h) => h.id)
+      )
+    );
+  const latestByWh = new Map<string, (typeof verifications)[number]>();
   // Use the newest verification request per work-history row.
   // If timestamps tie, prefer the more resolved status for deterministic UI.
   const rank: Record<string, number> = {
-    confirmed: 0, pending: 1, disputed: 2, denied: 3, expired: 4,
+    confirmed: 0,
+    pending: 1,
+    disputed: 2,
+    denied: 3,
+    expired: 4,
   };
   for (const v of verifications) {
     const prev = latestByWh.get(v.workHistoryId);
-    if (!prev ||
-        v.requestedAt.getTime() > prev.requestedAt.getTime() ||
-        (v.requestedAt.getTime() === prev.requestedAt.getTime() &&
-          rank[v.status] < rank[prev.status])) {
+    if (
+      !prev ||
+      v.requestedAt.getTime() > prev.requestedAt.getTime() ||
+      (v.requestedAt.getTime() === prev.requestedAt.getTime() && rank[v.status] < rank[prev.status])
+    ) {
       latestByWh.set(v.workHistoryId, v);
     }
   }
@@ -154,17 +164,11 @@ export async function getPublicWorkHistory(userId: string) {
 }
 
 export async function getActivityMonths(userId: string) {
-  return db
-    .select()
-    .from(schema.activityMonths)
-    .where(eq(schema.activityMonths.userId, userId));
+  return db.select().from(schema.activityMonths).where(eq(schema.activityMonths.userId, userId));
 }
 
 export async function getContributions(userId: string) {
-  return db
-    .select()
-    .from(schema.contributions)
-    .where(eq(schema.contributions.userId, userId));
+  return db.select().from(schema.contributions).where(eq(schema.contributions.userId, userId));
 }
 
 /**
@@ -177,7 +181,7 @@ export async function refreshUserScore(params: {
   userId: string;
   login: string;
   token: string;
-  onProgress?: import("@truehire/core").IngestProgress;
+  onProgress?: import('@truehire/core').IngestProgress;
 }) {
   const { userId, login, token, onProgress } = params;
 
@@ -214,16 +218,16 @@ export async function refreshUserScore(params: {
           pushedAt: c.pushedAt ? new Date(c.pushedAt) : null,
           craftJson: c.craft ? JSON.stringify(c.craft) : null,
           weightedScore: 0,
-        })),
+        }))
       );
     }
 
     // replace month buckets
     await tx.delete(schema.activityMonths).where(eq(schema.activityMonths.userId, userId));
     if (result.months.length > 0) {
-      await tx.insert(schema.activityMonths).values(
-        result.months.map((m) => ({ userId, month: m.month, commits: m.commits })),
-      );
+      await tx
+        .insert(schema.activityMonths)
+        .values(result.months.map((m) => ({ userId, month: m.month, commits: m.commits })));
     }
 
     const breakdown = computeScore({
@@ -259,7 +263,7 @@ export async function refreshUserScore(params: {
         githubUsername: result.username,
         lastIngestedAt: new Date(),
         lastScoredAt: new Date(),
-        ingestStatus: "idle",
+        ingestStatus: 'idle',
         // If this is a real user-triggered refresh (path calls this), they're
         // authenticated by definition — mark claimed so seeded rows convert.
         claimed: true,
@@ -271,7 +275,7 @@ export async function refreshUserScore(params: {
   // `activated` fires once (the first computed score = first real value);
   // `score_refreshed` fires on every successful ingest.
   if (isFirstScore) trackActivated(userId);
-  trackCoreAction("score_refreshed", userId);
+  trackCoreAction('score_refreshed', userId);
 }
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
@@ -290,14 +294,12 @@ async function computeSignal2ForUser(tx: Tx | typeof db, userId: string): Promis
   const confirmed = await tx
     .select({ workHistoryId: schema.employerVerifications.workHistoryId })
     .from(schema.employerVerifications)
-    .where(eq(schema.employerVerifications.status, "confirmed"));
+    .where(eq(schema.employerVerifications.status, 'confirmed'));
   const confirmedSet = new Set(confirmed.map((r) => r.workHistoryId));
 
   return computeSignal2({
     workHistory: history,
-    confirmedVerifications: history
-      .map((h) => h.id)
-      .filter((id) => confirmedSet.has(id)),
+    confirmedVerifications: history.map((h) => h.id).filter((id) => confirmedSet.has(id)),
   });
 }
 
@@ -323,16 +325,15 @@ export async function recomputeSignal2OnVerificationChange(userId: string) {
 
 export function canRefresh(user: {
   lastIngestedAt: Date | null;
-  ingestStatus: "idle" | "queued" | "running" | "failed";
+  ingestStatus: 'idle' | 'queued' | 'running' | 'failed';
 }): boolean {
   if (!user.lastIngestedAt) return true;
   // Zombie recovery: if status has been stuck "running" for >3 min, prior run
   // was killed by lambda timeout. Let the caller retry.
-  if (user.ingestStatus === "running" &&
-      Date.now() - user.lastIngestedAt.getTime() >= 3 * 60_000) {
+  if (user.ingestStatus === 'running' && Date.now() - user.lastIngestedAt.getTime() >= 3 * 60_000) {
     return true;
   }
-  if (user.ingestStatus === "failed") return true;
+  if (user.ingestStatus === 'failed') return true;
   return Date.now() - user.lastIngestedAt.getTime() >= INGEST_COOLDOWN_MS;
 }
 
@@ -343,19 +344,19 @@ export function canRefresh(user: {
 export async function beginRefresh(user: {
   id: string;
   lastIngestedAt: Date | null;
-  ingestStatus: "idle" | "queued" | "running" | "failed";
+  ingestStatus: 'idle' | 'queued' | 'running' | 'failed';
 }): Promise<boolean> {
   const [claimed] = await db
     .update(schema.users)
-    .set({ ingestStatus: "running", lastIngestedAt: new Date() })
+    .set({ ingestStatus: 'running', lastIngestedAt: new Date() })
     .where(
       and(
         eq(schema.users.id, user.id),
         eq(schema.users.ingestStatus, user.ingestStatus),
         user.lastIngestedAt === null
           ? isNull(schema.users.lastIngestedAt)
-          : eq(schema.users.lastIngestedAt, user.lastIngestedAt),
-      ),
+          : eq(schema.users.lastIngestedAt, user.lastIngestedAt)
+      )
     )
     .returning({ id: schema.users.id });
 

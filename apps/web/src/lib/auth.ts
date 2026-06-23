@@ -1,11 +1,11 @@
-import NextAuth from "next-auth";
-import GitHub from "next-auth/providers/github";
-import { DrizzleAdapter } from "@auth/drizzle-adapter";
-import { eq } from "drizzle-orm";
-import { db, schema } from "@truehire/db";
-import { trackSignup, trackReturned } from "./analytics";
+import NextAuth from 'next-auth';
+import GitHub from 'next-auth/providers/github';
+import { DrizzleAdapter } from '@auth/drizzle-adapter';
+import { eq } from 'drizzle-orm';
+import { db, schema } from '@truehire/db';
+import { trackSignup, trackReturned } from './analytics';
 
-declare module "next-auth" {
+declare module 'next-auth' {
   interface Session {
     user: {
       id: string;
@@ -31,7 +31,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       clientId: process.env.AUTH_GITHUB_ID ?? process.env.GITHUB_ID,
       clientSecret: process.env.AUTH_GITHUB_SECRET ?? process.env.GITHUB_SECRET,
       authorization: {
-        params: { scope: "read:user user:email public_repo" },
+        params: { scope: 'read:user user:email public_repo' },
       },
       profile(profile) {
         return {
@@ -41,14 +41,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           image: profile.avatar_url,
           githubId: profile.id,
           githubUsername: profile.login,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any;
       },
     }),
   ],
-  session: { strategy: "database" },
+  session: { strategy: 'database' },
   trustHost: true,
-  pages: { signIn: "/login" },
+  pages: { signIn: '/login' },
   events: {
     async signIn({ user, account, isNewUser }) {
       // We used to kick off ingest here as fire-and-forget, but serverless
@@ -58,10 +58,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       //
       // We only touch status here: leaving it "idle" so the client-side
       // effect in /dashboard can trigger a real refresh.
-      if (!account || account.provider !== "github" || !user?.id) return;
+      if (account?.provider !== 'github' || !user?.id) return;
       await db
         .update(schema.users)
-        .set({ ingestStatus: "idle" })
+        .set({ ingestStatus: 'idle' })
         .where(eq(schema.users.id, user.id));
 
       // Owner-facing analytics — the fixed 4-event taxonomy.

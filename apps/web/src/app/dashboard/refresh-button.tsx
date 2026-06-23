@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Loader2, RefreshCw } from "lucide-react";
-import { Button } from "@/components/atoms/button";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Loader2, RefreshCw } from 'lucide-react';
+import { Button } from '@/components/atoms/button';
 
 export function RefreshButton({ disabled }: { disabled?: boolean }) {
   const [loading, setLoading] = useState(false);
@@ -14,10 +14,10 @@ export function RefreshButton({ disabled }: { disabled?: boolean }) {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/refresh", { method: "POST" });
+      const res = await fetch('/api/refresh', { method: 'POST' });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        setError(body.message ?? body.error ?? "Refresh failed");
+        setError(body.message ?? body.error ?? 'Refresh failed');
       } else {
         router.refresh();
       }
@@ -32,9 +32,11 @@ export function RefreshButton({ disabled }: { disabled?: boolean }) {
         size="sm"
         onClick={go}
         disabled={disabled || loading}
-        leftIcon={loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+        leftIcon={
+          loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />
+        }
       >
-        {loading ? "Refreshing" : "Refresh score"}
+        {loading ? 'Refreshing' : 'Refresh score'}
       </Button>
       {error && <span className="text-[11px] text-[var(--warn)]">{error}</span>}
     </div>

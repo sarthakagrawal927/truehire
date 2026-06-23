@@ -1,6 +1,6 @@
-import { notFound, redirect } from "next/navigation";
-import Link from "next/link";
-import Image from "next/image";
+import { notFound, redirect } from 'next/navigation';
+import Link from 'next/link';
+import Image from 'next/image';
 import {
   ArrowLeft,
   ArrowUpRight,
@@ -12,12 +12,12 @@ import {
   Save,
   ShieldCheck,
   Star,
-} from "lucide-react";
-import { Button } from "@/components/atoms/button";
-import { Card, CardBody, CardHeader, CardTitle } from "@/components/atoms/card";
-import { Badge } from "@/components/atoms/badge";
-import { ScoreRing } from "@/components/molecules/score-ring";
-import { LanguageBar } from "@/components/molecules/language-bar";
+} from 'lucide-react';
+import { Button } from '@/components/atoms/button';
+import { Card, CardBody, CardHeader, CardTitle } from '@/components/atoms/card';
+import { Badge } from '@/components/atoms/badge';
+import { ScoreRing } from '@/components/molecules/score-ring';
+import { LanguageBar } from '@/components/molecules/language-bar';
 import {
   getHiringPipeline,
   getPipelineCandidates,
@@ -25,32 +25,32 @@ import {
   getCandidateEvaluations,
   updateCandidateStage,
   updateCandidateNotes,
-} from "@/lib/hiring-service";
-import { getLatestScore } from "@/lib/score-service";
-import { auth } from "@/lib/auth";
-import { buildRecruiterCandidateIntelligenceReport } from "@truehire/core";
-import type { EvidenceEntry, RoleRequirement } from "@truehire/core";
-import { revalidatePath } from "next/cache";
+} from '@/lib/hiring-service';
+import { getLatestScore } from '@/lib/score-service';
+import { auth } from '@/lib/auth';
+import { buildRecruiterCandidateIntelligenceReport } from '@truehire/core';
+import type { EvidenceEntry, RoleRequirement } from '@truehire/core';
+import { revalidatePath } from 'next/cache';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 const STAGE_ORDER = [
-  "shortlist",
-  "screening",
-  "technical",
-  "interview",
-  "decision",
-  "hired",
-  "rejected",
+  'shortlist',
+  'screening',
+  'technical',
+  'interview',
+  'decision',
+  'hired',
+  'rejected',
 ] as const;
 type Stage = (typeof STAGE_ORDER)[number];
 
 const RECOMMENDATIONS = [
-  { value: "strong_hire", label: "Strong Hire" },
-  { value: "hire", label: "Hire" },
-  { value: "neutral", label: "Neutral" },
-  { value: "reject", label: "Reject" },
-  { value: "strong_reject", label: "Strong Reject" },
+  { value: 'strong_hire', label: 'Strong Hire' },
+  { value: 'hire', label: 'Hire' },
+  { value: 'neutral', label: 'Neutral' },
+  { value: 'reject', label: 'Reject' },
+  { value: 'strong_reject', label: 'Strong Reject' },
 ] as const;
 
 export default async function EvaluationPage(props: {
@@ -58,7 +58,7 @@ export default async function EvaluationPage(props: {
 }) {
   const { id: pipelineId, candidateId } = await props.params;
   const session = await auth();
-  if (!session?.user?.id) redirect("/login");
+  if (!session?.user?.id) redirect('/login');
 
   const pipelineData = await getHiringPipeline(pipelineId);
   if (!pipelineData) notFound();
@@ -77,9 +77,7 @@ export default async function EvaluationPage(props: {
   const existingEvaluations = await getCandidateEvaluations(candidateId);
   const score = await getLatestScore(candidate.user.id);
 
-  const evidence: EvidenceEntry[] = score
-    ? safeParseArray<EvidenceEntry>(score.evidenceJson)
-    : [];
+  const evidence: EvidenceEntry[] = score ? safeParseArray<EvidenceEntry>(score.evidenceJson) : [];
   const languages = score
     ? safeParseArray<{ language: string; share: number; commits: number }>(score.languagesJson)
     : [];
@@ -87,12 +85,10 @@ export default async function EvaluationPage(props: {
   const currentStage = candidate.candidate.stage as Stage;
   const currentIdx = STAGE_ORDER.indexOf(currentStage);
   const nextStage =
-    currentIdx >= 0 && currentIdx < STAGE_ORDER.length - 2
-      ? STAGE_ORDER[currentIdx + 1]
-      : null;
+    currentIdx >= 0 && currentIdx < STAGE_ORDER.length - 2 ? STAGE_ORDER[currentIdx + 1] : null;
 
   async function action(formData: FormData) {
-    "use server";
+    'use server';
     const session = await auth();
     if (!session?.user?.id || !candidate) return;
 
@@ -100,15 +96,15 @@ export default async function EvaluationPage(props: {
     for (const req of requirements) {
       const raw = formData.get(`score_${req.id}`);
       const score = raw ? parseInt(raw.toString(), 10) : 0;
-      const feedback = (formData.get(`feedback_${req.id}`) as string) ?? "";
+      const feedback = (formData.get(`feedback_${req.id}`) as string) ?? '';
       scores[req.id] = { score, feedback };
     }
 
     const overallRecommendation = formData.get(
-      "recommendation",
-    ) as (typeof RECOMMENDATIONS)[number]["value"];
-    const notes = ((formData.get("notes") as string) ?? "").trim();
-    const nextAction = (formData.get("next_action") as string) || "stay";
+      'recommendation'
+    ) as (typeof RECOMMENDATIONS)[number]['value'];
+    const notes = ((formData.get('notes') as string) ?? '').trim();
+    const nextAction = (formData.get('next_action') as string) || 'stay';
 
     await createEvaluation({
       pipelineCandidateId: candidateId,
@@ -121,16 +117,16 @@ export default async function EvaluationPage(props: {
       evaluatorId: session.user.id,
     });
 
-    if (nextAction === "advance" && nextStage) {
+    if (nextAction === 'advance' && nextStage) {
       await updateCandidateStage({
         candidateId,
         stage: nextStage,
         notes: notes || undefined,
       });
-    } else if (nextAction === "reject") {
+    } else if (nextAction === 'reject') {
       await updateCandidateStage({
         candidateId,
-        stage: "rejected",
+        stage: 'rejected',
         notes: notes || undefined,
       });
     } else if (notes) {
@@ -141,9 +137,9 @@ export default async function EvaluationPage(props: {
     redirect(`/recruiter/pipelines/${pipelineId}`);
   }
 
-  const displayName = candidate.user.name || candidate.user.githubUsername || "Candidate";
+  const displayName = candidate.user.name || candidate.user.githubUsername || 'Candidate';
   const handle = candidate.user.githubUsername;
-  const noteHistory = candidate.candidate.notes ?? "";
+  const noteHistory = candidate.candidate.notes ?? '';
   const intelligenceReport = buildRecruiterCandidateIntelligenceReport({
     jobDescription: role.description,
     evidence,
@@ -158,9 +154,9 @@ export default async function EvaluationPage(props: {
     recommendation?: string;
   }> = [
     {
-      stage: "shortlist",
+      stage: 'shortlist',
       at: new Date(candidate.candidate.createdAt),
-      label: "Added to pipeline",
+      label: 'Added to pipeline',
     },
     ...existingEvaluations
       .slice()
@@ -168,7 +164,7 @@ export default async function EvaluationPage(props: {
       .map((e) => ({
         stage: e.stage as Stage,
         at: new Date(e.createdAt),
-        label: "Reviewed",
+        label: 'Reviewed',
         recommendation: e.overallRecommendation ?? undefined,
       })),
   ];
@@ -194,7 +190,7 @@ export default async function EvaluationPage(props: {
             Review {displayName}
           </h1>
           <p className="mt-2 text-sm text-[var(--muted)]">
-            Current stage:{" "}
+            Current stage:{' '}
             <Badge tone="outline" className="uppercase tracking-wider">
               {currentStage}
             </Badge>
@@ -211,11 +207,7 @@ export default async function EvaluationPage(props: {
                 Full profile
               </Button>
             </Link>
-            <a
-              href={`https://github.com/${handle}`}
-              target="_blank"
-              rel="noreferrer"
-            >
+            <a href={`https://github.com/${handle}`} target="_blank" rel="noreferrer">
               <Button
                 size="sm"
                 variant="ghost"
@@ -249,9 +241,7 @@ export default async function EvaluationPage(props: {
               </div>
               <div className="min-w-0">
                 <div className="truncate font-semibold">{displayName}</div>
-                {handle && (
-                  <div className="num text-[12px] text-[var(--muted)]">@{handle}</div>
-                )}
+                {handle && <div className="num text-[12px] text-[var(--muted)]">@{handle}</div>}
               </div>
 
               {score ? (
@@ -338,9 +328,7 @@ export default async function EvaluationPage(props: {
                           {formatNumber(e.commits)}
                         </span>
                         {e.primaryLanguage && (
-                          <span className="text-[var(--muted-2)]">
-                            · {e.primaryLanguage}
-                          </span>
+                          <span className="text-[var(--muted-2)]">· {e.primaryLanguage}</span>
                         )}
                       </div>
                     </a>
@@ -365,33 +353,35 @@ export default async function EvaluationPage(props: {
           <Card>
             <CardHeader>
               <CardTitle>Status history</CardTitle>
-              <Badge tone="outline">{timelineEvents.length} event{timelineEvents.length === 1 ? "" : "s"}</Badge>
+              <Badge tone="outline">
+                {timelineEvents.length} event{timelineEvents.length === 1 ? '' : 's'}
+              </Badge>
             </CardHeader>
             <CardBody className="grid gap-4">
               <ol className="flex flex-wrap items-center gap-x-1 gap-y-2 text-[11px]">
-                {STAGE_ORDER.filter((s) => s !== "rejected" || currentStage === "rejected").map((stage, i, arr) => {
-                  const reached = stagesSeen.has(stage);
-                  const isCurrent = stage === currentStage;
-                  return (
-                    <li key={stage} className="flex items-center gap-1">
-                      <span
-                        className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 uppercase tracking-wider ${
-                          isCurrent
-                            ? "border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-contrast)] font-semibold"
-                            : reached
-                              ? "border-[var(--border-strong)] text-[var(--foreground)]"
-                              : "border-dashed border-[var(--border)] text-[var(--muted-2)]"
-                        }`}
-                      >
-                        {reached ? <Check className="h-3 w-3" /> : <Circle className="h-3 w-3" />}
-                        {stage}
-                      </span>
-                      {i < arr.length - 1 && (
-                        <span className="text-[var(--muted-2)]">→</span>
-                      )}
-                    </li>
-                  );
-                })}
+                {STAGE_ORDER.filter((s) => s !== 'rejected' || currentStage === 'rejected').map(
+                  (stage, i, arr) => {
+                    const reached = stagesSeen.has(stage);
+                    const isCurrent = stage === currentStage;
+                    return (
+                      <li key={stage} className="flex items-center gap-1">
+                        <span
+                          className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 uppercase tracking-wider ${
+                            isCurrent
+                              ? 'border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-contrast)] font-semibold'
+                              : reached
+                                ? 'border-[var(--border-strong)] text-[var(--foreground)]'
+                                : 'border-dashed border-[var(--border)] text-[var(--muted-2)]'
+                          }`}
+                        >
+                          {reached ? <Check className="h-3 w-3" /> : <Circle className="h-3 w-3" />}
+                          {stage}
+                        </span>
+                        {i < arr.length - 1 && <span className="text-[var(--muted-2)]">→</span>}
+                      </li>
+                    );
+                  }
+                )}
               </ol>
               <ul className="grid gap-2 text-[12px]">
                 {timelineEvents.map((ev, i) => (
@@ -407,7 +397,7 @@ export default async function EvaluationPage(props: {
                         <span className="font-medium">{ev.label}</span>
                         {ev.recommendation && (
                           <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--accent)]">
-                            {ev.recommendation.replace("_", " ")}
+                            {ev.recommendation.replace('_', ' ')}
                           </span>
                         )}
                       </div>
@@ -441,7 +431,9 @@ export default async function EvaluationPage(props: {
               <div className="rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-2)] p-4">
                 <div className="text-sm font-semibold">{intelligenceReport.fit.summary}</div>
                 <div className="mt-2 grid gap-2 text-[11px] text-[var(--muted)] sm:grid-cols-3">
-                  <span>{intelligenceReport.fit.verifiedRequirementCount} verified requirements</span>
+                  <span>
+                    {intelligenceReport.fit.verifiedRequirementCount} verified requirements
+                  </span>
                   <span>{intelligenceReport.fit.gapCount} evidence gaps</span>
                   <span>{intelligenceReport.evidenceLinks.length} GitHub evidence links</span>
                 </div>
@@ -541,8 +533,8 @@ export default async function EvaluationPage(props: {
             <CardBody className="grid gap-5">
               {requirements.length === 0 ? (
                 <p className="text-sm text-[var(--muted)]">
-                  This role has no rubric criteria yet. Add some on the role page to
-                  structure scoring — for now, capture your read in the notes below.
+                  This role has no rubric criteria yet. Add some on the role page to structure
+                  scoring — for now, capture your read in the notes below.
                 </p>
               ) : (
                 requirements.map((req) => {
@@ -557,16 +549,12 @@ export default async function EvaluationPage(props: {
                           <h3 className="font-semibold">{req.label}</h3>
                           <p className="mt-1 text-[11px] text-[var(--muted)]">
                             {req.category}
-                            {req.keywords.length > 0 &&
-                              ` · ${req.keywords.join(", ")}`}
+                            {req.keywords.length > 0 && ` · ${req.keywords.join(', ')}`}
                           </p>
                         </div>
                         <div className="flex shrink-0 items-center gap-1">
                           {[1, 2, 3, 4, 5].map((val) => (
-                            <label
-                              key={val}
-                              className="flex cursor-pointer flex-col items-center"
-                            >
+                            <label key={val} className="flex cursor-pointer flex-col items-center">
                               <input
                                 type="radio"
                                 name={`score_${req.id}`}
@@ -602,8 +590,8 @@ export default async function EvaluationPage(props: {
                         </div>
                       ) : evidence.length > 0 ? (
                         <p className="text-[11px] text-[var(--muted-2)]">
-                          No verified repos match these keywords — note any
-                          off-platform evidence below.
+                          No verified repos match these keywords — note any off-platform evidence
+                          below.
                         </p>
                       ) : null}
                       <textarea
@@ -667,23 +655,14 @@ export default async function EvaluationPage(props: {
             </CardHeader>
             <CardBody>
               <div className="grid gap-2 sm:grid-cols-3">
-                <NextAction
-                  value="stay"
-                  label="Stay on stage"
-                  hint={currentStage}
-                  defaultChecked
-                />
+                <NextAction value="stay" label="Stay on stage" hint={currentStage} defaultChecked />
                 <NextAction
                   value="advance"
-                  label={nextStage ? `Advance to ${nextStage}` : "No next stage"}
+                  label={nextStage ? `Advance to ${nextStage}` : 'No next stage'}
                   hint="move forward"
                   disabled={!nextStage}
                 />
-                <NextAction
-                  value="reject"
-                  label="Move to rejected"
-                  hint="close out"
-                />
+                <NextAction value="reject" label="Move to rejected" hint="close out" />
               </div>
             </CardBody>
           </Card>
@@ -694,11 +673,7 @@ export default async function EvaluationPage(props: {
                 Cancel
               </Button>
             </Link>
-            <Button
-              type="submit"
-              leftIcon={<Save className="h-4 w-4" />}
-              className="sm:order-2"
-            >
+            <Button type="submit" leftIcon={<Save className="h-4 w-4" />} className="sm:order-2">
               Save evaluation
             </Button>
           </div>
@@ -710,10 +685,10 @@ export default async function EvaluationPage(props: {
               </h2>
               <div className="grid gap-3">
                 {existingEvaluations.map((evalItem) => {
-                  const parsed = safeParseObject<Record<string, { score: number; feedback: string }>>(
-                    evalItem.scoresJson,
-                  );
-                  const evalNotes = parsed?.__notes?.feedback ?? "";
+                  const parsed = safeParseObject<
+                    Record<string, { score: number; feedback: string }>
+                  >(evalItem.scoresJson);
+                  const evalNotes = parsed?.__notes?.feedback ?? '';
                   return (
                     <Card key={evalItem.id}>
                       <CardBody className="p-4">
@@ -721,27 +696,28 @@ export default async function EvaluationPage(props: {
                           <div className="flex items-center gap-2">
                             <Badge tone="outline">{evalItem.stage}</Badge>
                             <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--accent)]">
-                              {evalItem.overallRecommendation?.replace("_", " ")}
+                              {evalItem.overallRecommendation?.replace('_', ' ')}
                             </span>
                           </div>
                           <div className="text-[11px] text-[var(--muted)]">
                             {new Date(evalItem.createdAt).toLocaleDateString()}
                           </div>
                         </div>
-                        {parsed && Object.keys(parsed).filter((k) => k !== "__notes").length > 0 && (
-                          <div className="mt-2 grid gap-1 text-[12px] text-[var(--muted)] sm:grid-cols-2">
-                            {Object.entries(parsed)
-                              .filter(([k]) => k !== "__notes")
-                              .map(([reqId, data]) => (
-                                <div key={reqId} className="flex justify-between">
-                                  <span className="truncate pr-2">
-                                    {requirements.find((r) => r.id === reqId)?.label || reqId}
-                                  </span>
-                                  <span className="num font-semibold">{data.score}/5</span>
-                                </div>
-                              ))}
-                          </div>
-                        )}
+                        {parsed &&
+                          Object.keys(parsed).filter((k) => k !== '__notes').length > 0 && (
+                            <div className="mt-2 grid gap-1 text-[12px] text-[var(--muted)] sm:grid-cols-2">
+                              {Object.entries(parsed)
+                                .filter(([k]) => k !== '__notes')
+                                .map(([reqId, data]) => (
+                                  <div key={reqId} className="flex justify-between">
+                                    <span className="truncate pr-2">
+                                      {requirements.find((r) => r.id === reqId)?.label || reqId}
+                                    </span>
+                                    <span className="num font-semibold">{data.score}/5</span>
+                                  </div>
+                                ))}
+                            </div>
+                          )}
                         {evalNotes && (
                           <p className="mt-3 whitespace-pre-wrap text-[12px] text-[var(--muted)]">
                             {evalNotes}
@@ -763,9 +739,7 @@ export default async function EvaluationPage(props: {
 function Stat({ label, value }: { label: string; value: number }) {
   return (
     <div>
-      <div className="text-[10px] uppercase tracking-wider text-[var(--muted-2)]">
-        {label}
-      </div>
+      <div className="text-[10px] uppercase tracking-wider text-[var(--muted-2)]">{label}</div>
       <div className="num text-sm font-semibold text-[var(--foreground)]">{value}</div>
     </div>
   );
@@ -785,7 +759,7 @@ function NextAction({
   disabled?: boolean;
 }) {
   return (
-    <label className={`block ${disabled ? "opacity-40" : "cursor-pointer"}`}>
+    <label className={`block ${disabled ? 'opacity-40' : 'cursor-pointer'}`}>
       <input
         type="radio"
         name="next_action"
@@ -843,19 +817,12 @@ function formatNumber(n: number) {
   return String(n);
 }
 
-function findMatchingEvidence(
-  req: RoleRequirement,
-  evidence: EvidenceEntry[],
-): EvidenceEntry[] {
+function findMatchingEvidence(req: RoleRequirement, evidence: EvidenceEntry[]): EvidenceEntry[] {
   if (req.keywords.length === 0) return [];
   const needles = req.keywords.map((k) => k.toLowerCase());
   return evidence.filter((e) => {
-    const haystack = [
-      e.repoFullName,
-      e.primaryLanguage ?? "",
-      ...(e.craftTags ?? []),
-    ]
-      .join(" ")
+    const haystack = [e.repoFullName, e.primaryLanguage ?? '', ...(e.craftTags ?? [])]
+      .join(' ')
       .toLowerCase();
     return needles.some((n) => haystack.includes(n));
   });
@@ -873,7 +840,7 @@ function safeParseArray<T>(json: string): T[] {
 function safeParseObject<T>(json: string): T | null {
   try {
     const parsed = JSON.parse(json);
-    return parsed && typeof parsed === "object" ? (parsed as T) : null;
+    return parsed && typeof parsed === 'object' ? (parsed as T) : null;
   } catch {
     return null;
   }
