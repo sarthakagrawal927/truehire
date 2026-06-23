@@ -31,5 +31,10 @@ export default defineConfig({
     plugins: [tailwindcss()],
     css: { transformer: 'lightningcss' },
     build: { cssMinify: 'lightningcss' },
+    resolve: {
+      alias: {
+        '@': new URL('./src', import.meta.url).pathname,
+      },
+    },
   },
 });
