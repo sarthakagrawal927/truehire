@@ -37,7 +37,7 @@ function sleep(ms: number) {
 }
 
 /** Classify an Octokit / GraphQL error into a stable failure reason. */
-function classifyGitHubError(err: unknown): GitHubIngestError['reason'] {
+export function classifyGitHubError(err: unknown): GitHubIngestError['reason'] {
   const status =
     (err as { status?: number })?.status ??
     (err as { response?: { status?: number } })?.response?.status;
@@ -524,7 +524,7 @@ const TRIVIAL_MSG =
 const MEANINGFUL_VERB =
   /^(?:feat|fix|refactor|docs?|test|perf|chore|style|ci|build|revert|add(?:s|ed)?|remove[sd]?|implement|introduce|handle|prevent|enable|disable|migrate|rename|move|extract|inline|bump|upgrade|downgrade|close|resolve)[\s(:-]/i;
 
-function computeCommitQuality(
+export function computeCommitQuality(
   commits: Array<{
     commit?: {
       message?: string;
@@ -559,7 +559,7 @@ function computeCommitQuality(
   };
 }
 
-function extractTotalCountFromLinkHeader(link: string | undefined): number | null {
+export function extractTotalCountFromLinkHeader(link: string | undefined): number | null {
   if (!link) return null;
   const m = link.match(/[?&]page=(\d+)[^>]*>; rel="last"/);
   return m ? Number(m[1]) : null;
