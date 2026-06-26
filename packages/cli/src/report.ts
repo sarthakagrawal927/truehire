@@ -193,14 +193,19 @@ export async function generateReport(artifact: Artifact): Promise<Uint8Array> {
     if (dim.score != null)
       d.rect(barX, y - 1, (barW * Math.max(0, Math.min(100, dim.score))) / 100, 6, dt.color);
     d.right(dim.score == null ? '—' : String(dim.score), W - M, y - 1, 12, bold, dt.color);
-    // deep-graded dims show the LLM's reasoning; others show contributing signals
+    // deep-graded dims show the LLM's full reasoning; others show contributing
+    // signals — wrapped full-width below the bar (no truncation).
     const ev = g
       ? g.reasoning
       : dim.evidence.length
-        ? dim.evidence.slice(0, 4).join('   ·   ')
+        ? dim.evidence.slice(0, 5).join('   ·   ')
         : 'not enough data for this dimension';
-    d.text(ev.length > 96 ? `${ev.slice(0, 96)}…` : ev, barX, y - 12, 7.5, font, g ? MUTED : FAINT);
-    y -= 30;
+    let ly = y - 22;
+    for (const line of wrap(ev, 116)) {
+      d.text(line, M, ly, 7.5, font, g ? MUTED : FAINT);
+      ly -= 9;
+    }
+    y = ly - 10;
   }
   drawFooter(d, font, artifact.cliVersion, 1);
 
@@ -221,37 +226,12 @@ export async function generateReport(artifact: Artifact): Promise<Uint8Array> {
     d2.right('EDITS', W - M - 88, y2, 7.5, bold, FAINT);
     d2.right('SESSIONS', W - M, y2, 7.5, bold, FAINT);
     y2 -= 15;
-    for (const p of artifact.projects.slice(0, artifact.deep ? 11 : 16)) {
+    for (const p of artifact.projects.slice(0, 16)) {
       d2.text(p.name.slice(0, 30), M, y2, 10, font, INK);
       d2.text(p.tools.map((tt) => TOOL_LABEL[tt] ?? tt).join(', '), 250, y2, 8.5, font, FAINT);
       d2.right(num(p.codeBlocks), W - M - 88, y2, 9, font, MUTED);
       d2.right(String(p.sessions), W - M, y2, 9, font, MUTED);
       y2 -= 16;
-    }
-  }
-
-  if (artifact.deep) {
-    y2 -= 20;
-    d2.text(
-      `DEEP GRADING · ${artifact.deep.model}${artifact.deep.local ? ' (on-device)' : ' (cloud)'}`,
-      M,
-      y2,
-      9,
-      bold,
-      FAINT
-    );
-    y2 -= 8;
-    d2.rule(y2);
-    y2 -= 16;
-    for (const g of artifact.deep.grades) {
-      d2.text(g.name, M, y2, 10, bold, INK);
-      d2.right(String(g.score), W - M, y2, 9, font, FAINT);
-      y2 -= 13;
-      for (const line of wrap(g.reasoning, 108)) {
-        d2.text(line, M, y2, 8.5, font, MUTED);
-        y2 -= 11;
-      }
-      y2 -= 8;
     }
   }
 
