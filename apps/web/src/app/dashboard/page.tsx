@@ -14,6 +14,7 @@ import { RefreshButton } from './refresh-button';
 import { IngestBootstrapper } from './ingest-bootstrapper';
 import { WorkHistorySection } from './work-history';
 import { RoleFitForm } from './role-fit-form';
+import { AiBuildCard } from './ai-build-card';
 
 export const dynamic = 'force-dynamic';
 
@@ -160,6 +161,8 @@ export default async function DashboardPage() {
           </section>
 
           <WorkHistorySection />
+
+          <AiBuildCard />
 
           {user.githubUsername && <RoleFitForm username={user.githubUsername} />}
 

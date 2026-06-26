@@ -1,6 +1,6 @@
 # truehire — PROJECT_STATUS
 
-Last updated: 2026-06-20
+Last updated: 2026-06-26
 
 ## Why/What
 
@@ -13,7 +13,8 @@ Non-goals: user-editable bios/skills, leaderboards, pseudonymous profiles, ATS r
 | Layer | Choice |
 |-------|--------|
 | App | Next.js 16 (App Router), React 19, TypeScript, Tailwind v4 |
-| Monorepo | pnpm workspaces: `apps/web`, `packages/core`, `packages/db` |
+| Monorepo | pnpm workspaces: `apps/web`, `packages/core`, `packages/db`, `packages/cli` |
+| CLI | `truehire` (npm, unscoped) — local AI-build profile scanner; tsup bundle; `better-sqlite3` for Cursor |
 | Database | Drizzle ORM + Turso (libSQL); `file:./local.db` locally |
 | Auth | NextAuth v5 (GitHub OAuth only) + `@auth/drizzle-adapter` |
 | GitHub | @octokit GraphQL + REST in `packages/core/src/ingest/` |
@@ -64,6 +65,7 @@ Ingest (fire-and-forget on signIn) ──► Turso (users, repos, contributions,
 | Signal 2 scaffold | Work history schema, HMAC verification tokens, `/verify/[token]` landing, manual-link beta UX |
 | Public exports | OG images, embed badge, data.json/repos.csv exports, compare/recent/stats/suggest routes, score history |
 | Current (2026-06-20) | MVP shipped; Signal 2 manual-link beta; email delivery deferred post-MVP validation |
+| AI Build Profile (2026-06-26) | `truehire` CLI + self-attested "how you build with AI" profile (6 dimensions) from local Claude Code / Cursor / Codex logs; published via single-use token, shown fenced on `/@handle`, contributes 0 to score |
 
 ## Products
 
@@ -76,6 +78,8 @@ Ingest (fire-and-forget on signIn) ──► Turso (users, repos, contributions,
 | Methodology | Live scoring constants and trust explanation |
 | Recruiter toolkit | Role-fit, pipelines, shortlist, JD demo, resume claim audit |
 | Signal 2 verify | Public verification landing for employer confirmation |
+| AI Build Profile | Self-attested "how you build with AI" section on `/@handle` (companion signal, 0 to score) + dashboard onboarding card |
+| `truehire` CLI | Local scanner for Claude Code / Cursor / Codex logs → 6-dimension profile, published with a single-use token |
 | Exports | OG images, badge, JSON/CSV, compare, stats, suggest |
 
 ## Features (shipped)
@@ -127,6 +131,13 @@ Ingest (fire-and-forget on signIn) ──► Turso (users, repos, contributions,
 - History page for score snapshots over time.
 - Work history self-claim on dashboard (Signal 2 entry point).
 
+### AI Build Profile — self-attested companion (2026-06-26)
+- **`truehire` CLI** (`packages/cli`, npm `truehire`): scans local AI-coding logs entirely on the user's machine and computes a six-dimension "how you build with AI" profile. Commands: `assess` (scan + save `~/.truehire/ai-build-profile.json` + print summary), `publish --token` (POST to the verified account). Privacy: only aggregate counts/ratios leave the machine — never prompt text, code, or file paths.
+- **Adapters** (each independently optional, lowers `dataCompleteness` if absent): Claude Code `~/.claude/projects/**/*.jsonl` (deep), Cursor `ai-code-tracking.db` + plans via `better-sqlite3` (deep), Codex `~/.codex/sessions/**` rollouts (counts).
+- **Scorer** in `packages/core/src/ai-build/` — pure port of nextmillionai's model: Signal Clarity .18 / Build Stability .22 / Decision Weight .18 / Recovery Velocity .15 / Context Command .12 / Orchestration Range .15; optional signals averaged, reward-only signals never dilute; **100% test coverage**. Fixed weights (work-mode adaptation/archetypes/titles deferred).
+- **Identity binding (improves on nextmillionai's bare `verified` flag):** publish auth is a single-use, 15-min, HMAC-stored token issued from the authenticated dashboard (`cli_publish_tokens`), so the upload is bound to a GitHub-verified identity without the CLI holding OAuth secrets.
+- **Web:** `POST /api/ai-build/token` (issue) + `POST /api/ai-build/publish` (redeem + hand-rolled artifact validation, no new deps) → `ai_build_profiles` (one row/user). Profile renders fenced on `/@handle` with a prominent "self-attested · contributes 0 to the TrueHire score" disclaimer; dashboard has a copy-paste onboarding card.
+
 ### Documentation and quality
 - PRD v0.2 at `PRD.md` (high-level stable); topic depth in `docs/signal-1-public-work.md`, `docs/signal-2-employer-verification.md`, `docs/recruiter-proof-tools.md`, `docs/public-surfaces-exports.md`.
 - Implementation plans `plans/0002`–`0004` for next extensions (commit storyteller, repo-history analyser, no-signal onboarding).
@@ -142,10 +153,13 @@ Ingest (fire-and-forget on signIn) ──► Turso (users, repos, contributions,
 4. **Next extension selection** — choose among `plans/0002` (commit storyteller), `0003` (repo-history analyser), `0004` (no-signal onboarding) once MVP trust or growth feedback is clear.
 5. **Signal 2 completion** — wire transactional email (Resend or Cloudflare Email) for verification links after MVP validation, not before.
 6. **Signal 2 ops** — pending-request expiry jobs, nudge UI, production email secrets via `wrangler secret put` only.
+7. **Publish the `truehire` CLI to npm** — packaging is release-ready (`publishConfig.access: public`, `files`, `prepublishOnly`); the actual `npm publish` is run by the owner (needs npm auth). Verify the `better-sqlite3` prebuild installs cleanly for `npm i -g truehire`.
+8. **Deeper AI-build signals** — stability/recovery signals (`aiLineSurvivalRate` beyond Cursor's AI%, `errorFixRate`, `testAfterAiRate`, `buildSuccessRate`, `postAiEditRate`, `avgPlanComplexity`) are currently unfilled, capping `dataCompleteness`. Mine more from Cursor `tracked_file_content` / git, and parse Codex rollout `response_item`s for richer counts.
 
 ### Deferred
 - Signal 2 payroll integrations (Plaid/Argyle/Rippling/Workday) for automated verification method.
-- Signal 3 reputation bonds, Signal 4 paid auditions, Signal 5 outcome tracking.
+- Signal 3 reputation bonds, Signal 4 paid auditions, Signal 5 outcome tracking. (Distinct from the **self-attested AI Build Profile**, which is a 0-to-score companion, not a verified signal in this ladder.)
+- AI Build Profile v2: nextmillionai's work-mode-adaptive weights, archetypes, titles, and "wrapped" stats (v1 ships fixed weights + the six dimensions only).
 - Candidate-written resumes, bios, skills, titles, or any user-editable profile fields.
 - Leaderboards, generic sourcing, ATS replacement, non-technical-role support.
 - Pseudonymous handle-only profiles (real-name-linked GitHub enforced for now).

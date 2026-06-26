@@ -20,6 +20,8 @@ import {
   getPublicWorkHistory,
   getUserByUsername,
 } from '@/lib/score-service';
+import { getAiBuildProfile } from '@/lib/ai-build-service';
+import { AiBuildProfile } from '@/components/organisms/ai-build-profile';
 import { PublicWorkHistory } from '@/components/molecules/work-history-public';
 import { RiskFlags } from '@/components/molecules/risk-flags';
 import type { EvidenceEntry } from '@truehire/core';
@@ -48,7 +50,8 @@ const loadProfile = cache(async (handleRaw: string) => {
   const score = await getLatestScore(user.id);
   const months = await getActivityMonths(user.id);
   const work = await getPublicWorkHistory(user.id);
-  return { user, score, months, work };
+  const aiBuild = await getAiBuildProfile(user.id);
+  return { user, score, months, work, aiBuild };
 });
 
 export async function generateMetadata(props: { params: Promise<Params> }): Promise<Metadata> {
@@ -88,7 +91,25 @@ export default async function ProfilePage(props: { params: Promise<Params> }) {
 
   const data = await loadProfile(clean);
   if (!data) notFound();
-  const { user, score, months, work } = data;
+  const { user, score, months, work, aiBuild } = data;
+
+  const aiBuildView = aiBuild
+    ? {
+        composite: aiBuild.composite,
+        dataCompleteness: aiBuild.dataCompleteness,
+        generatedAt: aiBuild.generatedAt.getTime(),
+        dimensions: JSON.parse(aiBuild.dimensionsJson) as {
+          id: string;
+          name: string;
+          score: number | null;
+          weight: number;
+        }[],
+        toolsDetected: JSON.parse(aiBuild.toolsDetectedJson) as {
+          tool: string;
+          fidelity: string;
+        }[],
+      }
+    : null;
 
   const hasScore = !!score;
   const evidence: EvidenceEntry[] = hasScore ? JSON.parse(score.evidenceJson) : [];
@@ -396,6 +417,9 @@ export default async function ProfilePage(props: { params: Promise<Params> }) {
               </CardBody>
             </Card>
           )}
+
+          {/* Self-attested AI build profile — companion signal, 0 to the score */}
+          {aiBuildView && <AiBuildProfile profile={aiBuildView} />}
 
           {/* Methodology — every number's formula, openable */}
           <section className="mt-10">

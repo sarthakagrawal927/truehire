@@ -306,6 +306,61 @@ export const candidateEvaluations = sqliteTable('candidate_evaluations', {
 });
 
 // ─────────────────────────────────────────────
+// AI build profile — SELF-ATTESTED companion signal (NOT part of the verified
+// Signal 1/2/… ladder)
+//
+// Computed locally by the `truehire` CLI from a candidate's AI-coding tool logs
+// (Claude Code / Cursor / Codex) and published here, bound to their GitHub-
+// verified identity via a single-use token. The data is self-reported, so it is
+// displayed as a clearly-labeled section and contributes ZERO to scores.overall.
+// ─────────────────────────────────────────────
+
+export const aiBuildProfiles = sqliteTable('ai_build_profiles', {
+  // One row per user — latest published profile.
+  userId: text('user_id')
+    .primaryKey()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  schemaVersion: text('schema_version').notNull(),
+  cliVersion: text('cli_version').notNull(),
+  // When the CLI computed it (client clock) vs. when we stored it (server clock).
+  generatedAt: integer('generated_at', { mode: 'timestamp_ms' }).notNull(),
+  publishedAt: integer('published_at', { mode: 'timestamp_ms' })
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`),
+  // 0-100 weighted composite, null when the candidate had too little data.
+  composite: integer('composite'),
+  dataCompleteness: real('data_completeness').notNull().default(0),
+  // JSON payloads — AiBuildDimension[], AiBuildSignals, { tool, fidelity }[].
+  dimensionsJson: text('dimensions_json').notNull().default('[]'),
+  signalsJson: text('signals_json').notNull().default('{}'),
+  toolsDetectedJson: text('tools_detected_json').notNull().default('[]'),
+});
+
+/**
+ * Short-lived, single-use handshake token. Issued from the authenticated
+ * dashboard so the CLI never holds OAuth secrets; redeemed once by `publish` to
+ * resolve which verified user is uploading. Only the HMAC is stored.
+ */
+export const cliPublishTokens = sqliteTable(
+  'cli_publish_tokens',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    tokenHash: text('token_hash').notNull().unique(),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+    expiresAt: integer('expires_at', { mode: 'timestamp_ms' }).notNull(),
+    usedAt: integer('used_at', { mode: 'timestamp_ms' }),
+  },
+  (t) => ({
+    userIdx: index('cli_publish_tokens_user_idx').on(t.userId),
+  })
+);
+
+// ─────────────────────────────────────────────
 // Types
 // ─────────────────────────────────────────────
 
@@ -319,3 +374,5 @@ export type HiringRole = typeof hiringRoles.$inferSelect;
 export type HiringPipeline = typeof hiringPipelines.$inferSelect;
 export type PipelineCandidate = typeof pipelineCandidates.$inferSelect;
 export type CandidateEvaluation = typeof candidateEvaluations.$inferSelect;
+export type AiBuildProfile = typeof aiBuildProfiles.$inferSelect;
+export type CliPublishToken = typeof cliPublishTokens.$inferSelect;

@@ -9,3 +9,8 @@ packages:
 overrides:
   rollup: 4.60.2
   wrangler: 4.85.0
+
+# Native deps whose install scripts are allowed to run (pnpm 10 blocks by
+# default). better-sqlite3 powers the Cursor adapter in packages/cli.
+onlyBuiltDependencies:
+  - better-sqlite3
