@@ -1,10 +1,18 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Bot, Check, Copy } from 'lucide-react';
 import { Badge } from '@/components/atoms/badge';
 import { Button } from '@/components/atoms/button';
 import { Card, CardBody, CardHeader, CardTitle } from '@/components/atoms/card';
+
+export type ConnectedCli = {
+  id: string;
+  label: string | null;
+  createdAt: number;
+  lastUsedAt: number | null;
+};
 
 function CopyRow({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -29,23 +37,29 @@ function CopyRow({ text }: { text: string }) {
   );
 }
 
-export function AiBuildCard() {
-  const [token, setToken] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+function rel(ms: number): string {
+  const d = Math.floor((Date.now() - ms) / 86_400_000);
+  if (d <= 0) return 'today';
+  if (d === 1) return 'yesterday';
+  if (d < 30) return `${d}d ago`;
+  return new Date(ms).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
 
-  async function generate() {
-    setLoading(true);
-    setError(null);
+export function AiBuildCard({ tokens }: { tokens: ConnectedCli[] }) {
+  const router = useRouter();
+  const [revoking, setRevoking] = useState<string | null>(null);
+
+  async function revoke(tokenId: string) {
+    setRevoking(tokenId);
     try {
-      const res = await fetch('/api/ai-build/token', { method: 'POST' });
-      if (!res.ok) throw new Error('Could not generate a token. Try again.');
-      const data = (await res.json()) as { token: string };
-      setToken(data.token);
-    } catch (e) {
-      setError((e as Error).message);
+      await fetch('/api/cli-auth/revoke', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ tokenId }),
+      });
+      router.refresh();
     } finally {
-      setLoading(false);
+      setRevoking(null);
     }
   }
 
@@ -61,44 +75,65 @@ export function AiBuildCard() {
       </CardHeader>
       <CardBody>
         <p className="text-[13px] text-[var(--muted)]">
-          Show <span className="text-[var(--foreground)]">how you build with AI</span>. The{' '}
-          <span className="num">truehire</span> CLI scans your local Claude Code, Cursor and Codex
-          logs on your own machine and publishes a six-dimension profile to your account. It&apos;s
-          self-reported, so it&apos;s shown separately and{' '}
-          <span className="text-[var(--foreground)]">adds 0 to your verified score</span>.
+          Show <span className="text-[var(--foreground)]">how you build with AI</span>. Connect the{' '}
+          <span className="num">truehire</span> CLI, then publish a six-dimension profile from your
+          local Claude Code, Cursor and Codex logs. It&apos;s self-reported, so it&apos;s shown
+          separately and <span className="text-[var(--foreground)]">adds 0 to your score</span>.
         </p>
 
         <div className="mt-4 space-y-2">
           <div className="text-[11px] uppercase tracking-[0.14em] text-[var(--muted)]">
-            1 · Scan locally
+            1 · Log in (opens this site to approve)
           </div>
-          <CopyRow text="npx truehire assess" />
+          <CopyRow text="npx truehire login" />
+        </div>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          <div className="space-y-2">
+            <div className="text-[11px] uppercase tracking-[0.14em] text-[var(--muted)]">
+              2 · Scan
+            </div>
+            <CopyRow text="truehire assess" />
+          </div>
+          <div className="space-y-2">
+            <div className="text-[11px] uppercase tracking-[0.14em] text-[var(--muted)]">
+              3 · Publish
+            </div>
+            <CopyRow text="truehire publish" />
+          </div>
         </div>
 
-        <div className="mt-4 space-y-2">
+        <div className="mt-5 border-t border-[var(--border)] pt-4">
           <div className="text-[11px] uppercase tracking-[0.14em] text-[var(--muted)]">
-            2 · Generate a one-time publish token
+            Connected CLIs
           </div>
-          {token ? (
-            <>
-              <CopyRow text={token} />
-              <p className="text-[11px] text-[var(--muted-2)]">
-                Single-use · expires in 15 minutes. Generate a new one if it lapses.
-              </p>
-            </>
+          {tokens.length === 0 ? (
+            <p className="mt-2 text-[12px] text-[var(--muted-2)]">
+              None yet — run <span className="num">npx truehire login</span> to connect this
+              machine.
+            </p>
           ) : (
-            <Button variant="secondary" size="sm" onClick={generate} disabled={loading}>
-              {loading ? 'Generating…' : 'Generate publish token'}
-            </Button>
+            <div className="mt-2 divide-y divide-[var(--border)]">
+              {tokens.map((t) => (
+                <div key={t.id} className="flex items-center justify-between gap-3 py-2.5">
+                  <div className="min-w-0">
+                    <div className="truncate text-[13px] font-medium">{t.label ?? 'CLI'}</div>
+                    <div className="text-[11px] text-[var(--muted-2)]">
+                      connected {rel(t.createdAt)}
+                      {t.lastUsedAt ? ` · last used ${rel(t.lastUsedAt)}` : ' · never used'}
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => revoke(t.id)}
+                    disabled={revoking === t.id}
+                  >
+                    {revoking === t.id ? 'Revoking…' : 'Revoke'}
+                  </Button>
+                </div>
+              ))}
+            </div>
           )}
-          {error && <p className="text-[12px] text-[var(--warn)]">{error}</p>}
-        </div>
-
-        <div className="mt-4 space-y-2">
-          <div className="text-[11px] uppercase tracking-[0.14em] text-[var(--muted)]">
-            3 · Publish
-          </div>
-          <CopyRow text="truehire publish --token <token>" />
         </div>
       </CardBody>
     </Card>

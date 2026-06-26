@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ArrowUpRight, ExternalLink } from 'lucide-react';
 import { auth } from '@/lib/auth';
 import { getActivityMonths, getLatestScore, getUserById } from '@/lib/score-service';
+import { listCliTokens } from '@/lib/ai-build-service';
 import { Badge } from '@/components/atoms/badge';
 import { Button } from '@/components/atoms/button';
 import { Card, CardBody, CardHeader, CardTitle } from '@/components/atoms/card';
@@ -27,6 +28,12 @@ export default async function DashboardPage() {
 
   const score = await getLatestScore(user.id);
   const months = await getActivityMonths(user.id);
+  const cliTokens = (await listCliTokens(user.id)).map((t) => ({
+    id: t.id,
+    label: t.label,
+    createdAt: t.createdAt.getTime(),
+    lastUsedAt: t.lastUsedAt ? t.lastUsedAt.getTime() : null,
+  }));
 
   const isScoring = !score && user.ingestStatus !== 'failed';
   const profileUrl = user.githubUsername ? `/${user.githubUsername}` : null;
@@ -162,7 +169,7 @@ export default async function DashboardPage() {
 
           <WorkHistorySection />
 
-          <AiBuildCard />
+          <AiBuildCard tokens={cliTokens} />
 
           {user.githubUsername && <RoleFitForm username={user.githubUsername} />}
 

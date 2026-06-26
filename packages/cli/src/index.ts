@@ -1,5 +1,7 @@
 import { parseArgs } from 'node:util';
 import { assess } from './commands/assess';
+import { login } from './commands/login';
+import { logout } from './commands/logout';
 import { publish } from './commands/publish';
 import { CLI_VERSION } from './config';
 import { bold, cyan, dim } from './ui';
@@ -10,13 +12,15 @@ ${bold('Usage')}
   truehire <command> [options]
 
 ${bold('Commands')}
+  login             Connect this machine to your TrueHire account (opens browser)
   assess            Scan local AI tools and compute your AI build profile
   publish           Publish the profile to your verified TrueHire account
+  logout            Disconnect this machine and revoke its token
   help              Show this help
   version           Print the version
 
 ${bold('Options')}
-  --token <token>   Publish token from ${cyan('your TrueHire dashboard')}
+  --token <token>   Use an explicit token instead of the stored login
 
 ${bold('Privacy')}
   Everything is computed on your machine. Only aggregate counts and ratios
@@ -34,6 +38,12 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
   if (command === 'version' || command === '--version' || command === '-v') {
     process.stdout.write(`${CLI_VERSION}\n`);
     return 0;
+  }
+  if (command === 'login') {
+    return login();
+  }
+  if (command === 'logout') {
+    return logout();
   }
   if (command === 'assess') {
     return assess();

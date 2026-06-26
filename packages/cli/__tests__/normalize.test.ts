@@ -89,22 +89,63 @@ describe('normalizeSignals', () => {
 
   it('merges per-project stats across tools, busiest first', () => {
     const claudeP = result('claude-code', 'deep', { sessions: 1 }, [
-      { path: '/home/u/fleet', tool: 'claude-code', sessions: 5, userMessages: 50, codeBlocks: 20, terminalCalls: 10, earliestMs: 1, latestMs: 100 },
-      { path: '/home/u/side', tool: 'claude-code', sessions: 2, userMessages: 8, codeBlocks: 3, terminalCalls: 1, earliestMs: 1, latestMs: 50 },
+      {
+        path: '/home/u/fleet',
+        tool: 'claude-code',
+        sessions: 5,
+        userMessages: 50,
+        codeBlocks: 20,
+        terminalCalls: 10,
+        earliestMs: 1,
+        latestMs: 100,
+      },
+      {
+        path: '/home/u/side',
+        tool: 'claude-code',
+        sessions: 2,
+        userMessages: 8,
+        codeBlocks: 3,
+        terminalCalls: 1,
+        earliestMs: 1,
+        latestMs: 50,
+      },
     ]);
     const codexP = result('codex', 'counts', { sessions: 1 }, [
-      { path: '/home/u/fleet', tool: 'codex', sessions: 3, userMessages: 0, codeBlocks: 0, terminalCalls: 0, earliestMs: 1, latestMs: 200 },
+      {
+        path: '/home/u/fleet',
+        tool: 'codex',
+        sessions: 3,
+        userMessages: 0,
+        codeBlocks: 0,
+        terminalCalls: 0,
+        earliestMs: 1,
+        latestMs: 200,
+      },
     ]);
     const merged = mergeProjects([claudeP, codexP]);
     expect(merged.map((p) => p.name)).toEqual(['fleet', 'side']); // fleet busiest (8 sessions)
-    expect(merged[0]).toMatchObject({ name: 'fleet', sessions: 8, tools: ['claude-code', 'codex'], lastActiveMs: 200 });
+    expect(merged[0]).toMatchObject({
+      name: 'fleet',
+      sessions: 8,
+      tools: ['claude-code', 'codex'],
+      lastActiveMs: 200,
+    });
     expect(merged[1]).toMatchObject({ name: 'side', sessions: 2, tools: ['claude-code'] });
   });
 
   it('exposes merged projects from normalizeSignals', () => {
     const { projects } = normalizeSignals([
       result('claude-code', 'deep', { sessions: 1 }, [
-        { path: '/x/proj', tool: 'claude-code', sessions: 1, userMessages: 1, codeBlocks: 1, terminalCalls: 0, earliestMs: 1, latestMs: 2 },
+        {
+          path: '/x/proj',
+          tool: 'claude-code',
+          sessions: 1,
+          userMessages: 1,
+          codeBlocks: 1,
+          terminalCalls: 0,
+          earliestMs: 1,
+          latestMs: 2,
+        },
       ]),
     ]);
     expect(projects).toHaveLength(1);

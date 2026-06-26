@@ -23,13 +23,17 @@ npm i -g truehire     # or: npx truehire assess
 ## Usage
 
 ```bash
-truehire assess                 # scan locally, print your profile, save it
-truehire publish --token <t>    # publish to your verified TrueHire account
-truehire help
+truehire login      # connect this machine (opens your browser to approve)
+truehire assess     # scan locally, print your profile, save it
+truehire publish    # publish to your verified TrueHire account
+truehire logout     # disconnect this machine and revoke its token
 ```
 
-Get the publish token from your TrueHire **dashboard** (it binds the upload to your
-GitHub-verified identity; tokens are single-use and short-lived).
+`login` uses a browser-pairing flow (like `gh auth login`): it shows a short code,
+opens TrueHire in your browser, you approve while signed in via GitHub, and a
+long-lived, revocable token is stored at `~/.truehire/credentials.json` (mode 0600).
+`publish` then uses it automatically — no copy-paste. Manage or revoke connected
+machines from your dashboard. `TRUEHIRE_NO_BROWSER=1` skips the auto-open (headless).
 
 ## What it reads
 

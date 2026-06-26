@@ -311,8 +311,9 @@ export const candidateEvaluations = sqliteTable('candidate_evaluations', {
 //
 // Computed locally by the `truehire` CLI from a candidate's AI-coding tool logs
 // (Claude Code / Cursor / Codex) and published here, bound to their GitHub-
-// verified identity via a single-use token. The data is self-reported, so it is
-// displayed as a clearly-labeled section and contributes ZERO to scores.overall.
+// verified identity via a `truehire login` CLI token. The data is self-reported,
+// so it is displayed as a clearly-labeled section and contributes ZERO to
+// scores.overall.
 // ─────────────────────────────────────────────
 
 export const aiBuildProfiles = sqliteTable('ai_build_profiles', {
@@ -337,9 +338,10 @@ export const aiBuildProfiles = sqliteTable('ai_build_profiles', {
 });
 
 /**
- * Short-lived, single-use handshake token. Issued from the authenticated
- * dashboard so the CLI never holds OAuth secrets; redeemed once by `publish` to
- * resolve which verified user is uploading. Only the HMAC is stored.
+ * DEPRECATED — superseded by the `truehire login` flow (`cli_tokens` +
+ * `cli_auth_sessions`). No code reads or writes this table anymore; kept only
+ * to avoid a destructive migration on the freshly-created prod table. Drop in a
+ * follow-up cleanup migration. (Tracked in PROJECT_STATUS.)
  */
 export const cliPublishTokens = sqliteTable(
   'cli_publish_tokens',
@@ -360,6 +362,64 @@ export const cliPublishTokens = sqliteTable(
   })
 );
 
+/**
+ * Persistent, revocable CLI access tokens. Minted when a user completes the
+ * `truehire login` browser-pairing flow and stored (hashed) on their machine.
+ * `publish` authenticates with one of these. Only the HMAC is stored.
+ */
+export const cliTokens = sqliteTable(
+  'cli_tokens',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    tokenHash: text('token_hash').notNull().unique(),
+    // Human-friendly label (e.g. hostname) for the connected-devices list.
+    label: text('label'),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+    lastUsedAt: integer('last_used_at', { mode: 'timestamp_ms' }),
+    revokedAt: integer('revoked_at', { mode: 'timestamp_ms' }),
+  },
+  (t) => ({
+    userIdx: index('cli_tokens_user_idx').on(t.userId),
+  })
+);
+
+/**
+ * Device-pairing handshake for `truehire login`. The CLI starts a session
+ * (holding the raw deviceCode; we store only its hash), opens the browser to a
+ * page showing `userCode`, and polls until the signed-in user approves. On the
+ * first poll after approval a fresh `cli_tokens` row is minted and returned —
+ * the raw token is never stored here.
+ */
+export const cliAuthSessions = sqliteTable(
+  'cli_auth_sessions',
+  {
+    id: text('id').primaryKey(),
+    deviceCodeHash: text('device_code_hash').notNull().unique(),
+    // Short anti-phishing code shown in both the CLI and the approve page.
+    userCode: text('user_code').notNull().unique(),
+    status: text('status', {
+      enum: ['pending', 'approved', 'granted', 'denied'],
+    })
+      .notNull()
+      .default('pending'),
+    // Set on approval — the user this CLI will be bound to.
+    userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }),
+    label: text('label'),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+    expiresAt: integer('expires_at', { mode: 'timestamp_ms' }).notNull(),
+  },
+  (t) => ({
+    userCodeIdx: index('cli_auth_sessions_user_code_idx').on(t.userCode),
+  })
+);
+
 // ─────────────────────────────────────────────
 // Types
 // ─────────────────────────────────────────────
@@ -375,4 +435,5 @@ export type HiringPipeline = typeof hiringPipelines.$inferSelect;
 export type PipelineCandidate = typeof pipelineCandidates.$inferSelect;
 export type CandidateEvaluation = typeof candidateEvaluations.$inferSelect;
 export type AiBuildProfile = typeof aiBuildProfiles.$inferSelect;
-export type CliPublishToken = typeof cliPublishTokens.$inferSelect;
+export type CliToken = typeof cliTokens.$inferSelect;
+export type CliAuthSession = typeof cliAuthSessions.$inferSelect;

@@ -29,12 +29,14 @@ apps/web/                  # Next.js application
       auth/                # NextAuth handlers
       refresh/             # Manual re-ingest (rate-limited)
       og/[handle]/         # OG share image generation
-      ai-build/            # token (issue) + publish (redeem) — self-attested AI build profile
+      ai-build/publish/    # token-authenticated AI build profile upload
+      cli-auth/            # start/poll/decide/revoke/logout — `truehire login` pairing
+    cli-auth/              # browser approve page for `truehire login`
   src/components/          # Atomic design: atoms/molecules/organisms
   src/lib/
     auth.ts                # NextAuth config + DrizzleAdapter
     score-service.ts       # DB + ingest + score orchestration
-    ai-build-service.ts    # AI build profile persistence + publish-token handshake
+    ai-build-service.ts    # AI build profile persistence + CLI login/token handshake
     ai-build-artifact.ts   # hand-rolled validator for the uploaded CLI artifact
   wrangler.jsonc           # CF Workers config
   open-next.config.ts      # OpenNext CF adapter config
@@ -82,7 +84,7 @@ pnpm --filter web cf:deploy           # wrangler deploy to prod
   - Craft 20%: CI/tests/README/license/releases/collaborators/commit-message quality on top authored + core-contributor repos
   - Specialization 15%: piecewise on dominant-language share (0 below 20%, linear to 100 at 100%)
   - Any weight change requires a corresponding test update.
-- **AI Build Profile is self-attested and NEVER touches the score**: the `truehire` CLI (`packages/cli`) computes a 6-dimension "how you build with AI" profile from the user's LOCAL Claude Code/Cursor/Codex logs (a Worker can't read those). It's published via a single-use dashboard token (`cli_publish_tokens`, HMAC-stored) so the upload binds to a GitHub-verified identity, stored in `ai_build_profiles` (one row/user), and rendered on `/@handle` clearly fenced with a "contributes 0 to the score" disclaimer. Only aggregate counts/ratios are ever uploaded — never prompt text, code, or paths. This is the ONE allowed exception to "no self-reported data": it is explicitly labeled and weight-zero, the same way self-claimed Signal 2 work history is.
+- **AI Build Profile is self-attested and NEVER touches the score**: the `truehire` CLI (`packages/cli`) computes a 6-dimension "how you build with AI" profile from the user's LOCAL Claude Code/Cursor/Codex logs (a Worker can't read those). Users connect via `truehire login` (browser-pairing device flow → `cli_auth_sessions`), which mints a long-lived revocable token (`cli_tokens`, HMAC-stored, saved to `~/.truehire/credentials.json`); `publish` authenticates with it so the upload binds to a GitHub-verified identity, stored in `ai_build_profiles` (one row/user), and rendered on `/@handle` clearly fenced with a "contributes 0 to the score" disclaimer. Only aggregate counts/ratios are ever uploaded — never prompt text, code, or paths (the per-project breakdown shown by `assess` is stripped before publish). This is the ONE allowed exception to "no self-reported data": it is explicitly labeled and weight-zero, the same way self-claimed Signal 2 work history is.
 - **Ingest is dashboard-driven**: the `signIn` event only resets `ingestStatus` (serverless can kill fire-and-forget work after the callback returns); `/dashboard` opens an SSE stream to `/api/refresh/stream` (`maxDuration` 120s) which runs ingest + scoring with live progress. `/@handle` shows a "Scoring…" state until the first score lands.
 - **`/@handle` route**: `startsWith("@")` guard prevents collision with other dynamic routes.
 - **CF deployment**: secrets via `wrangler secret put` (`AUTH_SECRET`, `AUTH_GITHUB_SECRET`, `DATABASE_AUTH_TOKEN`, `GITHUB_API_TOKEN`) — never in `vars`.

@@ -1,21 +1,9 @@
 import fs from 'node:fs';
-import readline from 'node:readline/promises';
 import { buildArtifact } from '../artifact';
 import { API_BASE, ARTIFACT_PATH, PUBLISH_ENDPOINT } from '../config';
+import { loadToken } from '../credentials';
 import type { Artifact } from '../types';
-import { bold, cyan, dim, green, red } from '../ui';
-
-async function promptToken(): Promise<string> {
-  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-  try {
-    const answer = await rl.question(
-      `Paste your TrueHire publish token (from ${cyan(`${API_BASE}/dashboard`)}): `
-    );
-    return answer.trim();
-  } finally {
-    rl.close();
-  }
-}
+import { cyan, dim, green, red } from '../ui';
 
 async function loadArtifact(): Promise<Artifact> {
   if (fs.existsSync(ARTIFACT_PATH)) {
@@ -30,11 +18,14 @@ async function loadArtifact(): Promise<Artifact> {
   return artifact;
 }
 
-/** `truehire publish [--token T]` — POST the artifact to the verified profile. */
+/**
+ * `truehire publish [--token T]` — POST the artifact to the verified profile,
+ * authenticating with the stored login token (or an explicit `--token`).
+ */
 export async function publish(token?: string): Promise<number> {
-  const tok = token ?? (await promptToken());
+  const tok = token ?? loadToken();
   if (!tok) {
-    process.stdout.write(`${red('No token provided.')}\n`);
+    process.stdout.write(`${red('Not logged in.')} Run ${cyan('truehire login')} first.\n`);
     return 1;
   }
 
@@ -68,14 +59,8 @@ export async function publish(token?: string): Promise<number> {
   const msg = body.message ?? body.error ?? `HTTP ${res.status}`;
   if (res.status === 401) {
     process.stdout.write(
-      `${red('Token rejected.')} ${msg}\n${dim('Generate a fresh one from the dashboard.')}\n`
+      `${red('Not authorized.')} ${msg}\n${dim('Run `truehire login` to reconnect.')}\n`
     );
-  } else if (res.status === 409) {
-    process.stdout.write(
-      `${red('Token already used.')} ${dim('Generate a new token and try again.')}\n`
-    );
-  } else if (res.status === 429) {
-    process.stdout.write(`${bold('Slow down —')} ${msg}\n`);
   } else {
     process.stdout.write(`${red('Publish failed:')} ${msg}\n`);
   }

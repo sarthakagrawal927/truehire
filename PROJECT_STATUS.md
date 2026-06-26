@@ -65,7 +65,8 @@ Ingest (fire-and-forget on signIn) ──► Turso (users, repos, contributions,
 | Signal 2 scaffold | Work history schema, HMAC verification tokens, `/verify/[token]` landing, manual-link beta UX |
 | Public exports | OG images, embed badge, data.json/repos.csv exports, compare/recent/stats/suggest routes, score history |
 | Current (2026-06-20) | MVP shipped; Signal 2 manual-link beta; email delivery deferred post-MVP validation |
-| AI Build Profile (2026-06-26) | `truehire` CLI + self-attested "how you build with AI" profile (6 dimensions) from local Claude Code / Cursor / Codex logs; published via single-use token, shown fenced on `/@handle`, contributes 0 to score |
+| AI Build Profile (2026-06-26) | `truehire` CLI + self-attested "how you build with AI" profile (6 dimensions) from local Claude Code / Cursor / Codex logs; shown fenced on `/@handle`, contributes 0 to score |
+| AI Build Profile v0.2 (2026-06-26) | `truehire login` browser-pairing (persistent revocable tokens, `cli_tokens`/`cli_auth_sessions`, migration 0006) + per-project breakdown in `assess` (paths stay local); dashboard "Connect your CLI" + revoke. CI now auto-migrates before deploy |
 
 ## Products
 
@@ -135,8 +136,10 @@ Ingest (fire-and-forget on signIn) ──► Turso (users, repos, contributions,
 - **`truehire` CLI** (`packages/cli`, npm `truehire`): scans local AI-coding logs entirely on the user's machine and computes a six-dimension "how you build with AI" profile. Commands: `assess` (scan + save `~/.truehire/ai-build-profile.json` + print summary), `publish --token` (POST to the verified account). Privacy: only aggregate counts/ratios leave the machine — never prompt text, code, or file paths.
 - **Adapters** (each independently optional, lowers `dataCompleteness` if absent): Claude Code `~/.claude/projects/**/*.jsonl` (deep), Cursor `ai-code-tracking.db` + plans via `better-sqlite3` (deep), Codex `~/.codex/sessions/**` rollouts (counts).
 - **Scorer** in `packages/core/src/ai-build/` — pure port of nextmillionai's model: Signal Clarity .18 / Build Stability .22 / Decision Weight .18 / Recovery Velocity .15 / Context Command .12 / Orchestration Range .15; optional signals averaged, reward-only signals never dilute; **100% test coverage**. Fixed weights (work-mode adaptation/archetypes/titles deferred).
-- **Identity binding (improves on nextmillionai's bare `verified` flag):** publish auth is a single-use, 15-min, HMAC-stored token issued from the authenticated dashboard (`cli_publish_tokens`), so the upload is bound to a GitHub-verified identity without the CLI holding OAuth secrets.
-- **Web:** `POST /api/ai-build/token` (issue) + `POST /api/ai-build/publish` (redeem + hand-rolled artifact validation, no new deps) → `ai_build_profiles` (one row/user). Profile renders fenced on `/@handle` with a prominent "self-attested · contributes 0 to the TrueHire score" disclaimer; dashboard has a copy-paste onboarding card.
+- **`truehire login` — browser pairing (device authorization, v0.2):** `login` → `/api/cli-auth/start` (device code) → opens `/cli-auth?code=…` → user approves while GitHub-signed-in (`/api/cli-auth/decide`) → CLI polls `/api/cli-auth/poll`, receives a long-lived **revocable** token (minted once, never stored raw), saved to `~/.truehire/credentials.json` (0600). `publish` uses it automatically; `logout` revokes it. Improves on nextmillionai's bare `verified` flag: uploads bind to a GitHub-verified identity, no OAuth secrets in the CLI.
+- **Per-project breakdown (v0.2):** `assess` shows a top-projects table (busiest AI-active projects across Claude Code + Codex by cwd) and the local artifact carries it — but `publish` **strips** it so project names/paths never leave the machine.
+- **DB:** `cli_tokens` (persistent, revocable) + `cli_auth_sessions` (pairing handshake), migration 0006. `cli_publish_tokens` (the original single-use table) is now **deprecated/unused** — kept to avoid a destructive migration; drop in a follow-up.
+- **Web:** `/api/cli-auth/{start,poll,decide,revoke,logout}` + `POST /api/ai-build/publish` (token-validated, hand-rolled artifact validation, no new deps) → `ai_build_profiles` (one row/user). Profile renders fenced on `/@handle` with a "self-attested · contributes 0 to the score" disclaimer; dashboard card is "Connect your CLI" with a connected-devices list + revoke.
 
 ### Documentation and quality
 - PRD v0.2 at `PRD.md` (high-level stable); topic depth in `docs/signal-1-public-work.md`, `docs/signal-2-employer-verification.md`, `docs/recruiter-proof-tools.md`, `docs/public-surfaces-exports.md`.
@@ -154,7 +157,8 @@ Ingest (fire-and-forget on signIn) ──► Turso (users, repos, contributions,
 5. **Signal 2 completion** — wire transactional email (Resend or Cloudflare Email) for verification links after MVP validation, not before.
 6. **Signal 2 ops** — pending-request expiry jobs, nudge UI, production email secrets via `wrangler secret put` only.
 7. **Publish the `truehire` CLI to npm** — packaging is release-ready (`publishConfig.access: public`, `files`, `prepublishOnly`); the actual `npm publish` is run by the owner (needs npm auth). Verify the `better-sqlite3` prebuild installs cleanly for `npm i -g truehire`.
-8. **Deeper AI-build signals** — stability/recovery signals (`aiLineSurvivalRate` beyond Cursor's AI%, `errorFixRate`, `testAfterAiRate`, `buildSuccessRate`, `postAiEditRate`, `avgPlanComplexity`) are currently unfilled, capping `dataCompleteness`. Mine more from Cursor `tracked_file_content` / git, and parse Codex rollout `response_item`s for richer counts.
+8. **Drop deprecated `cli_publish_tokens`** — superseded by `cli_tokens` + the `truehire login` flow; left in place to avoid a destructive migration on the freshly-created prod table. Remove in a cleanup migration once confirmed unused in prod.
+9. **Deeper AI-build signals** — stability/recovery signals (`aiLineSurvivalRate` beyond Cursor's AI%, `errorFixRate`, `testAfterAiRate`, `buildSuccessRate`, `postAiEditRate`, `avgPlanComplexity`) are currently unfilled, capping `dataCompleteness`. Mine more from Cursor `tracked_file_content` / git, and parse Codex rollout `response_item`s for richer counts.
 
 ### Deferred
 - Signal 2 payroll integrations (Plaid/Argyle/Rippling/Workday) for automated verification method.

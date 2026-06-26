@@ -2,11 +2,12 @@ import os from 'node:os';
 import path from 'node:path';
 
 /** Kept in sync with package.json `version` (asserted in a test). */
-export const CLI_VERSION = '0.1.0';
+export const CLI_VERSION = '0.2.0';
 
-/** Where the generated artifact is cached locally. */
+/** Where the generated artifact + stored login credential live locally. */
 export const TRUEHIRE_DIR = path.join(os.homedir(), '.truehire');
 export const ARTIFACT_PATH = path.join(TRUEHIRE_DIR, 'ai-build-profile.json');
+export const CREDENTIALS_PATH = path.join(TRUEHIRE_DIR, 'credentials.json');
 
 /** Default API base — overridable for local dev via TRUEHIRE_API_URL. */
 export const API_BASE =
@@ -14,6 +15,9 @@ export const API_BASE =
   'https://truehire.sarthakagrawal927.workers.dev';
 
 export const PUBLISH_ENDPOINT = `${API_BASE}/api/ai-build/publish`;
+export const CLI_AUTH_START = `${API_BASE}/api/cli-auth/start`;
+export const CLI_AUTH_POLL = `${API_BASE}/api/cli-auth/poll`;
+export const CLI_AUTH_LOGOUT = `${API_BASE}/api/cli-auth/logout`;
 
 /** Local tool data locations (expanded from $HOME). */
 export const HOME = os.homedir();

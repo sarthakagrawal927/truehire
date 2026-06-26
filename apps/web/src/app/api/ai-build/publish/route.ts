@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUserById } from '@/lib/score-service';
-import { redeemPublishToken, upsertAiBuildProfile } from '@/lib/ai-build-service';
+import { upsertAiBuildProfile, validateCliToken } from '@/lib/ai-build-service';
 import { parseArtifact } from '@/lib/ai-build-artifact';
 
 export const runtime = 'nodejs';
@@ -46,11 +46,10 @@ export async function POST(req: Request) {
     );
   }
 
-  // Redeem AFTER validation so a malformed upload doesn't burn the token.
-  const userId = await redeemPublishToken(token);
+  const userId = await validateCliToken(token);
   if (!userId) {
     return NextResponse.json(
-      { error: 'invalid_token', message: 'Token is invalid, expired, or already used.' },
+      { error: 'invalid_token', message: 'Not logged in. Run `truehire login` and try again.' },
       { status: 401 }
     );
   }

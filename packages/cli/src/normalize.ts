@@ -1,13 +1,7 @@
 import type { AiBuildSignals } from '@truehire/core';
 import { MS_PER_DAY } from './config';
 import { emptyAggregate } from './adapters/shared';
-import type {
-  AdapterResult,
-  Fidelity,
-  ProjectSummary,
-  RawAggregate,
-  Tool,
-} from './types';
+import type { AdapterResult, Fidelity, ProjectSummary, RawAggregate, Tool } from './types';
 
 /** Last path segment, tolerant of POSIX and Windows separators. */
 function basename(p: string): string {

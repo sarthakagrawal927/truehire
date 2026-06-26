@@ -71,8 +71,7 @@ export async function assess(): Promise<number> {
   );
   process.stdout.write(`\n  Saved to ${cyan(ARTIFACT_PATH)}\n`);
   process.stdout.write(
-    `\n${bold('Next:')} get a publish token from your TrueHire dashboard, then run\n` +
-      `  ${cyan('truehire publish --token <token>')}\n`
+    `\n${bold('Next:')} ${cyan('truehire login')} (once), then ${cyan('truehire publish')}.\n`
   );
   return 0;
 }
