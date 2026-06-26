@@ -1,7 +1,50 @@
 import type { AiBuildSignals } from '@truehire/core';
 import { MS_PER_DAY } from './config';
 import { emptyAggregate } from './adapters/shared';
-import type { AdapterResult, Fidelity, RawAggregate, Tool } from './types';
+import type {
+  AdapterResult,
+  Fidelity,
+  ProjectSummary,
+  RawAggregate,
+  Tool,
+} from './types';
+
+/** Last path segment, tolerant of POSIX and Windows separators. */
+function basename(p: string): string {
+  const parts = p.split(/[/\\]/).filter(Boolean);
+  return parts[parts.length - 1] ?? p;
+}
+
+/** Merge per-adapter project stats into one summary list, busiest first. */
+export function mergeProjects(detected: AdapterResult[]): ProjectSummary[] {
+  const map = new Map<string, ProjectSummary>();
+  for (const r of detected) {
+    for (const p of r.projects) {
+      let m = map.get(p.path);
+      if (!m) {
+        m = {
+          name: basename(p.path),
+          path: p.path,
+          tools: [],
+          sessions: 0,
+          codeBlocks: 0,
+          terminalCalls: 0,
+          lastActiveMs: null,
+        };
+        map.set(p.path, m);
+      }
+      if (!m.tools.includes(p.tool)) m.tools.push(p.tool);
+      m.sessions += p.sessions;
+      m.codeBlocks += p.codeBlocks;
+      m.terminalCalls += p.terminalCalls;
+      if (p.latestMs != null)
+        m.lastActiveMs = m.lastActiveMs == null ? p.latestMs : Math.max(m.lastActiveMs, p.latestMs);
+    }
+  }
+  return [...map.values()].sort(
+    (a, b) => b.sessions - a.sessions || (b.lastActiveMs ?? 0) - (a.lastActiveMs ?? 0)
+  );
+}
 
 type Merged = {
   merged: RawAggregate;
@@ -69,13 +112,14 @@ function pos(v: number): number | undefined {
 export function normalizeSignals(results: AdapterResult[]): {
   signals: AiBuildSignals;
   toolsDetected: { tool: Tool; fidelity: Fidelity }[];
+  projects: ProjectSummary[];
 } {
   const { merged: m, detected, cliTools } = mergeAdapters(results);
   const claudeDetected = detected.some((r) => r.tool === 'claude-code');
   const cursorDetected = detected.some((r) => r.tool === 'cursor');
 
   const s: AiBuildSignals = {};
-  if (detected.length === 0) return { signals: s, toolsDetected: [] };
+  if (detected.length === 0) return { signals: s, toolsDetected: [], projects: [] };
 
   s.totalSessions = pos(m.sessions);
   s.projectCount = pos(m.projects);
@@ -127,5 +171,6 @@ export function normalizeSignals(results: AdapterResult[]): {
   return {
     signals: s,
     toolsDetected: detected.map((r) => ({ tool: r.tool, fidelity: r.fidelity })),
+    projects: mergeProjects(detected),
   };
 }

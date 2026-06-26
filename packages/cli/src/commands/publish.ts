@@ -39,13 +39,16 @@ export async function publish(token?: string): Promise<number> {
   }
 
   const artifact = await loadArtifact();
+  // Strip the local-only per-project breakdown — project names/paths never
+  // leave the machine (preserves the "no file paths transmitted" guarantee).
+  const { projects: _localOnly, ...publishable } = artifact;
 
   let res: Response;
   try {
     res = await fetch(PUBLISH_ENDPOINT, {
       method: 'POST',
       headers: { 'content-type': 'application/json', authorization: `Bearer ${tok}` },
-      body: JSON.stringify(artifact),
+      body: JSON.stringify(publishable),
     });
   } catch (e) {
     process.stdout.write(`${red('Network error:')} ${(e as Error).message}\n`);

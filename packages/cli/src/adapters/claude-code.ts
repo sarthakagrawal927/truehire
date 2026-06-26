@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { ACTIVE_GAP_MS, CLAUDE_PROJECTS_DIR, DEEP_SESSION_MINUTES } from '../config';
-import type { AdapterResult, RawAggregate } from '../types';
+import type { AdapterResult, ProjectStat, RawAggregate } from '../types';
 import { emptyAggregate } from './shared';
 
 /** Aggregated stats for a single Claude Code session (one JSONL file). */
@@ -191,6 +191,37 @@ export function aggregateSessions(sessions: SessionStats[]): RawAggregate {
   return agg;
 }
 
+/** Group sessions by project (cwd) into per-project stats. */
+export function perProjectStats(sessions: SessionStats[]): ProjectStat[] {
+  const map = new Map<string, ProjectStat>();
+  for (const s of sessions) {
+    if (!s.project) continue;
+    let p = map.get(s.project);
+    if (!p) {
+      p = {
+        path: s.project,
+        tool: 'claude-code',
+        sessions: 0,
+        userMessages: 0,
+        codeBlocks: 0,
+        terminalCalls: 0,
+        earliestMs: null,
+        latestMs: null,
+      };
+      map.set(s.project, p);
+    }
+    p.sessions += 1;
+    p.userMessages += s.userMessages;
+    p.codeBlocks += s.codeBlocks;
+    p.terminalCalls += s.terminalCalls;
+    if (s.earliestMs != null)
+      p.earliestMs = p.earliestMs == null ? s.earliestMs : Math.min(p.earliestMs, s.earliestMs);
+    if (s.latestMs != null)
+      p.latestMs = p.latestMs == null ? s.latestMs : Math.max(p.latestMs, s.latestMs);
+  }
+  return [...map.values()];
+}
+
 /** Recursively list *.jsonl files under a directory. */
 function listJsonl(dir: string): string[] {
   const out: string[] = [];
@@ -212,7 +243,7 @@ function listJsonl(dir: string): string[] {
 export function scanClaudeCode(projectsDir = CLAUDE_PROJECTS_DIR): AdapterResult {
   const files = listJsonl(projectsDir);
   if (files.length === 0) {
-    return { tool: 'claude-code', detected: false, fidelity: 'presence', raw: null };
+    return { tool: 'claude-code', detected: false, fidelity: 'presence', raw: null, projects: [] };
   }
   const sessions: SessionStats[] = [];
   for (const file of files) {
@@ -228,5 +259,6 @@ export function scanClaudeCode(projectsDir = CLAUDE_PROJECTS_DIR): AdapterResult
     detected: true,
     fidelity: 'deep',
     raw: aggregateSessions(sessions),
+    projects: perProjectStats(sessions),
   };
 }

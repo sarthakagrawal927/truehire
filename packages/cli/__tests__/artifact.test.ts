@@ -30,5 +30,8 @@ describe('buildArtifact', () => {
     expect(artifact.dataCompleteness).toBeLessThanOrEqual(1);
     // signals must never leak free-text — every value is a number
     for (const v of Object.values(artifact.signals)) expect(typeof v).toBe('number');
+    // local-only per-project breakdown, capped at 25
+    expect(Array.isArray(artifact.projects)).toBe(true);
+    expect(artifact.projects.length).toBeLessThanOrEqual(25);
   });
 });

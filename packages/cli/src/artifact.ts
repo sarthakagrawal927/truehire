@@ -12,7 +12,7 @@ export async function buildArtifact(
   now: number = Date.now()
 ): Promise<{ artifact: Artifact; results: AdapterResult[] }> {
   const results = await runAdapters();
-  const { signals, toolsDetected } = normalizeSignals(results);
+  const { signals, toolsDetected, projects } = normalizeSignals(results);
   const result = computeAiBuildScore(signals);
 
   const artifact: Artifact = {
@@ -24,6 +24,8 @@ export async function buildArtifact(
     dataCompleteness: result.dataCompleteness,
     signals,
     toolsDetected,
+    // Local-only; `publish` strips this so no path/name is transmitted.
+    projects: projects.slice(0, 25),
   };
   return { artifact, results };
 }

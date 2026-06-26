@@ -31,7 +31,7 @@ export function emptyAggregate(): RawAggregate {
 }
 
 export function notDetected(tool: Tool) {
-  return { tool, detected: false as const, fidelity: 'presence' as const, raw: null };
+  return { tool, detected: false as const, fidelity: 'presence' as const, raw: null, projects: [] };
 }
 
 /** Cursor/Codex epochs are sometimes seconds, sometimes ms — normalize to ms. */

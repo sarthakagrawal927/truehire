@@ -2,7 +2,12 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
-import { aggregateSessions, parseSession, scanClaudeCode } from '../src/adapters/claude-code';
+import {
+  aggregateSessions,
+  parseSession,
+  perProjectStats,
+  scanClaudeCode,
+} from '../src/adapters/claude-code';
 
 const j = (o: unknown) => JSON.stringify(o);
 
@@ -99,6 +104,24 @@ describe('aggregateSessions', () => {
     expect(agg.sessionsWithSubagents).toBe(2);
     expect(agg.maxParallelAgents).toBe(2);
     expect(agg.mcpServers).toBe(1);
+  });
+});
+
+describe('perProjectStats', () => {
+  it('groups sessions by cwd with summed counts', () => {
+    const stats = perProjectStats([parseSession(SESSION), parseSession(SESSION)]);
+    expect(stats).toHaveLength(1);
+    expect(stats[0]).toMatchObject({
+      path: '/proj/a',
+      tool: 'claude-code',
+      sessions: 2,
+      terminalCalls: 2, // 1 Bash per session
+      codeBlocks: 2, // 1 Edit per session
+    });
+  });
+
+  it('skips sessions with no project', () => {
+    expect(perProjectStats([parseSession([])])).toHaveLength(0);
   });
 });
 

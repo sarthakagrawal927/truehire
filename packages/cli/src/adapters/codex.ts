@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { CODEX_SESSIONS_DIR } from '../config';
-import type { AdapterResult, RawAggregate } from '../types';
+import type { AdapterResult, ProjectStat, RawAggregate } from '../types';
 import { emptyAggregate, notDetected } from './shared';
 
 export type CodexSession = {
@@ -65,6 +65,34 @@ export function aggregateCodex(sessions: CodexSession[]): RawAggregate {
   return agg;
 }
 
+/** Group Codex rollouts by project (cwd) — sessions + span only (counts). */
+export function perProjectCodex(sessions: CodexSession[]): ProjectStat[] {
+  const map = new Map<string, ProjectStat>();
+  for (const s of sessions) {
+    if (!s.project) continue;
+    let p = map.get(s.project);
+    if (!p) {
+      p = {
+        path: s.project,
+        tool: 'codex',
+        sessions: 0,
+        userMessages: 0,
+        codeBlocks: 0,
+        terminalCalls: 0,
+        earliestMs: null,
+        latestMs: null,
+      };
+      map.set(s.project, p);
+    }
+    p.sessions += 1;
+    if (s.earliestMs != null)
+      p.earliestMs = p.earliestMs == null ? s.earliestMs : Math.min(p.earliestMs, s.earliestMs);
+    if (s.latestMs != null)
+      p.latestMs = p.latestMs == null ? s.latestMs : Math.max(p.latestMs, s.latestMs);
+  }
+  return [...map.values()];
+}
+
 function listRollouts(dir: string): string[] {
   const out: string[] = [];
   let entries: fs.Dirent[];
@@ -93,5 +121,11 @@ export function scanCodex(sessionsDir = CODEX_SESSIONS_DIR): AdapterResult {
       // skip unreadable rollout
     }
   }
-  return { tool: 'codex', detected: true, fidelity: 'counts', raw: aggregateCodex(sessions) };
+  return {
+    tool: 'codex',
+    detected: true,
+    fidelity: 'counts',
+    raw: aggregateCodex(sessions),
+    projects: perProjectCodex(sessions),
+  };
 }

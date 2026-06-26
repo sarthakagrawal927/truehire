@@ -96,7 +96,13 @@ export async function scanCursor(dbPath = CURSOR_DB): Promise<AdapterResult> {
   if (!fs.existsSync(CURSOR_DIR)) return notDetected('cursor');
   if (!fs.existsSync(dbPath)) {
     // Cursor installed but no tracking DB yet — presence only.
-    return { tool: 'cursor', detected: true, fidelity: 'presence', raw: emptyAggregate() };
+    return {
+      tool: 'cursor',
+      detected: true,
+      fidelity: 'presence',
+      raw: emptyAggregate(),
+      projects: [],
+    };
   }
 
   let Database: new (p: string, opts: { readonly: boolean; fileMustExist: boolean }) => DB;
@@ -108,6 +114,7 @@ export async function scanCursor(dbPath = CURSOR_DB): Promise<AdapterResult> {
       detected: true,
       fidelity: 'presence',
       raw: emptyAggregate(),
+      projects: [],
       note: 'install better-sqlite3 to read Cursor signals',
     };
   }
@@ -116,13 +123,14 @@ export async function scanCursor(dbPath = CURSOR_DB): Promise<AdapterResult> {
   try {
     db = new Database(dbPath, { readonly: true, fileMustExist: true });
     const raw = readCursorDb(db);
-    return { tool: 'cursor', detected: true, fidelity: 'deep', raw };
+    return { tool: 'cursor', detected: true, fidelity: 'deep', raw, projects: [] };
   } catch {
     return {
       tool: 'cursor',
       detected: true,
       fidelity: 'presence',
       raw: emptyAggregate(),
+      projects: [],
       note: 'Cursor tracking DB could not be read',
     };
   } finally {

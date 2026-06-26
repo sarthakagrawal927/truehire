@@ -48,12 +48,25 @@ export async function assess(): Promise<number> {
     `\n  ${dim('Data completeness')} ${Math.round(artifact.dataCompleteness * 100)}%\n`
   );
 
+  // ── top projects ──
+  if (artifact.projects.length > 0) {
+    const total = artifact.signals.projectCount ?? artifact.projects.length;
+    process.stdout.write(heading(`Top projects · AI used across ${total} projects`));
+    for (const p of artifact.projects.slice(0, 8)) {
+      process.stdout.write(
+        `\n  ${bold(p.name.slice(0, 24).padEnd(24))} ${String(p.sessions).padStart(4)} sessions  ${dim(p.tools.join(', '))}`
+      );
+    }
+    process.stdout.write('\n');
+  }
+
   // ── privacy + next step ──
   process.stdout.write(heading('Privacy'));
   process.stdout.write(
     dim(
-      '\n  Only counts and ratios are computed — no prompt text, code, or file\n' +
-        '  paths are read or stored. Publishing sends only the summary above.\n'
+      '\n  Computed locally. Project names and paths stay on your machine —\n' +
+        '  publishing sends only counts, ratios and scores (never prompt text,\n' +
+        '  code, or file paths).\n'
     )
   );
   process.stdout.write(`\n  Saved to ${cyan(ARTIFACT_PATH)}\n`);
