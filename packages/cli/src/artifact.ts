@@ -1,22 +1,10 @@
 import fs from 'node:fs';
-import { type AiBuildDimension, computeAiBuildScore } from '@truehire/core';
+import { compositeOf, computeAiBuildScore } from '@truehire/core';
 import { runAdapters } from './adapters';
 import { ARTIFACT_PATH, CLI_VERSION } from './config';
 import { type DeepGrade, deepGrade } from './deep-grade';
 import { normalizeSignals } from './normalize';
 import type { AdapterResult, Artifact } from './types';
-
-/** Weight-renormalized composite over the dimensions that have a score. */
-function recomposite(dims: AiBuildDimension[]): number | null {
-  let weighted = 0;
-  let total = 0;
-  for (const d of dims) {
-    if (d.score == null) continue;
-    weighted += d.score * d.weight;
-    total += d.weight;
-  }
-  return total > 0 ? Math.round(weighted / total) : null;
-}
 
 /**
  * Scan all local AI tools, normalize signals, score, and assemble the
@@ -39,11 +27,12 @@ export async function buildArtifact(
   if (deepOpts) {
     deep = await deepGrade(deepOpts);
     if (deep) {
-      const override = new Map(deep.grades.map((g) => [g.id as string, g.score] as const));
-      dimensions = dimensions.map((d) =>
-        override.has(d.id) ? { ...d, score: override.get(d.id) ?? d.score } : d
-      );
-      composite = recomposite(dimensions);
+      const override = new Map<string, number>(deep.grades.map((g) => [g.id, g.score]));
+      dimensions = dimensions.map((d) => {
+        const score = override.get(d.id);
+        return score == null ? d : { ...d, score };
+      });
+      composite = compositeOf(dimensions);
     }
   }
 

@@ -15,17 +15,12 @@ const RULE = rgb(0.87, 0.87, 0.91);
 const PANEL = rgb(0.96, 0.96, 0.985);
 
 // Score tiers (label + color), à la CodeVetter's badge.
-const EMERALD = rgb(0.13, 0.66, 0.45);
-const AMBER = rgb(0.85, 0.6, 0.05);
-const ORANGE = rgb(0.92, 0.45, 0.2);
-const SLATE = rgb(0.5, 0.5, 0.58);
-
 function tier(score: number | null): { label: string; color: Color } {
-  if (score == null) return { label: 'No data', color: SLATE };
-  if (score >= 80) return { label: 'Exceptional', color: EMERALD };
+  if (score == null) return { label: 'No data', color: rgb(0.5, 0.5, 0.58) };
+  if (score >= 80) return { label: 'Exceptional', color: rgb(0.13, 0.66, 0.45) };
   if (score >= 60) return { label: 'Strong', color: ACCENT };
-  if (score >= 40) return { label: 'Developing', color: AMBER };
-  return { label: 'Early', color: ORANGE };
+  if (score >= 40) return { label: 'Developing', color: rgb(0.85, 0.6, 0.05) };
+  return { label: 'Early', color: rgb(0.92, 0.45, 0.2) };
 }
 
 const TOOL_LABEL: Record<string, string> = {
@@ -116,8 +111,7 @@ export async function generateReport(artifact: Artifact): Promise<Uint8Array> {
 
   // ───────────────────── PAGE 1 ─────────────────────
   const d = makeDraw(doc.addPage([W, H]));
-  d.text('TrueHire', M, H - M, 13, bold, ACCENT);
-  d.right(fmtDate(artifact.generatedAt), W - M, H - M, 10, font, MUTED);
+  drawHeader(d, font, bold, fmtDate(artifact.generatedAt));
   let y = H - M - 30;
   d.text('AI Build Profile', M, y, 26, bold, INK);
   y -= 18;
@@ -211,8 +205,7 @@ export async function generateReport(artifact: Artifact): Promise<Uint8Array> {
 
   // ───────────────────── PAGE 2 ─────────────────────
   const d2 = makeDraw(doc.addPage([W, H]));
-  d2.text('TrueHire', M, H - M, 13, bold, ACCENT);
-  d2.right('AI Build Profile', W - M, H - M, 10, font, MUTED);
+  drawHeader(d2, font, bold, 'AI Build Profile');
   let y2 = H - M - 28;
 
   if (artifact.projects.length > 0) {
@@ -250,6 +243,11 @@ export async function generateReport(artifact: Artifact): Promise<Uint8Array> {
   drawFooter(d2, font, artifact.cliVersion, 2);
 
   return doc.save();
+}
+
+function drawHeader(d: Draw, font: PDFFont, bold: PDFFont, rightText: string): void {
+  d.text('TrueHire', M, H - M, 13, bold, ACCENT);
+  d.right(rightText, W - M, H - M, 10, font, MUTED);
 }
 
 function drawFooter(d: Draw, font: PDFFont, cliVersion: string, pageNo: number): void {

@@ -1,8 +1,7 @@
 import fs from 'node:fs';
-import path from 'node:path';
 import { ACTIVE_GAP_MS, CLAUDE_PROJECTS_DIR, DEEP_SESSION_MINUTES } from '../config';
 import type { AdapterResult, ProjectStat, RawAggregate } from '../types';
-import { emptyAggregate } from './shared';
+import { emptyAggregate, listJsonl, messageText } from './shared';
 
 /** Aggregated stats for a single Claude Code session (one JSONL file). */
 export type SessionStats = {
@@ -54,22 +53,6 @@ function emptySession(): SessionStats {
   };
 }
 
-/** Pull the plain-text portion of a message.content (string or block array). */
-function textOf(content: unknown): { text: string; hasText: boolean } {
-  if (typeof content === 'string') return { text: content, hasText: content.length > 0 };
-  if (Array.isArray(content)) {
-    const parts: string[] = [];
-    for (const b of content) {
-      if (b && typeof b === 'object' && (b as { type?: string }).type === 'text') {
-        const t = (b as { text?: string }).text;
-        if (typeof t === 'string') parts.push(t);
-      }
-    }
-    return { text: parts.join(' '), hasText: parts.length > 0 };
-  }
-  return { text: '', hasText: false };
-}
-
 /**
  * Parse the JSONL lines of ONE Claude Code session into aggregate stats.
  * Pure — no IO. Unknown / malformed lines are skipped.
@@ -96,7 +79,7 @@ export function parseSession(lines: string[]): SessionStats {
     const msg = o.message as { role?: string; content?: unknown; model?: string } | undefined;
 
     if (o.type === 'user' && msg) {
-      const { text, hasText } = textOf(msg.content);
+      const { text, hasText } = messageText(msg.content);
       // Tool results also arrive as type:user (array content, no text block) —
       // those are not human turns, so only count messages with real text.
       if (hasText) {
@@ -220,23 +203,6 @@ export function perProjectStats(sessions: SessionStats[]): ProjectStat[] {
       p.latestMs = p.latestMs == null ? s.latestMs : Math.max(p.latestMs, s.latestMs);
   }
   return [...map.values()];
-}
-
-/** Recursively list *.jsonl files under a directory. */
-function listJsonl(dir: string): string[] {
-  const out: string[] = [];
-  let entries: fs.Dirent[];
-  try {
-    entries = fs.readdirSync(dir, { withFileTypes: true });
-  } catch {
-    return out;
-  }
-  for (const e of entries) {
-    const full = path.join(dir, e.name);
-    if (e.isDirectory()) out.push(...listJsonl(full));
-    else if (e.isFile() && e.name.endsWith('.jsonl')) out.push(full);
-  }
-  return out;
 }
 
 /** Scan ~/.claude/projects and produce a Claude Code adapter result. */

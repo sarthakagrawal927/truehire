@@ -251,6 +251,22 @@ function dataCompleteness(s: AiBuildSignals): number {
 // ─────────────────── compose ───────────────────
 
 /**
+ * Weight-renormalized composite over the dimensions that have a score.
+ * Exported so callers that override individual dimension scores (e.g. the CLI's
+ * `--deep` LLM grading) recompute the composite with the SAME math.
+ */
+export function compositeOf(dimensions: AiBuildDimension[]): number | null {
+  let weighted = 0;
+  let total = 0;
+  for (const dim of dimensions) {
+    if (dim.score === null) continue;
+    weighted += dim.score * dim.weight;
+    total += dim.weight;
+  }
+  return total > 0 ? Math.round(weighted / total) : null;
+}
+
+/**
  * Score an AI-build profile from normalized signals. Returns each dimension
  * (score `null` when no sub-signal was present) plus a weight-renormalized
  * composite over the dimensions that could be scored.
@@ -265,19 +281,9 @@ export function computeAiBuildScore(signals: AiBuildSignals): AiBuildResult {
     orchestrationRange(signals),
   ];
 
-  let weightedSum = 0;
-  let totalWeight = 0;
-  for (const dim of dimensions) {
-    if (dim.score === null) continue;
-    weightedSum += dim.score * dim.weight;
-    totalWeight += dim.weight;
-  }
-
-  const composite = totalWeight > 0 ? Math.round(weightedSum / totalWeight) : null;
-
   return {
     schemaVersion: AI_BUILD_SCHEMA_VERSION,
-    composite,
+    composite: compositeOf(dimensions),
     dimensions,
     dataCompleteness: dataCompleteness(signals),
   };

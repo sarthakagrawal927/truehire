@@ -2,11 +2,14 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import type { AiBuildDimensionId } from '@truehire/core';
+import { listJsonl, messageText } from './adapters/shared';
 import { CLAUDE_PROJECTS_DIR } from './config';
 
 // Dimensions an LLM can grade better than the deterministic proxies (they need
-// to actually read prompt content). The others stay proxy-scored.
-export type DeepDimId = 'signalClarity' | 'decisionWeight';
+// to actually read prompt content). The others stay proxy-scored. Derived from
+// core's dimension ids so a rename there is a build error here.
+export type DeepDimId = Extract<AiBuildDimensionId, 'signalClarity' | 'decisionWeight'>;
 
 export type DeepGrade = {
   engine: 'lmstudio' | 'ollama' | 'codex';
@@ -22,32 +25,6 @@ const MAXLEN = 420;
 const INSTRUCTION =
   /\b(add|fix|make|implement|refactor|write|create|build|update|change|remove|delete|check|review|run|test|debug|why|how|should|can you|let'?s|need to|investigate|explain|analy[sz]e|optimi[sz]e|migrate|set ?up|wire|ensure|verify|compare|design|plan)\b/i;
 const PAYLOAD = /^(story:|tick|world ingest|\{|\[|```|the user just spoke)/i;
-
-function listJsonl(dir: string): string[] {
-  const out: string[] = [];
-  let entries: fs.Dirent[];
-  try {
-    entries = fs.readdirSync(dir, { withFileTypes: true });
-  } catch {
-    return out;
-  }
-  for (const e of entries) {
-    const full = path.join(dir, e.name);
-    if (e.isDirectory()) out.push(...listJsonl(full));
-    else if (e.name.endsWith('.jsonl')) out.push(full);
-  }
-  return out;
-}
-
-function textOf(content: unknown): string {
-  if (typeof content === 'string') return content;
-  if (Array.isArray(content))
-    return content
-      .filter((b) => (b as { type?: string })?.type === 'text')
-      .map((b) => (b as { text?: string }).text ?? '')
-      .join(' ');
-  return '';
-}
 
 /** Sample real user prompts, spread across projects, deduped, instructions only. */
 export function sampleClaudePrompts(projectsDir = CLAUDE_PROJECTS_DIR): {
@@ -72,8 +49,8 @@ export function sampleClaudePrompts(projectsDir = CLAUDE_PROJECTS_DIR): {
         continue;
       }
       if (o.type !== 'user' || !o.message) continue;
-      const t = textOf((o.message as { content?: unknown }).content)
-        .replace(/\s+/g, ' ')
+      const t = messageText((o.message as { content?: unknown }).content)
+        .text.replace(/\s+/g, ' ')
         .trim();
       if (t.length < 60 || t.length > 2000) continue;
       if (PAYLOAD.test(t) || t.startsWith('/') || t.startsWith('<')) continue;
@@ -126,10 +103,10 @@ const SCHEMA = {
 } as const;
 
 type Raw = {
-  signalClarity?: unknown;
-  signalClarityWhy?: unknown;
-  decisionWeight?: unknown;
-  decisionWeightWhy?: unknown;
+  signalClarity?: number;
+  signalClarityWhy?: string;
+  decisionWeight?: number;
+  decisionWeightWhy?: string;
 };
 
 /** Pull a JSON object out of model text (tolerant of think-tags / prose). */
@@ -228,22 +205,18 @@ function pickModel(list: unknown, preferred?: string): string | null {
 
 type Engine = { engine: DeepGrade['engine']; model: string; local: boolean; baseUrl?: string };
 
-async function detect(engineOpt?: string, modelOpt?: string): Promise<Engine | null> {
-  // explicit cloud opt-in
-  if (engineOpt === 'codex') return { engine: 'codex', model: modelOpt ?? 'gpt-5.5', local: false };
+// Local-first, in preference order. Codex (cloud) is explicit opt-in below.
+const LOCAL_ENGINES = [
+  { engine: 'lmstudio', baseUrl: 'http://localhost:1234/v1' },
+  { engine: 'ollama', baseUrl: 'http://localhost:11434/v1' },
+] as const;
 
-  // local-first: LM Studio, then Ollama
-  if (!engineOpt || engineOpt === 'lmstudio') {
-    const lm = await fetchJson('http://localhost:1234/v1/models', {}, 1500);
-    const model = pickModel(lm, modelOpt);
-    if (model)
-      return { engine: 'lmstudio', model, local: true, baseUrl: 'http://localhost:1234/v1' };
-  }
-  if (!engineOpt || engineOpt === 'ollama') {
-    const ol = await fetchJson('http://localhost:11434/v1/models', {}, 1500);
-    const model = pickModel(ol, modelOpt);
-    if (model)
-      return { engine: 'ollama', model, local: true, baseUrl: 'http://localhost:11434/v1' };
+async function detect(engineOpt?: string, modelOpt?: string): Promise<Engine | null> {
+  if (engineOpt === 'codex') return { engine: 'codex', model: modelOpt ?? 'gpt-5.5', local: false };
+  for (const c of LOCAL_ENGINES) {
+    if (engineOpt && engineOpt !== c.engine) continue;
+    const model = pickModel(await fetchJson(`${c.baseUrl}/models`, {}, 1500), modelOpt);
+    if (model) return { engine: c.engine, model, local: true, baseUrl: c.baseUrl };
   }
   return null;
 }
@@ -260,10 +233,12 @@ function clampInt(v: unknown): number | null {
 export async function deepGrade(
   opts: { engine?: string; model?: string } = {}
 ): Promise<DeepGrade | null> {
-  const { sample } = sampleClaudePrompts();
-  if (sample.length < 4) return null;
+  // Probe for an engine first (cheap) — avoids reading the whole corpus when
+  // no LLM is reachable, which is the common case without `--deep` setup.
   const eng = await detect(opts.engine, opts.model);
   if (!eng) return null;
+  const { sample } = sampleClaudePrompts();
+  if (sample.length < 4) return null;
 
   const prompt = rubric(sample);
   const out =
