@@ -1,5 +1,6 @@
 name: Deploy to Cloudflare Workers
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
@@ -21,7 +22,7 @@ jobs:
   # ran migrations before, which let prod drift behind the committed schema.
   # Soft-skips when the DB secrets are not configured, so it can't block deploys.
   migrate-production:
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -43,7 +44,7 @@ jobs:
           pnpm db:migrate
 
   deploy-production:
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     needs: migrate-production
     runs-on: ubuntu-latest
     steps:
