@@ -78,7 +78,8 @@ jobs:
             })
 
   cleanup-preview:
-    if: github.event_name == 'pull_request_target' && github.event.pull_request.merged == true
+    # Tear down the per-PR preview worker on ANY close (merged or not) so none orphan.
+    if: github.event_name == 'pull_request_target'
     runs-on: ubuntu-latest
     steps:
       - uses: cloudflare/wrangler-action@v3
