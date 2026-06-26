@@ -16,18 +16,29 @@ Context Command, Orchestration Range — using transparent, deterministic formul
 
 ## Install
 
+**npm** (needs Node):
+
 ```bash
-npm i -g truehire     # or: npx truehire assess
+npm i -g truehire     # or run ad-hoc: npx truehire login
 ```
+
+**Standalone binary** (no Node required) — download for your platform from the
+[latest release](https://github.com/sarthakagrawal927/truehire/releases) (`truehire-darwin-arm64`,
+`truehire-linux-x64`, `truehire-windows-x64.exe`, …), `chmod +x`, and run. Built with
+`bun --compile`; the Cursor adapter uses Bun's built-in SQLite, so there's no native dependency.
 
 ## Usage
 
 ```bash
 truehire login      # connect this machine (opens your browser to approve)
 truehire assess     # scan locally, print your profile, save it
+truehire report     # generate a PDF report (and optionally publish it)
 truehire publish    # publish to your verified TrueHire account
 truehire logout     # disconnect this machine and revoke its token
 ```
+
+`report` writes a one-page PDF to `~/.truehire/ai-build-report.pdf` and offers to send it
+to your profile (`--publish` / `--no-publish` to skip the prompt).
 
 `login` uses a browser-pairing flow (like `gh auth login`): it shows a short code,
 opens TrueHire in your browser, you approve while signed in via GitHub, and a

@@ -10,7 +10,8 @@ export default defineConfig({
   // is self-contained (it must NOT depend on the private @truehire/core pkg).
   noExternal: [/@truehire\/core/],
   // Native module — keep external; the cursor adapter lazy-imports it and
-  // degrades gracefully if it can't load.
-  external: ['better-sqlite3'],
+  // degrades gracefully if it can't load. `bun:sqlite` is a Bun built-in only
+  // used in the compiled-binary build, so esbuild must not try to resolve it.
+  external: ['better-sqlite3', 'bun:sqlite'],
   banner: { js: '#!/usr/bin/env node' },
 });

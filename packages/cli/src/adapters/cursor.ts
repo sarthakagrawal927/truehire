@@ -105,10 +105,8 @@ export async function scanCursor(dbPath = CURSOR_DB): Promise<AdapterResult> {
     };
   }
 
-  let Database: new (p: string, opts: { readonly: boolean; fileMustExist: boolean }) => DB;
-  try {
-    Database = (await import('better-sqlite3')).default as unknown as typeof Database;
-  } catch {
+  const db = await openSqlite(dbPath);
+  if (!db) {
     return {
       tool: 'cursor',
       detected: true,
@@ -118,10 +116,7 @@ export async function scanCursor(dbPath = CURSOR_DB): Promise<AdapterResult> {
       note: 'install better-sqlite3 to read Cursor signals',
     };
   }
-
-  let db: DB | null = null;
   try {
-    db = new Database(dbPath, { readonly: true, fileMustExist: true });
     const raw = readCursorDb(db);
     return { tool: 'cursor', detected: true, fidelity: 'deep', raw, projects: [] };
   } catch {
@@ -134,6 +129,34 @@ export async function scanCursor(dbPath = CURSOR_DB): Promise<AdapterResult> {
       note: 'Cursor tracking DB could not be read',
     };
   } finally {
-    db?.close();
+    db.close();
+  }
+}
+
+/**
+ * Open the Cursor DB read-only with whichever SQLite driver is available:
+ * Bun's built-in `bun:sqlite` (so the compiled binary needs no native module),
+ * otherwise `better-sqlite3` under Node. Returns null if neither can open it.
+ */
+async function openSqlite(dbPath: string): Promise<DB | null> {
+  const hasBun = typeof (globalThis as { Bun?: unknown }).Bun !== 'undefined';
+  if (hasBun) {
+    try {
+      const { Database } = (await import('bun:sqlite')) as {
+        Database: new (p: string, o: { readonly: boolean }) => DB;
+      };
+      return new Database(dbPath, { readonly: true });
+    } catch {
+      // fall through to better-sqlite3
+    }
+  }
+  try {
+    const Database = (await import('better-sqlite3')).default as unknown as new (
+      p: string,
+      o: { readonly: boolean; fileMustExist: boolean }
+    ) => DB;
+    return new Database(dbPath, { readonly: true, fileMustExist: true });
+  } catch {
+    return null;
   }
 }

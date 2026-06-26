@@ -1,6 +1,7 @@
+import fs from 'node:fs';
 import { computeAiBuildScore } from '@truehire/core';
 import { runAdapters } from './adapters';
-import { CLI_VERSION } from './config';
+import { ARTIFACT_PATH, CLI_VERSION } from './config';
 import { normalizeSignals } from './normalize';
 import type { AdapterResult, Artifact } from './types';
 
@@ -28,4 +29,17 @@ export async function buildArtifact(
     projects: projects.slice(0, 25),
   };
   return { artifact, results };
+}
+
+/** Return the cached artifact if present, otherwise scan and build a fresh one. */
+export async function loadOrBuildArtifact(): Promise<Artifact> {
+  if (fs.existsSync(ARTIFACT_PATH)) {
+    try {
+      return JSON.parse(fs.readFileSync(ARTIFACT_PATH, 'utf8')) as Artifact;
+    } catch {
+      // corrupt cache — fall through to a fresh scan
+    }
+  }
+  const { artifact } = await buildArtifact();
+  return artifact;
 }

@@ -7,6 +7,7 @@ export const CLI_VERSION = '0.2.0';
 /** Where the generated artifact + stored login credential live locally. */
 export const TRUEHIRE_DIR = path.join(os.homedir(), '.truehire');
 export const ARTIFACT_PATH = path.join(TRUEHIRE_DIR, 'ai-build-profile.json');
+export const REPORT_PATH = path.join(TRUEHIRE_DIR, 'ai-build-report.pdf');
 export const CREDENTIALS_PATH = path.join(TRUEHIRE_DIR, 'credentials.json');
 
 /** Default API base — overridable for local dev via TRUEHIRE_API_URL. */

@@ -1,22 +1,7 @@
-import fs from 'node:fs';
-import { buildArtifact } from '../artifact';
-import { API_BASE, ARTIFACT_PATH, PUBLISH_ENDPOINT } from '../config';
+import { loadOrBuildArtifact } from '../artifact';
+import { API_BASE, PUBLISH_ENDPOINT } from '../config';
 import { loadToken } from '../credentials';
-import type { Artifact } from '../types';
 import { cyan, dim, green, red } from '../ui';
-
-async function loadArtifact(): Promise<Artifact> {
-  if (fs.existsSync(ARTIFACT_PATH)) {
-    try {
-      return JSON.parse(fs.readFileSync(ARTIFACT_PATH, 'utf8')) as Artifact;
-    } catch {
-      // fall through to a fresh scan on a corrupt cache
-    }
-  }
-  process.stdout.write(dim('No saved profile found — scanning now…\n'));
-  const { artifact } = await buildArtifact();
-  return artifact;
-}
 
 /**
  * `truehire publish [--token T]` — POST the artifact to the verified profile,
@@ -29,7 +14,7 @@ export async function publish(token?: string): Promise<number> {
     return 1;
   }
 
-  const artifact = await loadArtifact();
+  const artifact = await loadOrBuildArtifact();
   // Strip the local-only per-project breakdown — project names/paths never
   // leave the machine (preserves the "no file paths transmitted" guarantee).
   const { projects: _localOnly, ...publishable } = artifact;

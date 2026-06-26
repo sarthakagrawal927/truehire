@@ -45,3 +45,6 @@ cache.bin
 # CF Pages build output
 .cf-pages-bundle/
 .cf-pages-out/
+
+# bun --compile intermediate files
+*.bun-build

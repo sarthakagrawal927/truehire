@@ -1,0 +1,55 @@
+name: Release CLI
+
+# Tag a release as `cli-v<version>` (e.g. cli-v0.2.0) to build standalone
+# binaries + a GitHub Release, and publish to npm if NPM_TOKEN is configured.
+on:
+  push:
+    tags: ['cli-v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  binaries:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with: { node-version: '20', cache: pnpm }
+      - uses: oven-sh/setup-bun@v2
+      # --ignore-scripts is fine: the binaries use Bun's built-in bun:sqlite,
+      # not the native better-sqlite3 (which is marked external at compile time).
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Build standalone binaries
+        working-directory: packages/cli
+        run: node scripts/build-binaries.mjs
+      - name: Publish GitHub Release with binaries
+        uses: softprops/action-gh-release@v2
+        with:
+          files: packages/cli/dist/truehire-*
+          generate_release_notes: true
+
+  npm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: pnpm
+          registry-url: 'https://registry.npmjs.org'
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm --filter truehire build
+      - name: Publish to npm (skips if NPM_TOKEN unset)
+        working-directory: packages/cli
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "::warning::NPM_TOKEN not set — skipping npm publish. Add a granular npm token (publish + bypass-2FA) as the NPM_TOKEN secret to automate releases."
+            exit 0
+          fi
+          npm publish --access public
