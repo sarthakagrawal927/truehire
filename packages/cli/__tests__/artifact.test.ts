@@ -20,6 +20,8 @@ describe('packaging invariants', () => {
 });
 
 describe('buildArtifact', () => {
+  // Integration smoke: scans the real machine, so allow time on a large corpus
+  // (CI machines have no logs and finish instantly).
   it('produces a well-formed artifact with a fixed generatedAt', async () => {
     const { artifact } = await buildArtifact(1_700_000_000_000);
     expect(artifact.generatedAt).toBe(1_700_000_000_000);
@@ -33,5 +35,5 @@ describe('buildArtifact', () => {
     // local-only per-project breakdown, capped at 25
     expect(Array.isArray(artifact.projects)).toBe(true);
     expect(artifact.projects.length).toBeLessThanOrEqual(25);
-  });
+  }, 30_000);
 });
