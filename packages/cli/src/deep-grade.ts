@@ -152,7 +152,8 @@ async function openaiGrade(baseUrl: string, model: string, prompt: string): Prom
           type: 'json_schema',
           json_schema: { name: 'grade', strict: true, schema: SCHEMA },
         },
-        temperature: 0.2,
+        // Deterministic: these scores get published, so avoid run-to-run drift.
+        temperature: 0,
         max_tokens: 1200,
       }),
     },
