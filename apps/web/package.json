@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "biome check .",
     "typecheck": "tsc --noEmit",
@@ -12,7 +12,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
-    "cf:build": "next build && node scripts/run-inline-critical-css.mjs && opennextjs-cloudflare build --skipNextBuild && opennextjs-cloudflare populateCache local && pnpm --filter ./landing-astro build && node scripts/run-overlay-astro-landing.mjs",
+    "cf:build": "next build --webpack && node scripts/run-inline-critical-css.mjs && opennextjs-cloudflare build --skipNextBuild && opennextjs-cloudflare populateCache local && pnpm --filter ./landing-astro build && node scripts/run-overlay-astro-landing.mjs",
     "validate:env:deploy": "node scripts/validate-env.mjs deploy",
     "cf:preview": "opennextjs-cloudflare preview",
     "cf:deploy": "pnpm validate:env:deploy && opennextjs-cloudflare deploy",
