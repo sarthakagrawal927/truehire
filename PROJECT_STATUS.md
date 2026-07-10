@@ -1,5 +1,7 @@
 # truehire — PROJECT_STATUS
 
+**Portfolio state (2026-07-10): Archived as a standalone product.** The concept and proof artifacts live inside RolePatch at `/proof`; preserve this repository as historical source and do not add new product work here.
+
 Last updated: 2026-07-10
 
 Last updated: 2026-07-02
