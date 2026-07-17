@@ -76,6 +76,8 @@ Ingest (fire-and-forget on signIn) ──► Turso (users, repos, contributions,
 
 ## Products
 
+**Live app:** <https://truehire.rolepatch.com>
+
 **Primary routes:** `/` · `/@handle` (public profile) · `/dashboard` · `/methodology` · `/verify/[token]` · `/recruiter/roles/*` · `/recruiter/pipelines/*` · `/recruiter/shortlist` · resume-audit demo · compare/recent/stats/suggest exports
 
 | Surface | Role |
