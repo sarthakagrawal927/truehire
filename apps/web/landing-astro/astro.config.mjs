@@ -17,7 +17,7 @@ import tailwindcss from '@tailwindcss/vite';
 // Lightning CSS replaces the default PostCSS pipeline as both
 // transformer and minifier (fleet web-stack standard).
 export default defineConfig({
-  site: 'https://truehire.sarthakagrawal927.workers.dev',
+  site: 'https://truehire.rolepatch.com',
   output: 'static',
   trailingSlash: 'never',
   // Emit `about.html` rather than `about/index.html` — no 308 redirect
