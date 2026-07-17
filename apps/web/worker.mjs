@@ -24,8 +24,24 @@ export {
   BucketCachePurge,
 } from './.open-next/worker.js';
 
-const CACHE_PATH = '/';
 const CACHE_CONTROL = 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800';
+const CACHEABLE_EXACT = new Set([
+  '/',
+  '/about',
+  '/stats',
+  '/methodology',
+  '/recent',
+  '/compare',
+  '/suggest',
+  '/demo',
+  '/privacy',
+  '/terms',
+  '/recruiter/shortlist/demo',
+  '/recruiter/resume-audit/demo',
+]);
+function isCacheableDocumentPath(pathname) {
+  return CACHEABLE_EXACT.has(pathname);
+}
 
 // Skip cache when ANY of these cookies are present — covers the better-auth
 // session in both prod (__Secure-) and dev variants so signed-in users
@@ -51,7 +67,7 @@ export default {
         return openNext.fetch(request, env, ctx);
       }
       const url = new URL(request.url);
-      if (url.pathname !== CACHE_PATH) {
+      if (!isCacheableDocumentPath(url.pathname)) {
         return openNext.fetch(request, env, ctx);
       }
       // Auth-bearing requests pass straight through; the user is likely
@@ -70,7 +86,8 @@ export default {
       // responses (Lighthouse flagged ~80 KB wasted on uncompressed HTML
       // even with CF Edge cache HIT). Compress with gzip here so the
       // response — and the downstream CF Edge cache entry — is small.
-      if (env.ASSETS) {
+      // Only Astro overlay at `/` is static; marketing pages use edge HTML cache.
+      if (env.ASSETS && url.pathname === '/') {
         const assetResp = await env.ASSETS.fetch(request);
         // The assets binding answers If-None-Match revalidations with 304.
         // Pass those through — falling through would serve the wrong page.
