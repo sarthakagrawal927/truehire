@@ -40,11 +40,13 @@ export const metadata: Metadata = {
     siteName: 'TrueHire',
     title: 'TrueHire — the verified-candidate layer',
     description: SITE_DESCRIPTION,
+    images: ['/opengraph-image'],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'TrueHire — the verified-candidate layer',
     description: SITE_DESCRIPTION,
+    images: ['/opengraph-image'],
   },
 };
 

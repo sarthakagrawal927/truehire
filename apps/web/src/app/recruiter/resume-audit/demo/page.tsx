@@ -33,6 +33,7 @@ Also claims Rust systems programming and Kubernetes observability experience.`;
 export const metadata = {
   title: 'Resume claim audit (demo) · TrueHire',
   description: 'Audit candidate-supplied resume claims against verified public GitHub evidence.',
+  alternates: { canonical: '/recruiter/resume-audit/demo' },
 };
 
 export default async function ResumeAuditDemoPage(props: { searchParams: Promise<SearchParams> }) {

@@ -58,9 +58,11 @@ export async function generateMetadata(props: { params: Promise<Params> }): Prom
   return {
     title,
     description,
+    alternates: { canonical: `/@${encodeURIComponent(clean)}` },
     openGraph: {
       title,
       description,
+      url: `/@${encodeURIComponent(clean)}`,
       images: [`/api/og/${encodeURIComponent(clean)}`],
     },
     twitter: {

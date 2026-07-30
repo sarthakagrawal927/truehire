@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   title: 'Compare profiles — TrueHire',
   description:
     'Side-by-side TrueHire score comparison. Verified GitHub activity, no self-declared inputs.',
+  alternates: { canonical: '/compare' },
 };
 
 interface Stripped {

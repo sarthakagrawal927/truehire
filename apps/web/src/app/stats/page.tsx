@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: 'Stats — TrueHire',
   description:
     'Aggregate stats across TrueHire profiles. Score distribution, top languages, transparent benchmarks.',
+  alternates: { canonical: '/stats' },
 };
 
 // Recompute on each request — cheap query, and stats should reflect new

@@ -15,6 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   return {
     title: `${clean} · score history · TrueHire`,
     description: `Per-recompute TrueHire score history for @${clean}.`,
+    alternates: { canonical: `/@${encodeURIComponent(clean)}/history` },
   };
 }
 

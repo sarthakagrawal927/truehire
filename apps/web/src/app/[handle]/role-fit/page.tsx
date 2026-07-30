@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, BriefcaseBusiness, CheckCircle2, CircleAlert } from 'lucide-react';
 import {
@@ -14,6 +15,16 @@ import type { EvidenceEntry, ScoreBreakdown } from '@truehire/core';
 
 type Params = { handle: string };
 type SearchParams = { jd?: string | string[] };
+
+export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
+  const { handle } = await params;
+  const clean = handle.startsWith('@') ? handle.slice(1) : handle;
+  return {
+    title: `${clean} · role fit · TrueHire`,
+    description: `Evidence-based role-fit report for @${clean}, derived from public GitHub work.`,
+    alternates: { canonical: `/@${encodeURIComponent(clean)}/role-fit` },
+  };
+}
 
 export default async function RoleFitPage(props: {
   params: Promise<Params>;

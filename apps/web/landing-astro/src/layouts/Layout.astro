@@ -43,6 +43,31 @@ const NAV_LINKS = [
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={OG_IMAGE} />
+    <link rel="alternate" type="text/markdown" href={`${SITE_URL}/index.md`} />
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@graph': [
+          {
+            '@type': 'Organization',
+            '@id': 'https://sassmaker.com/#org',
+            name: 'SaaS Maker (Foundry)',
+            url: 'https://sassmaker.com',
+          },
+          {
+            '@type': 'SoftwareApplication',
+            '@id': `${SITE_URL}/#app`,
+            name: 'TrueHire',
+            url: SITE_URL,
+            applicationCategory: 'BusinessApplication',
+            operatingSystem: 'Web',
+            description,
+            publisher: { '@id': 'https://sassmaker.com/#org' },
+          },
+        ],
+      })}
+    />
 
     {/* ── Fonts ────────────────────────────────────────────────────
        The body face is system-ui first with Inter as a webfont layer

@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: 'About — TrueHire',
   description:
     'TrueHire converts verified GitHub activity into a transparent 0-100 score. No self-declared skills, no editable bios, no black-box ranking.',
+  alternates: { canonical: '/about' },
 };
 
 export default function AboutPage() {

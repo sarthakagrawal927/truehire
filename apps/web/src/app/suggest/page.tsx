@@ -12,6 +12,7 @@ export const metadata: Metadata = {
   title: 'Suggestions — TrueHire',
   description:
     'Where you stand on each scoring axis and which axis would push your overall up the most.',
+  alternates: { canonical: '/suggest' },
 };
 
 interface Axis {

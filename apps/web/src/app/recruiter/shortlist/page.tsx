@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import {
   ArrowUpRight,
   BriefcaseBusiness,
@@ -33,6 +34,12 @@ type MissingCandidate = {
 };
 
 export const dynamic = 'force-dynamic';
+export const metadata: Metadata = {
+  title: 'Recruiter shortlist — TrueHire',
+  description:
+    'Compare claimed TrueHire candidates against one job description using public-work evidence, role fit, and explicit gaps.',
+  alternates: { canonical: '/recruiter/shortlist' },
+};
 
 export default async function RecruiterShortlistPage(props: {
   searchParams: Promise<SearchParams>;

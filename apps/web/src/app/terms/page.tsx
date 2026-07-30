@@ -4,6 +4,7 @@ import Link from 'next/link';
 export const metadata: Metadata = {
   title: 'Terms — TrueHire',
   description: 'Use of TrueHire is provided as-is; scoring is derived from public GitHub data.',
+  alternates: { canonical: '/terms' },
 };
 
 export default function TermsPage() {

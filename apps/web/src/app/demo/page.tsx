@@ -18,6 +18,7 @@ export const metadata: Metadata = {
   title: 'Sample profile · TrueHire',
   description:
     'See what a TrueHire verified score profile looks like — a transparent 0–100 score derived entirely from public GitHub data.',
+  alternates: { canonical: '/demo' },
 };
 
 const SCORE = {

@@ -9,6 +9,7 @@ export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: 'Recently claimed — TrueHire',
   description: 'Newest verified GitHub profiles on TrueHire, newest first.',
+  alternates: { canonical: '/recent' },
 };
 
 export default async function RecentPage() {

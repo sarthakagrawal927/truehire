@@ -28,6 +28,7 @@ export const metadata = {
   title: 'JD ↔ candidate proof board (demo) · TrueHire',
   description:
     'Fixture-backed prototype: compare verified-public-work proof for one job description against several sample candidates.',
+  alternates: { canonical: '/recruiter/shortlist/demo' },
 };
 
 const FRESH_DAYS = 90;
@@ -370,7 +371,7 @@ function deriveNextAction(
   referenceNow: number
 ): RecruiterAction {
   const { fitScore } = candidate.report;
-  const { verifiedRequirements, gapCount, totalRequirements } = candidate.report.summary;
+  const { verifiedRequirements, totalRequirements } = candidate.report.summary;
   const ageDays = daysSince(candidate.computedAt, referenceNow);
   const topGap = topGapLabel(candidate.report.gaps);
   const topStrength = candidate.topStrengths[0]?.requirement.label;

@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: 'API — TrueHire',
   description:
     'Public read-only endpoints to pull TrueHire profile data programmatically. JSON, no auth, no API key.',
+  alternates: { canonical: '/api' },
 };
 
 interface Endpoint {

@@ -2,9 +2,7 @@
 
 **Portfolio state (2026-07-10): Archived as a standalone product.** The concept and proof artifacts live inside RolePatch at `/proof`; preserve this repository as historical source and do not add new product work here.
 
-Last updated: 2026-07-10
-
-Last updated: 2026-07-02
+Last updated: 2026-07-31
 
 ## Why/What
 
@@ -63,6 +61,7 @@ Ingest (fire-and-forget on signIn) ──► Turso (users, repos, contributions,
 
 | Phase | Milestone |
 |-------|-----------|
+| SEO/GEO coverage (2026-07-31) | Source prepared for 14 public static routes and 3 public profile templates: one registry now drives the HTML-only sitemap, agent catalog, Markdown views, and edge-cache inventory. Private/auth routes are explicitly excluded. Pending merge and deployment; production is not yet claimed current. |
 | 2026-07-02 | Added global try/catch error handler to OpenNext worker (`apps/web/worker.mjs`) — logs method/path/message/stack, returns 500 JSON on uncaught errors. |
 | Signal 1 MVP | GitHub OAuth, full ingest pipeline, pure 5-axis composite scoring, public profiles at `/@handle`, dashboard with SSE progress |
 | Methodology & trust | `/methodology` with live constants from core; pre-commit secret scan |
@@ -92,6 +91,13 @@ Ingest (fire-and-forget on signIn) ──► Turso (users, repos, contributions,
 | Exports | OG images, badge, JSON/CSV, compare, stats, suggest |
 
 ## Features (shipped)
+
+### SEO/GEO source coverage (pending merge and deployment)
+- One route registry accounts for all 14 public static pages and all 3 claimed-profile templates.
+- The sitemap contains public HTML only; login, machine files, auth flows, operational recruiter routes, verification tokens, and APIs are excluded.
+- Every registered public route has substantive Markdown, content negotiation, and a discoverable alternate URL; `/api/ai`, `llms.txt`, and `llms-full.txt` are derived from the same registry.
+- Static pages and public profile templates have canonical metadata; the Astro homepage includes canonical, social, Markdown-alternate, and SoftwareApplication structured metadata.
+- Focused parity tests cover route uniqueness, source-page existence, sitemap derivation, Markdown responses, dynamic templates, and catalog completeness.
 
 ### Signal 1 MVP — public GitHub work
 - GitHub OAuth sign-up and session management (NextAuth v5).

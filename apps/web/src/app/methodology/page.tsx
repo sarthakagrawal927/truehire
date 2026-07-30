@@ -9,6 +9,7 @@ export const metadata: Metadata = {
   title: 'Methodology — TrueHire',
   description:
     "How the TrueHire score is computed: weights, caps, half-lives, and the philosophy behind each axis. All numbers below are imported live from packages/core so the docs can't drift.",
+  alternates: { canonical: '/methodology' },
 };
 
 const AXIS_DETAIL: Record<

@@ -14,7 +14,7 @@
 import openNext from './.open-next/worker.js';
 import { withTiming } from './timing.mjs';
 import { handleAgentEdge } from './agent-edge.mjs';
-
+import { PUBLIC_ROUTES } from './public-routes.mjs';
 
 // Durable Objects must be re-exported from the entry that wrangler.toml
 // points at, otherwise the bindings can't resolve them at deploy time.
@@ -25,20 +25,9 @@ export {
 } from './.open-next/worker.js';
 
 const CACHE_CONTROL = 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800';
-const CACHEABLE_EXACT = new Set([
-  '/',
-  '/about',
-  '/stats',
-  '/methodology',
-  '/recent',
-  '/compare',
-  '/suggest',
-  '/demo',
-  '/privacy',
-  '/terms',
-  '/recruiter/shortlist/demo',
-  '/recruiter/resume-audit/demo',
-]);
+const CACHEABLE_EXACT = new Set(
+  PUBLIC_ROUTES.filter((route) => route.cacheable).map((route) => route.path)
+);
 function isCacheableDocumentPath(pathname) {
   return CACHEABLE_EXACT.has(pathname);
 }
@@ -56,7 +45,6 @@ function hasAuthCookie(request) {
 
 export default {
   fetch: withTiming(async function fetch(request, env, ctx) {
-
     // Agent / LLM indexing surfaces (fleet GEO standard)
     {
       const agent = handleAgentEdge(request);
