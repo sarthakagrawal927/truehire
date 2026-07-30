@@ -61,7 +61,7 @@ Ingest (fire-and-forget on signIn) ──► Turso (users, repos, contributions,
 
 | Phase | Milestone |
 |-------|-----------|
-| SEO/GEO coverage (2026-07-31) | Source prepared for 14 public static routes and 3 public profile templates: one registry now drives the HTML-only sitemap, agent catalog, Markdown views, and edge-cache inventory. Private/auth routes are explicitly excluded. Pending merge and deployment; production is not yet claimed current. |
+| SEO/GEO coverage (2026-07-31) | Source prepared for 14 public static routes and 3 public profile templates: one registry now drives the HTML-only sitemap, agent catalog, Markdown views, and edge-cache inventory. Private/auth routes are explicitly excluded. The unchanged 16/32/64 px favicon frames were normalized from RGB to RGBA so Next.js Turbopack and CI can decode the ICO. Pending merge and deployment; production is not yet claimed current. |
 | 2026-07-02 | Added global try/catch error handler to OpenNext worker (`apps/web/worker.mjs`) — logs method/path/message/stack, returns 500 JSON on uncaught errors. |
 | Signal 1 MVP | GitHub OAuth, full ingest pipeline, pure 5-axis composite scoring, public profiles at `/@handle`, dashboard with SSE progress |
 | Methodology & trust | `/methodology` with live constants from core; pre-commit secret scan |
