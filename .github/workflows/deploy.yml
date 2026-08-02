@@ -11,6 +11,13 @@ jobs:
       - uses: actions/setup-node@v6
         with: { node-version: '20', cache: pnpm }
       - run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Validate GitHub deploy secrets
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN" || { echo "::error::Missing GitHub secret: CLOUDFLARE_API_TOKEN"; exit 1; }
+          test -n "$CLOUDFLARE_ACCOUNT_ID" || { echo "::error::Missing GitHub secret: CLOUDFLARE_ACCOUNT_ID"; exit 1; }
       - name: Apply pending D1 migrations
         uses: cloudflare/wrangler-action@v4
         with:
@@ -33,8 +40,10 @@ jobs:
       - name: Validate GitHub deploy secrets
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           test -n "$CLOUDFLARE_API_TOKEN" || { echo "::error::Missing GitHub secret: CLOUDFLARE_API_TOKEN"; exit 1; }
+          test -n "$CLOUDFLARE_ACCOUNT_ID" || { echo "::error::Missing GitHub secret: CLOUDFLARE_ACCOUNT_ID"; exit 1; }
       - run: pnpm --filter web cf:build
       - name: Deploy production worker
         uses: cloudflare/wrangler-action@v4
@@ -45,4 +54,4 @@ jobs:
           wranglerVersion: "4.85.0"
           command: deploy --tag ${{ github.sha }}
       - name: Smoke production
-        run: curl --fail --silent --show-error --location --output /dev/null --retry 3 --retry-delay 5 https://truehire.sarthakagrawal927.workers.dev
+        run: curl --fail --silent --show-error --location --output /dev/null --retry 3 --retry-delay 5 https://truehire.rolepatch.com
