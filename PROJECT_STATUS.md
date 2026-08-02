@@ -19,13 +19,13 @@ Non-goals: user-editable bios/skills, leaderboards, pseudonymous profiles, ATS r
 | App | Next.js 16 (App Router), React 19, TypeScript, Tailwind v4 |
 | Monorepo | pnpm workspaces: `apps/web`, `packages/core`, `packages/db`, `packages/cli` |
 | CLI | `truehire` (npm, unscoped) — local AI-build profile scanner; tsup bundle; `better-sqlite3` for Cursor |
-| Database | Drizzle ORM + Turso (libSQL); `file:./local.db` locally |
+| Database | Drizzle ORM + Cloudflare D1; isolated Wrangler D1 locally |
 | Auth | NextAuth v5 (GitHub OAuth only) + `@auth/drizzle-adapter` |
 | GitHub | @octokit GraphQL + REST in `packages/core/src/ingest/` |
 | Scoring | Pure functions in `packages/core/src/scoring/score.ts` — **100% test coverage required** |
 | Testing | Vitest (core unit), Playwright (e2e) |
 | Deploy | Cloudflare Workers via `@opennextjs/cloudflare` |
-| CI | GitHub Actions on push to `main` — `migrate-production` (Drizzle migrator, soft-skips until `DATABASE_URL`/`DATABASE_AUTH_TOKEN` Actions secrets are set) then auto-deploy |
+| CI | GitHub Actions CI on pushes/PRs; manual production workflow applies D1 migrations before its SHA-tagged deploy |
 
 **Local dev:** `pnpm install && pnpm dev` → apps/web on :3000
 
@@ -35,7 +35,7 @@ Non-goals: user-editable bios/skills, leaderboards, pseudonymous profiles, ATS r
 GitHub OAuth (NextAuth)
         │
         ▼
-Ingest (fire-and-forget on signIn) ──► Turso (users, repos, contributions, scores, work_history, verifications)
+Ingest (fire-and-forget on signIn) ──► D1 (users, repos, contributions, scores, work_history, verifications)
         │
         ├── Signal 1 scoring (pure core): Recognition 30% · Depth 20% · Craft 20% · Breadth 15% · Specialization 15%
         ├── Signal 2 bonus (scaffold): computeSignal2 + 0.15 overall cap (+15 max)
@@ -51,10 +51,10 @@ Ingest (fire-and-forget on signIn) ──► Turso (users, repos, contributions,
 | Concern | Detail |
 |---------|--------|
 | Hosting | Cloudflare Worker `truehire` via OpenNext |
-| Database | Turso — `DATABASE_URL` + `DATABASE_AUTH_TOKEN` |
-| Secrets (wrangler only) | `AUTH_SECRET`, `AUTH_GITHUB_SECRET`, `DATABASE_AUTH_TOKEN`, `GITHUB_API_TOKEN` |
-| Local DB | `DATABASE_URL="file:$PWD/local.db" pnpm db:migrate` |
-| Deploy | `pnpm --filter web cf:deploy` or push to `main` |
+| Database | Cloudflare D1 — Worker binding `DB` |
+| Secrets (wrangler only) | `AUTH_SECRET`, `AUTH_GITHUB_SECRET`, `GITHUB_API_TOKEN` |
+| Local DB | `pnpm db:migrate:local` |
+| Deploy | `pnpm deploy` from clean, current, green `main` |
 | Core tests | `pnpm --filter @truehire/core test` — must remain 100% before merge |
 | E2E smoke | `pnpm test:e2e:local` (disposable DB, no prod secrets) |
 | Constraints | No Prisma/Supabase/Cockroach; no user-editable profile fields; ingest never blocks auth redirect |
@@ -63,6 +63,7 @@ Ingest (fire-and-forget on signIn) ──► Turso (users, repos, contributions,
 
 | Phase | Milestone |
 |-------|-----------|
+| 2026-08-02 | Migrated the retained public runtime from Turso/libSQL to the project-owned Cloudflare D1 binding and converted production deployment to a manual, migration-first, SHA-tagged workflow. |
 | 2026-07-02 | Added global try/catch error handler to OpenNext worker (`apps/web/worker.mjs`) — logs method/path/message/stack, returns 500 JSON on uncaught errors. |
 | Signal 1 MVP | GitHub OAuth, full ingest pipeline, pure 5-axis composite scoring, public profiles at `/@handle`, dashboard with SSE progress |
 | Methodology & trust | `/methodology` with live constants from core; pre-commit secret scan |

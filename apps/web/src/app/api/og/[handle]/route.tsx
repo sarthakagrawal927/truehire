@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 import { getLatestScore, getUserByUsername } from '@/lib/score-service';
 
-export const runtime = 'nodejs'; // Drizzle/libsql — not edge
+export const runtime = 'nodejs'; // OpenNext Node-compatible runtime with D1
 
 export async function GET(_req: Request, ctx: { params: Promise<{ handle: string }> }) {
   const { handle } = await ctx.params;

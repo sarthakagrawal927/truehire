@@ -11,7 +11,7 @@ Verified candidate platform — GitHub signals generate a transparent 0-100 scor
 - Framework: Next.js 16 (App Router), React 19
 - Language: TypeScript
 - Styling: Tailwind CSS v4
-- DB: Drizzle ORM + Turso (libSQL). Local: `file:./local.db`. Prod: Turso `libsql://...`
+- DB: Drizzle ORM + Cloudflare D1. Local: Wrangler local D1. Production: the `DB` binding.
 - Auth: NextAuth v5 beta (GitHub OAuth ONLY) + `@auth/drizzle-adapter`
 - Testing: Vitest (unit — `packages/core` must have 100% test coverage), Playwright (e2e in `apps/web/e2e/`)
 - Deploy: Cloudflare Workers via `@opennextjs/cloudflare`
@@ -48,7 +48,6 @@ packages/
     src/ingest/            # GitHub GraphQL + REST via @octokit
   db/                      # Drizzle schema, migrations, client
     src/schema.ts
-    src/migrate.ts
     drizzle.config.ts
   cli/                     # `truehire` npm CLI — local AI-build scanner (Claude Code/Cursor/Codex)
     src/adapters/          # one per tool; each optional, declares fidelity
@@ -66,8 +65,7 @@ pnpm --filter web build               # next build
 
 # DB
 pnpm db:generate                      # regen migrations from schema changes
-DATABASE_URL="file:$PWD/local.db" pnpm db:migrate   # apply migrations locally
-pnpm db:studio                        # Drizzle Studio GUI
+pnpm db:migrate:local                # apply migrations to isolated local D1
 
 # Cloudflare deploy
 pnpm --filter web cf:build            # next build → opennext transform
@@ -87,7 +85,7 @@ pnpm --filter web cf:deploy           # wrangler deploy to prod
 - **AI Build Profile is self-attested and NEVER touches the score**: the `truehire` CLI (`packages/cli`) computes a 6-dimension "how you build with AI" profile from the user's LOCAL Claude Code/Cursor/Codex logs (a Worker can't read those). Users connect via `truehire login` (browser-pairing device flow → `cli_auth_sessions`), which mints a long-lived revocable token (`cli_tokens`, HMAC-stored, saved to `~/.truehire/credentials.json`); `publish` authenticates with it so the upload binds to a GitHub-verified identity, stored in `ai_build_profiles` (one row/user), and rendered on `/@handle` clearly fenced with a "contributes 0 to the score" disclaimer. Only aggregate counts/ratios are ever uploaded — never prompt text, code, or paths (the per-project breakdown shown by `assess` is stripped before publish). This is the ONE allowed exception to "no self-reported data": it is explicitly labeled and weight-zero, the same way self-claimed Signal 2 work history is.
 - **Ingest is dashboard-driven**: the `signIn` event only resets `ingestStatus` (serverless can kill fire-and-forget work after the callback returns); `/dashboard` opens an SSE stream to `/api/refresh/stream` (`maxDuration` 120s) which runs ingest + scoring with live progress. `/@handle` shows a "Scoring…" state until the first score lands.
 - **`/@handle` route**: `startsWith("@")` guard prevents collision with other dynamic routes.
-- **CF deployment**: secrets via `wrangler secret put` (`AUTH_SECRET`, `AUTH_GITHUB_SECRET`, `DATABASE_AUTH_TOKEN`, `GITHUB_API_TOKEN`) — never in `vars`.
+- **CF deployment**: D1 is provided through the `DB` binding; secrets use `wrangler secret put` (`AUTH_SECRET`, `AUTH_GITHUB_SECRET`, `GITHUB_API_TOKEN`) — never in `vars`.
 - **GitHub data**: `@octokit/graphql` + `@octokit/rest`. Rate limit: 5k/hr per OAuth token.
 - **DO NOT ADD**: Prisma, Supabase, CockroachDB, leaderboards, pseudonymous profiles, user-editable profile fields.
 - Husky: pre-commit runs `scripts/secret-scan.mjs` via lint-staged; pre-push runs further checks.

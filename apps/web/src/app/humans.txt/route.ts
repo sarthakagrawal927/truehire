@@ -11,7 +11,7 @@ GitHub — for the public API that makes the score possible.
 /* SITE */
 Last updated: 2026-05-15
 Standards: HTML5, CSS3 (Tailwind), TypeScript, RFC 9116 (security.txt)
-Software: Next.js, React, Drizzle ORM, Turso, Cloudflare Workers
+Software: Next.js, React, Drizzle ORM, Cloudflare D1 and Workers
 `;
 
 export function GET() {

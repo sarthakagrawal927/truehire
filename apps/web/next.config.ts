@@ -20,12 +20,7 @@ const nextConfig: NextConfig = {
     unoptimized: true,
     remotePatterns: [{ protocol: 'https', hostname: 'avatars.githubusercontent.com' }],
   },
-  serverExternalPackages: [
-    '@libsql/client',
-    '@libsql/hrana-client',
-    '@libsql/isomorphic-ws',
-    'drizzle-orm',
-  ],
+  serverExternalPackages: ['drizzle-orm'],
   async headers() {
     return [
       {

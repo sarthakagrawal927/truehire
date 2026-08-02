@@ -102,7 +102,7 @@ export async function getPendingPairing(userCode: string) {
     .where(eq(schema.cliAuthSessions.userCode, userCode))
     .limit(1);
   const row = rows[0];
-  if (!row || row.status !== 'pending') return null;
+  if (row?.status !== 'pending') return null;
   if (row.expiresAt.getTime() < Date.now()) return null;
   return row;
 }

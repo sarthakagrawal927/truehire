@@ -19,6 +19,14 @@
     "binding": "ASSETS",
     "directory": ".open-next/assets"
   },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "truehire",
+      "database_id": "d0e1fd1e-da01-46ce-8cd1-579176142e45",
+      "migrations_dir": "../../packages/db/drizzle"
+    }
+  ],
   "observability": { "enabled": true, "head_sampling_rate": 0.1 },
   "limits": { "cpu_ms": 30000 },
   "unsafe": {
@@ -32,8 +40,8 @@
     ]
   },
 
-  // Non-secret defaults. Secrets (AUTH_SECRET, AUTH_GITHUB_SECRET,
-  // DATABASE_AUTH_TOKEN, GITHUB_API_TOKEN) are provisioned via `wrangler secret put`.
+  // Non-secret defaults. Secrets (AUTH_SECRET, AUTH_GITHUB_SECRET and
+  // GITHUB_API_TOKEN) are provisioned via `wrangler secret put`.
   "vars": {
     "NEXT_PUBLIC_APP_URL": "https://truehire.rolepatch.com",
     "AUTH_URL": "https://truehire.rolepatch.com"

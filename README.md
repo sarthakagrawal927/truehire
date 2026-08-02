@@ -11,14 +11,14 @@ Live app: <https://truehire.rolepatch.com>
 | Concern | Service |
 |---------|---------|
 | Hosting | Cloudflare Workers (`truehire`, `truehire.rolepatch.com`) via `@opennextjs/cloudflare` — one Worker serves the Next.js frontend and API routes |
-| Database | Turso (libSQL) |
+| Database | Cloudflare D1 |
 | Auth | NextAuth v5 + GitHub OAuth |
-| CI/CD | GitHub Actions — auto-deploy on push to `main` |
+| CI/CD | GitHub Actions — CI on pushes/PRs; manual production deploy from `main` |
 
 ## Stack
 
 - Next.js 16 (App Router) + React 19, TypeScript, Tailwind v4
-- Drizzle ORM + Turso (libSQL) — `file:./local.db` locally, `libsql://…` in prod
+- Drizzle ORM + Cloudflare D1 — local Wrangler D1 for development, bound D1 in production
 - NextAuth v5 (GitHub OAuth only) + `@auth/drizzle-adapter`
 - Vitest (unit, **100% coverage required on `packages/core`**), Playwright (e2e)
 - Cloudflare Workers via `@opennextjs/cloudflare`
@@ -56,15 +56,14 @@ pnpm dev                              # apps/web on :3000
 pnpm --filter @truehire/core test     # scoring unit tests (must stay at 100%)
 pnpm --filter web typecheck
 pnpm --filter web build
-pnpm test:e2e:local                   # disposable DB + local auth env + Playwright
+pnpm test:e2e:local                   # isolated local D1 + local auth env + Playwright
 ```
 
 ## Database
 
 ```bash
-pnpm db:generate                                            # regen migrations
-DATABASE_URL="file:$PWD/local.db" pnpm db:migrate          # apply locally
-pnpm db:studio                                              # Drizzle Studio
+pnpm db:generate       # regenerate migrations
+pnpm db:migrate:local  # apply to isolated local D1
 ```
 
 ## Local E2E
@@ -76,23 +75,22 @@ Use the wrapper when you just need a reliable local smoke pass:
 pnpm test:e2e:local
 ```
 
-It creates a temporary SQLite/libSQL database, runs migrations, supplies local
-dummy GitHub OAuth values plus `AUTH_SECRET`, starts the Next.js web app through
-Playwright, and deletes the temp DB afterward. It does not use production
-secrets.
+It applies migrations to Wrangler's isolated local D1, supplies local dummy
+GitHub OAuth values plus `AUTH_SECRET`, and starts the Next.js web app through
+Playwright. It does not use production data or secrets.
 
 ## Deploy
 
 ```bash
 pnpm --filter web cf:build       # next build → opennext transform
 pnpm --filter web cf:preview     # local wrangler dev
-pnpm --filter web cf:deploy      # wrangler deploy to prod
+pnpm deploy                      # dispatch guarded production deploy from clean main
 ```
 
-Pushes to `main` deploy automatically.
+Production deploys are manual and run only from a green, current `main`.
 
 Secrets via `wrangler secret put` only (never in `vars`):
-`AUTH_SECRET`, `AUTH_GITHUB_SECRET`, `DATABASE_AUTH_TOKEN`, `GITHUB_API_TOKEN`.
+`AUTH_SECRET`, `AUTH_GITHUB_SECRET`, `GITHUB_API_TOKEN`.
 
 ## Key constraints
 
