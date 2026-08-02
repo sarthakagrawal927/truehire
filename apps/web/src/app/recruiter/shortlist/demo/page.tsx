@@ -370,7 +370,7 @@ function deriveNextAction(
   referenceNow: number
 ): RecruiterAction {
   const { fitScore } = candidate.report;
-  const { verifiedRequirements, gapCount, totalRequirements } = candidate.report.summary;
+  const { verifiedRequirements, totalRequirements } = candidate.report.summary;
   const ageDays = daysSince(candidate.computedAt, referenceNow);
   const topGap = topGapLabel(candidate.report.gaps);
   const topStrength = candidate.topStrengths[0]?.requirement.label;

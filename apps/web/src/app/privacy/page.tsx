@@ -35,8 +35,8 @@ export default function PrivacyPage() {
 
       <h2 className="mt-8 text-base font-semibold text-stone-900">Where data lives</h2>
       <p className="mt-2">
-        Profile data is stored in a Turso (libSQL) database. Scores are recomputed on demand and on
-        a refresh interval. Auth secrets live as Cloudflare Workers secrets, never in code.
+        Profile data is stored in Cloudflare D1. Scores are recomputed on demand and on a refresh
+        interval. Auth secrets live as Cloudflare Workers secrets, never in code.
       </p>
 
       <h2 className="mt-8 text-base font-semibold text-stone-900">Your controls</h2>

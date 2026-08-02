@@ -1,21 +1,25 @@
-import { createClient, type Client } from '@libsql/client/web';
-import { drizzle } from 'drizzle-orm/libsql';
+import { getCloudflareContext } from '@opennextjs/cloudflare';
+import { drizzle } from 'drizzle-orm/d1';
 import * as schema from './schema';
 
-declare global {
-  // eslint-disable-next-line no-var
-  var __libsql__: Client | undefined;
+type D1Binding = Parameters<typeof drizzle>[0];
+
+export function createDb(binding: D1Binding) {
+  return drizzle(binding, { schema });
 }
 
-function makeClient(): Client {
-  const url = process.env.DATABASE_URL ?? 'http://127.0.0.1:8080';
-  const authToken = process.env.DATABASE_AUTH_TOKEN;
-  return createClient({ url, authToken });
+function getBinding(): D1Binding {
+  const env = getCloudflareContext().env as CloudflareEnv & { DB?: D1Binding };
+  if (!env.DB) throw new Error('D1 database binding DB is unavailable.');
+  return env.DB;
 }
 
-const client = globalThis.__libsql__ ?? makeClient();
-if (process.env.NODE_ENV !== 'production') globalThis.__libsql__ = client;
+const binding = new Proxy({} as D1Binding, {
+  get(_target, prop, receiver) {
+    return Reflect.get(getBinding() as object, prop, receiver);
+  },
+});
 
-export const db = drizzle(client, { schema });
+export const db = createDb(binding);
 export { schema };
 export type DB = typeof db;

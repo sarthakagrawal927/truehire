@@ -53,9 +53,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .filter((u) => u.githubUsername)
       .flatMap((u) => {
         const handle = u.githubUsername as string;
-        const lastModified = u.lastScoredAt
-          ? new Date(u.lastScoredAt)
-          : now;
+        const lastModified = u.lastScoredAt ? new Date(u.lastScoredAt) : now;
         const base = `${siteUrl}/${encodeURIComponent(handle)}`;
         return [
           {

@@ -24,7 +24,7 @@ pnpm --filter web build
 
 Cloudflare configuration lives in `wrangler.jsonc`. Secrets are managed through Wrangler, not committed config.
 
-Required runtime secrets include `AUTH_SECRET`, `AUTH_GITHUB_SECRET`, `DATABASE_AUTH_TOKEN`, and `GITHUB_API_TOKEN`.
+The relational database is the `DB` D1 binding. Required runtime secrets include `AUTH_SECRET`, `AUTH_GITHUB_SECRET`, and `GITHUB_API_TOKEN`.
 
 ## Notes
 

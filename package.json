@@ -17,8 +17,8 @@
     "test:e2e": "pnpm --filter web test:e2e",
     "test:e2e:local": "node scripts/test-e2e-local.mjs",
     "db:generate": "pnpm --filter @truehire/db generate",
-    "db:migrate": "pnpm --filter @truehire/db migrate",
-    "db:studio": "pnpm --filter @truehire/db studio",
+    "db:migrate:local": "pnpm --filter web exec wrangler d1 migrations apply DB --local",
+    "db:migrate:remote": "pnpm --filter web exec wrangler d1 migrations apply DB --remote",
     "prepare": "husky || true",
     "deploy": "node scripts/manual-deploy.mjs deploy.yml ci.yml"
   },
