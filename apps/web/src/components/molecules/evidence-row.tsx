@@ -2,17 +2,11 @@ import { Star, GitPullRequest, Code2, User } from 'lucide-react';
 import { Badge } from '@/components/atoms/badge';
 import type { EvidenceEntry } from '@truehire/core';
 
-type Props = { entry: EvidenceEntry; maxWeight: number; rank: number };
+type Props = { entry: EvidenceEntry; maxWeight: number; rank: number; linked?: boolean };
 
-export function EvidenceRow({ entry, maxWeight, rank }: Props) {
+export function EvidenceRow({ entry, maxWeight, rank, linked = true }: Props) {
   const pct = maxWeight > 0 ? (entry.weight / maxWeight) * 100 : 0;
-  return (
-    <a
-      href={`https://github.com/${entry.repoFullName}`}
-      target="_blank"
-      rel="noreferrer"
-      className="group relative block rounded-[var(--radius-sm)] px-4 py-3 transition-colors hover:bg-[var(--surface-2)]"
-    >
+  const content = (
       <div className="flex items-center gap-4">
         <div className="num w-6 text-right text-[11px] text-[var(--muted-2)]">
           {String(rank).padStart(2, '0')}
@@ -59,6 +53,23 @@ export function EvidenceRow({ entry, maxWeight, rank }: Props) {
           </span>
         </div>
       </div>
+  );
+
+  const className =
+    'group relative block rounded-[var(--radius-sm)] px-4 py-3 transition-colors hover:bg-[var(--surface-2)]';
+
+  if (!linked) {
+    return <div className={className}>{content}</div>;
+  }
+
+  return (
+    <a
+      href={`https://github.com/${entry.repoFullName}`}
+      target="_blank"
+      rel="noreferrer"
+      className={className}
+    >
+      {content}
     </a>
   );
 }

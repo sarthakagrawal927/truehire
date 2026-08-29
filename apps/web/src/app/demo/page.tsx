@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { Clock, ShieldCheck } from 'lucide-react';
-import { GithubIcon as Github } from '@/components/atoms/github-icon';
+import { ArrowRight, Clock, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/atoms/button';
 import { Badge } from '@/components/atoms/badge';
 import { Card, CardBody, CardHeader, CardTitle } from '@/components/atoms/card';
@@ -141,12 +140,12 @@ export default function DemoPage() {
             Sample profile · Demo
           </div>
           <p className="mt-1 text-[14px] text-[var(--muted)]">
-            This is what your TrueHire profile looks like — derived entirely from GitHub data. Every
-            number is real math on real public signals.
+            This archived sample shows how TrueHire derived a profile from GitHub data and exposed
+            the evidence behind each score.
           </p>
         </div>
-        <Link href="/login" className="shrink-0">
-          <Button leftIcon={<Github className="h-4 w-4" />}>Claim your profile</Button>
+        <Link href="https://rolepatch.com/proof" className="shrink-0">
+          <Button rightIcon={<ArrowRight className="h-4 w-4" />}>View retained proof</Button>
         </Link>
       </div>
 
@@ -246,7 +245,13 @@ export default function DemoPage() {
         </CardHeader>
         <div className="divide-y divide-[var(--border)]">
           {EVIDENCE.map((e, i) => (
-            <EvidenceRow key={e.repoFullName} entry={e} maxWeight={maxWeight} rank={i + 1} />
+            <EvidenceRow
+              key={e.repoFullName}
+              entry={e}
+              maxWeight={maxWeight}
+              rank={i + 1}
+              linked={false}
+            />
           ))}
         </div>
       </Card>
@@ -283,21 +288,21 @@ export default function DemoPage() {
       {/* bottom CTA */}
       <div className="mt-10 flex flex-col gap-4 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <div className="text-[15px] font-semibold">Your profile is waiting.</div>
+          <div className="text-[15px] font-semibold">This sample is preserved for inspection.</div>
           <p className="mt-1 text-[13px] text-[var(--muted)]">
-            Connect GitHub and your verified score goes live in &lt;5 minutes.
+            TrueHire is archived. RolePatch now carries the active hiring-product work.
           </p>
         </div>
-        <Link href="/login" className="shrink-0">
-          <Button size="lg" leftIcon={<Github className="h-4 w-4" />}>
-            Claim your profile
+        <Link href="https://rolepatch.com/proof" className="shrink-0">
+          <Button size="lg" rightIcon={<ArrowRight className="h-4 w-4" />}>
+            Continue to RolePatch
           </Button>
         </Link>
       </div>
 
       <p className="mt-6 text-[12px] text-[var(--muted-2)]">
         Sample profile with illustrative data. Real profiles are computed from your actual GitHub
-        activity — nothing is self-written.
+        activity; nothing in the sample is candidate-written.
       </p>
     </div>
   );

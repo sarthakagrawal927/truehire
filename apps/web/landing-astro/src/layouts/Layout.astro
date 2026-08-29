@@ -12,6 +12,20 @@ const { title, description } = Astro.props;
 const SITE_URL = 'https://truehire.rolepatch.com';
 const OG_IMAGE = `${SITE_URL}/opengraph-image`;
 
+const STRUCTURED_DATA = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  '@id': `${SITE_URL}/#site`,
+  name: 'TrueHire',
+  url: SITE_URL,
+  description,
+  isPartOf: {
+    '@type': 'WebSite',
+    name: 'RolePatch',
+    url: 'https://rolepatch.com',
+  },
+};
+
 const NAV_LINKS = [
   { href: '/#how', label: 'How it works' },
   { href: '/#signals', label: 'Signals' },
@@ -43,6 +57,8 @@ const NAV_LINKS = [
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={OG_IMAGE} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(STRUCTURED_DATA)}></script>
 
     {/* ── Fonts ────────────────────────────────────────────────────
        The body face is system-ui first with Inter as a webfont layer
@@ -100,7 +116,7 @@ const NAV_LINKS = [
       <div class="mx-auto grid w-full max-w-6xl gap-6 px-6 py-10 md:grid-cols-3">
         <div class="text-sm text-[var(--muted)]">
           <div class="mb-2 text-[var(--foreground)] font-medium">TrueHire</div>
-          The verified-candidate layer. Costly signals, not tailored resumes.
+          Archived research into transparent candidate scoring from public GitHub evidence.
         </div>
         <div class="text-sm">
           <div class="mb-2 text-[11px] uppercase tracking-[0.1em] text-[var(--muted-2)]">Product</div>

@@ -37,15 +37,15 @@ const SAMPLE = {
 const FAQS = [
   {
     q: 'Why GitHub first?',
-    a: "Because it's the one signal that exists at scale today without asking anyone's permission. Years of public commits cannot be fabricated in a weekend. Other signals — employer verification, reputation bonds, paid auditions — come next.",
+    a: "GitHub was the one public signal the experiment could inspect without asking candidates or employers to provide new data. A long public history is harder to fabricate quickly than a tailored resume. Employer verification, reputation bonds, and paid auditions remained proposals.",
   },
   {
     q: 'Can I edit my profile?',
-    a: "No. The entire point is that nothing on a TrueHire profile is written by the candidate. If it's on your profile, it came from a verifiable source. We surface the raw evidence so recruiters can audit every number.",
+    a: "No. TrueHire derived profile claims from public evidence instead of candidate-written copy. Each score exposed its source so a recruiter could inspect how the number was produced.",
   },
   {
     q: "What if I don't have much GitHub history?",
-    a: "MVP focuses on engineers with public code. If that's not you yet, the score will be low — that's honest. As we ship signals 2–4, non-code credentials (verified employment, references, auditions) open the door for more profiles.",
+    a: "The MVP focused on engineers with public code, so it could not fairly represent people whose best work was private. The proposed employment, reference, and audition signals were not shipped in the standalone product.",
   },
   {
     q: 'How do you stop gaming (bot commits, bought stars)?',
@@ -122,8 +122,8 @@ const AUDITION_DAYS = Array.from({ length: 14 }, (_, i) => i);
             <dd class="mt-2 text-[12px] leading-[1.4] text-[var(--muted)]">transparent score, every number sourced</dd>
           </div>
           <div>
-            <dt class="num text-[20px] font-semibold leading-none tracking-tight">4 signals</dt>
-            <dd class="mt-2 text-[12px] leading-[1.4] text-[var(--muted)]">stacked, near-impossible to fake</dd>
+            <dt class="num text-[20px] font-semibold leading-none tracking-tight">1 shipped</dt>
+            <dd class="mt-2 text-[12px] leading-[1.4] text-[var(--muted)]">public-work signal; three layers stayed proposed</dd>
           </div>
         </dl>
       </div>
@@ -299,11 +299,12 @@ const AUDITION_DAYS = Array.from({ length: 14 }, (_, i) => i);
           <span class="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--muted)]">The stack</span>
         </div>
         <h2 class="mt-3 text-[32px] font-semibold leading-[1.1] tracking-[-0.015em] md:text-[44px]">
-          Four orthogonal signals. Stacked.
+          One observed signal. Three proposed layers.
         </h2>
         <p class="mt-5 text-[15px] leading-relaxed text-[var(--muted)]">
-          Any one costly signal can be partially gamed. Four, layered, can only
-          be produced by someone who actually is who they claim to be.
+          Public GitHub work powered the shipped MVP. Employer verification,
+          reputation bonds, and paid auditions were explored as possible additions,
+          but the standalone product was archived before they shipped.
         </p>
       </div>
 
@@ -427,22 +428,23 @@ const AUDITION_DAYS = Array.from({ length: 14 }, (_, i) => i);
         <div class="flex items-center gap-3">
           <span class="num rounded-full border border-[var(--border-strong)] bg-[var(--surface)] px-2 py-0.5 text-[11px] font-medium tracking-[0.14em] text-[var(--foreground)]">§ 03</span>
           <span class="h-px w-8 bg-[var(--border-strong)]"></span>
-          <span class="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--muted)]">How it works</span>
+          <span class="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--muted)]">How the MVP worked</span>
         </div>
         <h2 class="mt-3 text-[32px] font-semibold leading-[1.1] tracking-[-0.015em] md:text-[44px]">
           Derived, not declared.
         </h2>
         <p class="mt-5 text-[15px] leading-relaxed text-[var(--muted)]">
-          You cannot write your own bio, summary, or skills list. Everything on
-          your profile is computed from verified sources. That is the point.
+          Candidates could not write their own bio, summary, or skills list.
+          The MVP computed profile claims from public evidence and showed the
+          source behind each score.
         </p>
       </div>
 
       <ol class="grid grid-cols-1 gap-6 md:grid-cols-3">
         {[
-          ['01', 'Connect GitHub', 'OAuth only — we never ask for a resume, a headline, or a self-description.'],
-          ['02', 'We read your work', 'Commits, releases, stars, merged PRs to high-reputation repos — no heuristics, no ML black box.'],
-          ['03', 'Score + evidence', 'A transparent 0–100 composite with the receipts behind every number. Recomputed weekly.'],
+          ['01', 'Connect public GitHub', 'OAuth linked the account without asking for a resume, headline, or self-description.'],
+          ['02', 'Read the public work', 'The model inspected commits, releases, stars, and merged pull requests.'],
+          ['03', 'Compute score + evidence', 'A transparent 0–100 composite showed the source behind every number.'],
         ].map(([n, title, body]) => (
           <li class="relative rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-6">
             <div class="num text-[11px] tracking-[0.1em] text-[var(--muted-2)]">{n}</div>

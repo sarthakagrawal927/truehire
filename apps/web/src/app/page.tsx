@@ -1,7 +1,6 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
 import { ShieldCheck, ArrowRight } from 'lucide-react';
-import { GithubIcon as Github } from '@/components/atoms/github-icon';
 import { Button } from '@/components/atoms/button';
 import { Badge } from '@/components/atoms/badge';
 import { Card, CardBody } from '@/components/atoms/card';
@@ -26,32 +25,32 @@ export default function LandingPage() {
           <div className="relative z-10">
             <Badge tone="outline" className="mb-6">
               <span className="h-1.5 w-1.5 rounded-full bg-[var(--verified)]" />
-              Costly signals over cheap ones
+              Archived research artifact · no active signup
             </Badge>
 
             <h1 className="text-balance text-[44px] font-semibold leading-[1.02] tracking-[-0.025em] md:text-[72px]">
-              Your resume
+              A transparent
               <br />
-              <span className="text-[var(--muted)]">is gone.</span>
+              <span className="text-[var(--muted)]">hiring-signal</span>
               <br />
-              Your work still speaks.
+              experiment.
             </h1>
 
             <p className="mt-8 max-w-[34ch] text-[16px] leading-[1.55] text-[var(--muted)]">
-              AI tailors every resume into a 95% match. Recruiters stopped reading them. TrueHire
-              replaces the resume with signals that are too expensive to fake — starting with years
-              of verified public code.
+              TrueHire tested whether technical candidates could be ranked transparently from
+              verified public GitHub evidence. The standalone product is archived; this page
+              preserves the scoring thesis, sample profile, and limitations for inspection.
             </p>
 
             <div className="mt-10 flex flex-wrap items-center gap-3">
-              <Link href="/login">
-                <Button size="lg" leftIcon={<Github className="h-4 w-4" />}>
-                  Claim your profile
+              <Link href="/#how">
+                <Button size="lg">
+                  Inspect the methodology
                 </Button>
               </Link>
-              <Link href="/methodology">
+              <Link href="https://rolepatch.com/proof">
                 <Button size="lg" variant="ghost" rightIcon={<ArrowRight className="h-4 w-4" />}>
-                  See the methodology
+                  See the retained proof in RolePatch
                 </Button>
               </Link>
             </div>
@@ -67,7 +66,7 @@ export default function LandingPage() {
             <dl className="mt-14 grid max-w-xl grid-cols-3 gap-8 border-t border-[var(--border)] pt-7">
               <Metric k="GitHub" v="years of public commits, verified" />
               <Metric k="0–100" v="transparent score, every number sourced" />
-              <Metric k="4 signals" v="stacked, near-impossible to fake" />
+              <Metric k="1 shipped" v="public-work signal; three layers stayed proposed" />
             </dl>
           </div>
 
@@ -119,38 +118,39 @@ export default function LandingPage() {
           <div className="mb-14 max-w-2xl">
             <SectionEyebrow index="02" label="The stack" />
             <h2 className="mt-3 text-[32px] font-semibold leading-[1.1] tracking-[-0.015em] md:text-[44px]">
-              Four orthogonal signals. Stacked.
+              One observed signal. Three proposed layers.
             </h2>
             <p className="mt-5 text-[15px] leading-relaxed text-[var(--muted)]">
-              Any one costly signal can be partially gamed. Four, layered, can only be produced by
-              someone who actually is who they claim to be.
+              Public GitHub work powered the shipped MVP. Employer verification, reputation bonds,
+              and paid auditions were explored as possible additions, but the standalone product
+              was archived before they shipped.
             </p>
           </div>
 
           <div className="grid grid-cols-1 gap-0 overflow-hidden rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] md:grid-cols-2 lg:grid-cols-4">
             <SignalCard
-              state="live"
+              state="observed"
               index="01"
               title="Public work"
               body="Years of real commits, merged PRs into popular repos, authored libraries. Already indexable, no buy-in required."
               visual={<SignalVizCommits />}
             />
             <SignalCard
-              state="next"
+              state="proposed"
               index="02"
               title="Employer verification"
               body="HR-signed confirmation of role and tenure, payroll-backed where available. Cryptographically signed on your profile."
               visual={<SignalVizVerify />}
             />
             <SignalCard
-              state="soon"
+              state="proposed"
               index="03"
               title="Reputation bonds"
               body="Colleagues and referrers stake money on specific claims. The stake forfeits if the claim proves false."
               visual={<SignalVizBonds />}
             />
             <SignalCard
-              state="soon"
+              state="proposed"
               index="04"
               title="Paid audition"
               body="Two weeks of paid contract work at target comp. Convert to FT with escrowed outcome feedback."
@@ -164,31 +164,31 @@ export default function LandingPage() {
       <section id="how" className="border-b border-[var(--border)]">
         <div className="mx-auto w-full max-w-6xl px-6 py-24">
           <div className="mb-14 max-w-2xl">
-            <SectionEyebrow index="03" label="How it works" />
+            <SectionEyebrow index="03" label="How the MVP worked" />
             <h2 className="mt-3 text-[32px] font-semibold leading-[1.1] tracking-[-0.015em] md:text-[44px]">
               Derived, not declared.
             </h2>
             <p className="mt-5 text-[15px] leading-relaxed text-[var(--muted)]">
-              You cannot write your own bio, summary, or skills list. Everything on your profile is
-              computed from verified sources. That is the point.
+              Candidates could not write their own bio, summary, or skills list. The MVP computed
+              profile claims from public evidence and showed the source behind each score.
             </p>
           </div>
 
           <ol className="grid grid-cols-1 gap-6 md:grid-cols-3">
             <Step
               n="01"
-              title="Connect GitHub"
-              body="OAuth only — we never ask for a resume, a headline, or a self-description."
+              title="Connect public GitHub"
+              body="OAuth linked the account without asking for a resume, headline, or self-description."
             />
             <Step
               n="02"
-              title="We read your work"
-              body="Commits, releases, stars, merged PRs to high-reputation repos — no heuristics, no ML black box."
+              title="Read the public work"
+              body="The model inspected commits, releases, stars, and merged pull requests."
             />
             <Step
               n="03"
-              title="Score + evidence"
-              body="A transparent 0–100 composite with the receipts behind every number. Recomputed weekly."
+              title="Compute score + evidence"
+              body="A transparent 0–100 composite showed the source behind every number."
             />
           </ol>
 
@@ -244,15 +244,15 @@ export default function LandingPage() {
         <div className="mx-auto flex w-full max-w-6xl flex-col items-start justify-between gap-6 px-6 py-16 md:flex-row md:items-center">
           <div>
             <h2 className="text-[24px] font-semibold tracking-tight md:text-[28px]">
-              Stop tailoring. Start being trusted.
+              The experiment is archived.
             </h2>
             <p className="mt-2 max-w-xl text-[var(--muted)]">
-              Your profile takes 60 seconds. Then it works for you, forever.
+              Inspect the retained methodology here, or continue to RolePatch for active hiring work.
             </p>
           </div>
-          <Link href="/login">
-            <Button size="lg" leftIcon={<Github className="h-4 w-4" />}>
-              Claim your profile
+          <Link href="https://rolepatch.com/proof">
+            <Button size="lg" rightIcon={<ArrowRight className="h-4 w-4" />}>
+              View retained proof
             </Button>
           </Link>
         </div>
@@ -291,20 +291,20 @@ function SignalCard({
   body,
   visual,
 }: {
-  state: 'live' | 'next' | 'soon';
+  state: 'observed' | 'proposed';
   index: string;
   title: string;
   body: string;
   visual: React.ReactNode;
 }) {
-  const label = state === 'live' ? 'Live' : state === 'next' ? 'Next' : 'Roadmap';
-  const tone = state === 'live' ? 'verified' : state === 'next' ? 'outline' : 'neutral';
+  const label = state === 'observed' ? 'Observed input' : 'Proposed';
+  const tone = state === 'observed' ? 'verified' : 'outline';
   return (
     <div className="relative flex flex-col gap-5 border-b border-r border-[var(--border)] p-6 last:border-r-0 md:[&:nth-child(2)]:border-r-0 lg:[&:nth-child(2)]:border-r lg:[&:nth-child(4)]:border-r-0 md:[&:nth-child(n+3)]:border-b-0 lg:[&:nth-child(n+2)]:border-b-0">
       <div className="flex items-center justify-between">
         <span className="num text-[11px] tracking-[0.14em] text-[var(--muted-2)]">{index}</span>
         <Badge tone={tone}>
-          {state === 'live' && <span className="h-1.5 w-1.5 rounded-full bg-[var(--verified)]" />}
+          {state === 'observed' && <span className="h-1.5 w-1.5 rounded-full bg-[var(--verified)]" />}
           {label}
         </Badge>
       </div>
@@ -434,22 +434,22 @@ function HeroProfileDemoSkeleton() {
 const faqs = [
   {
     q: 'Why GitHub first?',
-    a: "Because it's the one signal that exists at scale today without asking anyone's permission. Years of public commits cannot be fabricated in a weekend. Other signals — employer verification, reputation bonds, paid auditions — come next.",
+    a: "GitHub was the one public signal the experiment could inspect without asking candidates or employers to provide new data. A long public history is harder to fabricate quickly than a tailored resume. Employer verification, reputation bonds, and paid auditions remained proposals.",
   },
   {
     q: 'Can I edit my profile?',
-    a: "No. The entire point is that nothing on a TrueHire profile is written by the candidate. If it's on your profile, it came from a verifiable source. We surface the raw evidence so recruiters can audit every number.",
+    a: "No. TrueHire derived profile claims from public evidence instead of candidate-written copy. Each score exposed its source so a recruiter could inspect how the number was produced.",
   },
   {
     q: "What if I don't have much GitHub history?",
-    a: "MVP focuses on engineers with public code. If that's not you yet, the score will be low — that's honest. As we ship signals 2–4, non-code credentials (verified employment, references, auditions) open the door for more profiles.",
+    a: "The MVP focused on engineers with public code, so it could not fairly represent people whose best work was private. The proposed employment, reference, and audition signals were not shipped in the standalone product.",
   },
   {
     q: 'How do you stop gaming (bot commits, bought stars)?',
     a: 'Recognition credits only high-star repos and merged PRs into them. Depth requires sustained months of activity, not a recent burst. We detect and discount star-spikes. Gaming enough signals to materially move a score is substantially harder than real work.',
   },
   {
-    q: 'Is this free?',
-    a: 'Yes — public profiles and weekly score refresh will stay free. Paid tiers (manual refresh, private mode, verified PDF export, recruiter search) come later.',
+    q: 'Can I claim a profile or buy a recruiter plan?',
+    a: 'No. TrueHire is archived as a standalone product. Its methodology and sample evidence remain available for inspection, while active employment-product work continues in RolePatch.',
   },
 ];

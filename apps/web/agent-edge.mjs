@@ -8,47 +8,154 @@
  *   if (agent) return agent
  */
 
-/** @type {{ name: string, url: string, llmsTxt: string, llmsFullTxt?: string, indexMd: string, catalog: object }} */
-// biome-ignore format: generated payload from apply-agent-surfaces (JSON keys/quotes)
+/** @type {{ name: string, url: string, llmsTxt: string, llmsFullTxt: string, indexMd: string, demoMd: string, catalog: object }} */
 export const AGENT_SURFACE = {
-  "name": "TrueHire",
-  "url": "https://truehire.rolepatch.com",
-  "llmsFullTxt": "# TrueHire — full agent brief\n\nHiring-side companion under RolePatch for evaluating candidates with structured role fit.\n\n## Index\n\n# TrueHire\n\nHiring companion related to RolePatch for structured candidate evaluation.\n\n## Agent entrypoints\n\n- https://truehire.rolepatch.com/llms.txt\n- https://truehire.rolepatch.com/api/ai\n- https://truehire.rolepatch.com/index.md\n\n## Product links\n\n- Home: https://truehire.rolepatch.com/ — Product\n- RolePatch: https://rolepatch.com/ — Parent product\n\n## Machine surfaces\n\n- https://truehire.rolepatch.com/llms.txt\n- https://truehire.rolepatch.com/llms-full.txt\n- https://truehire.rolepatch.com/api/ai\n- https://truehire.rolepatch.com/index.md\n- https://truehire.rolepatch.com/sitemap.xml\n- https://truehire.rolepatch.com/robots.txt\n\n## Contact / fleet\n\n- Fleet: https://sassmaker.com\n- Agent email for directory verification: sarthakagrawal@agentmail.to\n",
-  "llmsTxt": "# TrueHire\n\n> Hiring-side companion under RolePatch for evaluating candidates with structured role fit.\n\n## Product\n\n- [Home](https://truehire.rolepatch.com/): Product\n- [RolePatch](https://rolepatch.com/): Parent product\n\n## Machine surfaces\n\n- [Agent catalog](https://truehire.rolepatch.com/api/ai): JSON inventory of public surfaces\n- [Homepage markdown](https://truehire.rolepatch.com/index.md): Product brief without JS\n- [This index](https://truehire.rolepatch.com/llms.txt)\n\n## Optional\n\n- [Foundry](https://sassmaker.com): Parent fleet showcase\n",
-  "indexMd": "# TrueHire\n\nHiring companion related to RolePatch for structured candidate evaluation.\n\n## Agent entrypoints\n\n- https://truehire.rolepatch.com/llms.txt\n- https://truehire.rolepatch.com/api/ai\n- https://truehire.rolepatch.com/index.md\n",
-  "catalog": {
-    "name": "TrueHire",
-    "version": "1",
-    "url": "https://truehire.rolepatch.com",
-    "llms": "https://truehire.rolepatch.com/llms.txt",
-    "llmsFull": "https://truehire.rolepatch.com/llms-full.txt",
-    "sitemap": "https://truehire.rolepatch.com/sitemap.xml",
-    "robots": "https://truehire.rolepatch.com/robots.txt",
-    "markdown": {
-      "suffix": ".md",
-      "negotiation": true
-    },
-    "surfaces": [
+  name: 'TrueHire',
+  url: 'https://truehire.rolepatch.com',
+  llmsFullTxt: `# TrueHire: full agent brief
+
+TrueHire tested whether technical candidates could be ranked transparently from verified public GitHub evidence. Public activity was converted into explicit scoring factors and evidence-linked profiles.
+
+The evidence-scoring MVP shipped, but trust and marketplace adoption remained unresolved. The standalone product is archived. There is no active marketplace, signup, or standalone roadmap, and RolePatch now carries active hiring-product work.
+
+## Index
+
+# TrueHire
+
+TrueHire was an experiment in transparent candidate scoring from verified public GitHub evidence. The standalone product is archived, and RolePatch now carries the active hiring work.
+
+## What it tested
+
+- Audience: technical candidates and recruiters who wanted inspectable evidence behind a score.
+- Method: public GitHub activity was converted into explicit scoring factors and evidence-linked profiles.
+- Outcome: an evidence-scoring MVP shipped, but trust and marketplace adoption remained unresolved.
+- Current state: there is no active marketplace, signup, or standalone roadmap.
+
+## Inspect the archive
+
+- [Archived homepage](https://truehire.rolepatch.com/)
+- [Sample profile](https://truehire.rolepatch.com/demo) ([Markdown](https://truehire.rolepatch.com/demo.md))
+- [Retained RolePatch proof](https://rolepatch.com/proof)
+
+## Agent entrypoints
+
+- https://truehire.rolepatch.com/llms.txt
+- https://truehire.rolepatch.com/api/ai
+- https://truehire.rolepatch.com/index.md
+
+## Archive links
+
+- Home: https://truehire.rolepatch.com/ - Scoring thesis, sample evidence, and limitations
+- Sample: https://truehire.rolepatch.com/demo - Static profile demonstration
+- RolePatch: https://rolepatch.com/proof - Retained proof in the active product
+
+## Machine surfaces
+
+- https://truehire.rolepatch.com/llms.txt
+- https://truehire.rolepatch.com/llms-full.txt
+- https://truehire.rolepatch.com/api/ai
+- https://truehire.rolepatch.com/index.md
+- https://truehire.rolepatch.com/demo.md
+- https://truehire.rolepatch.com/sitemap.xml
+- https://truehire.rolepatch.com/robots.txt
+
+## Contact / fleet
+
+- Fleet: https://sassmaker.com
+- Agent email for directory verification: sarthakagrawal@agentmail.to
+`,
+  llmsTxt: `# TrueHire
+
+> Archived research into transparent candidate scoring from verified public GitHub evidence.
+
+## Archive
+
+- [Home](https://truehire.rolepatch.com/): Scoring thesis, sample evidence, and limitations
+- [Sample profile](https://truehire.rolepatch.com/demo): Static demonstration of the scoring model ([Markdown](https://truehire.rolepatch.com/demo.md))
+- [RolePatch proof](https://rolepatch.com/proof): Active hiring-product work that superseded TrueHire
+
+TrueHire is not an active marketplace. It has no signup or standalone roadmap.
+
+## Machine surfaces
+
+- [Agent catalog](https://truehire.rolepatch.com/api/ai): JSON inventory of public surfaces
+- [Homepage markdown](https://truehire.rolepatch.com/index.md): Product brief without JS
+- [This index](https://truehire.rolepatch.com/llms.txt)
+
+## Optional
+
+- [Foundry](https://sassmaker.com): Parent fleet showcase
+`,
+  indexMd: `# TrueHire
+
+TrueHire was an experiment in transparent candidate scoring from verified public GitHub evidence. The standalone product is archived, and RolePatch now carries the active hiring work.
+
+## What it tested
+
+- Audience: technical candidates and recruiters who wanted inspectable evidence behind a score.
+- Method: public GitHub activity was converted into explicit scoring factors and evidence-linked profiles.
+- Outcome: an evidence-scoring MVP shipped, but trust and marketplace adoption remained unresolved.
+- Current state: there is no active marketplace, signup, or standalone roadmap.
+
+## Inspect the archive
+
+- [Archived homepage](https://truehire.rolepatch.com/)
+- [Sample profile](https://truehire.rolepatch.com/demo) ([Markdown](https://truehire.rolepatch.com/demo.md))
+- [Retained RolePatch proof](https://rolepatch.com/proof)
+
+## Agent entrypoints
+
+- https://truehire.rolepatch.com/llms.txt
+- https://truehire.rolepatch.com/api/ai
+- https://truehire.rolepatch.com/index.md
+`,
+  demoMd: `# TrueHire sample profile
+
+This preserved demonstration shows how the TrueHire MVP presented a candidate score derived from public GitHub evidence.
+
+The sample includes:
+
+- a transparent 0-100 composite score;
+- separate depth, breadth, recognition, craft, and specialization factors;
+- source repositories and contribution evidence behind the score;
+- an activity history and language breakdown.
+
+The profile and its data are illustrative. TrueHire is archived, so the sample does not offer profile claiming or recruiter signup.
+
+- [Open the visual sample](https://truehire.rolepatch.com/demo)
+- [Read the archived product brief](https://truehire.rolepatch.com/index.md)
+- [View retained proof in RolePatch](https://rolepatch.com/proof)
+`,
+  catalog: {
+    name: 'TrueHire',
+    version: '1',
+    url: 'https://truehire.rolepatch.com',
+    llms: 'https://truehire.rolepatch.com/llms.txt',
+    llmsFull: 'https://truehire.rolepatch.com/llms-full.txt',
+    sitemap: 'https://truehire.rolepatch.com/sitemap.xml',
+    robots: 'https://truehire.rolepatch.com/robots.txt',
+    markdown: { suffix: '.md', negotiation: true },
+    surfaces: [
       {
-        "id": "home",
-        "url": "https://truehire.rolepatch.com/",
-        "md": "https://truehire.rolepatch.com/index.md",
-        "kind": "static",
-        "description": "Product home"
+        id: 'home',
+        url: 'https://truehire.rolepatch.com/',
+        md: 'https://truehire.rolepatch.com/index.md',
+        kind: 'static',
+        description: 'Archived scoring thesis, sample evidence, and limitations',
       },
       {
-        "id": "rolepatch",
-        "url": "https://rolepatch.com/",
-        "md": null,
-        "kind": "static",
-        "description": "Parent product"
-      }
+        id: 'sample',
+        url: 'https://truehire.rolepatch.com/demo',
+        md: 'https://truehire.rolepatch.com/demo.md',
+        kind: 'static',
+        description: 'Illustrative profile showing the score factors and source evidence',
+      },
     ],
-    "auth": {
-      "public": true,
-      "notes": "Auth-walled app routes are not agent-indexed unless listed here."
-    }
-  }
+    auth: {
+      public: true,
+      notes: 'The archive is public. There is no active signup, marketplace, or standalone roadmap.',
+    },
+  },
 };
 
 /**
@@ -68,6 +175,21 @@ export function handleAgentEdge(request) {
   }
   if (path === '/index.md') {
     return text(AGENT_SURFACE.indexMd, 'text/markdown; charset=utf-8');
+  }
+  if (path === '/demo.md') {
+    return text(AGENT_SURFACE.demoMd, 'text/markdown; charset=utf-8');
+  }
+  if (path === '/robots.txt') {
+    return text(
+      `User-agent: *\nAllow: /\n\nSitemap: ${url.origin}/sitemap.xml\n\n# Agent indexing\nAllow: /llms.txt\nAllow: /llms-full.txt\nAllow: /index.md\nAllow: /demo.md\nAllow: /api/ai\n`,
+      'text/plain; charset=utf-8'
+    );
+  }
+  if (path === '/sitemap.xml') {
+    return text(
+      `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>${url.origin}/</loc></url>\n  <url><loc>${url.origin}/demo</loc></url>\n</urlset>\n`,
+      'application/xml; charset=utf-8'
+    );
   }
   if (path === '/api/ai') {
     // Re-bind origin so preview/custom domains stay correct

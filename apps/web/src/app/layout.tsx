@@ -57,7 +57,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           type="application/ld+json"
           // biome-ignore lint/security/noDangerouslySetInnerHtml: fleet-generated JSON-LD
           dangerouslySetInnerHTML={{
-            __html: `{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://sassmaker.com/#org","name":"SaaS Maker (Foundry)","url":"https://sassmaker.com","sameAs":["https://sassmaker.com","https://github.com/sarthakagrawal927/truehire"]},{"@type":"SoftwareApplication","@id":"https://truehire.rolepatch.com/#app","name":"TrueHire","url":"https://truehire.rolepatch.com","description":"Hiring-side companion under RolePatch for evaluating candidates with structured role fit.","publisher":{"@id":"https://sassmaker.com/#org"}}]}`,
+            __html: `{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://sassmaker.com/#org","name":"SaaS Maker (Foundry)","url":"https://sassmaker.com","sameAs":["https://sassmaker.com","https://github.com/sarthakagrawal927/truehire"]},{"@type":"WebSite","@id":"https://truehire.rolepatch.com/#site","name":"TrueHire","url":"https://truehire.rolepatch.com","description":"Archived research into transparent candidate scoring from verified public GitHub evidence.","publisher":{"@id":"https://sassmaker.com/#org"},"isPartOf":{"@type":"WebSite","name":"RolePatch","url":"https://rolepatch.com"}}]}`,
           }}
         />
         {/* fleet-jsonld:end */}

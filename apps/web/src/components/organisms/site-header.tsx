@@ -6,12 +6,11 @@ import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { Button } from '@/components/atoms/button';
-import { GithubIcon as Github } from '@/components/atoms/github-icon';
 
 const NAV_LINKS = [
+  { href: '/#how', label: 'How it worked' },
   { href: '/#signals', label: 'Signals' },
-  { href: '/methodology', label: 'Methodology' },
-  { href: '/recruiter/shortlist', label: 'Recruiters' },
+  { href: 'https://rolepatch.com/proof', label: 'Retained proof' },
   { href: '/#faq', label: 'FAQ' },
 ];
 
@@ -53,9 +52,9 @@ export function SiteHeader() {
               </Link>
             </>
           ) : (
-            <Link href="/login">
-              <Button size="sm" leftIcon={<Github className="h-4 w-4" />}>
-                Sign in
+            <Link href="https://rolepatch.com/proof">
+              <Button size="sm">
+                View archive
               </Button>
             </Link>
           )}

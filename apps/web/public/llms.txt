@@ -1,11 +1,14 @@
 # TrueHire
 
-> Hiring-side companion under RolePatch for evaluating candidates with structured role fit.
+> Archived research into transparent candidate scoring from verified public GitHub evidence.
 
-## Product
+## Archive
 
-- [Home](https://truehire.rolepatch.com/): Product
-- [RolePatch](https://rolepatch.com/): Parent product
+- [Home](https://truehire.rolepatch.com/): Scoring thesis, sample evidence, and limitations
+- [Sample profile](https://truehire.rolepatch.com/demo): Static demonstration of the scoring model ([Markdown](https://truehire.rolepatch.com/demo.md))
+- [RolePatch proof](https://rolepatch.com/proof): Active hiring-product work that superseded TrueHire
+
+TrueHire is not an active marketplace. It has no signup or standalone roadmap.
 
 ## Machine surfaces
 

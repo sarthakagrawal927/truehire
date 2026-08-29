@@ -16,18 +16,18 @@
       "url": "https://truehire.rolepatch.com/",
       "md": "https://truehire.rolepatch.com/index.md",
       "kind": "static",
-      "description": "Product home"
+      "description": "Archived scoring thesis, sample evidence, and limitations"
     },
     {
-      "id": "rolepatch",
-      "url": "https://rolepatch.com/",
-      "md": null,
+      "id": "sample",
+      "url": "https://truehire.rolepatch.com/demo",
+      "md": "https://truehire.rolepatch.com/demo.md",
       "kind": "static",
-      "description": "Parent product"
+      "description": "Illustrative profile showing the score factors and source evidence"
     }
   ],
   "auth": {
     "public": true,
-    "notes": "Auth-walled app routes are not agent-indexed unless listed here."
+    "notes": "The archive is public. There is no active signup, marketplace, or standalone roadmap."
   }
 }

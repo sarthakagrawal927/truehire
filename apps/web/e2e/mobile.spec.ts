@@ -20,7 +20,7 @@ test.describe('TrueHire mobile (390px)', () => {
     );
     expect(overflow).toBe(false);
 
-    await expect(page.getByRole('link', { name: /claim your profile/i }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: /inspect the methodology/i }).first()).toBeVisible();
   });
 
   test('hamburger menu opens nav links', async ({ page }) => {
@@ -28,6 +28,6 @@ test.describe('TrueHire mobile (390px)', () => {
     const burger = page.getByRole('button', { name: /open menu/i });
     await expect(burger).toBeVisible();
     await burger.click();
-    await expect(page.getByRole('link', { name: /how it works/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /how it worked/i })).toBeVisible();
   });
 });

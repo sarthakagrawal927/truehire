@@ -6,7 +6,7 @@ export function SiteFooter() {
       <div className="mx-auto grid w-full max-w-6xl gap-6 px-6 py-10 md:grid-cols-3">
         <div className="text-sm text-[var(--muted)]">
           <div className="mb-2 text-[var(--foreground)] font-medium">TrueHire</div>
-          The verified-candidate layer. Costly signals, not tailored resumes.
+          Archived research into transparent candidate scoring from public GitHub evidence.
         </div>
         <div className="text-sm">
           <div className="mb-2 text-[11px] uppercase tracking-[0.1em] text-[var(--muted-2)]">
@@ -51,10 +51,10 @@ export function SiteFooter() {
       <div className="border-t border-[var(--border)]">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-4">
           <p className="text-[11px] text-[var(--muted-2)]">
-            © {new Date().getFullYear()} TrueHire — derived, not declared.
+            © {new Date().getFullYear()} TrueHire. Archived research artifact.
           </p>
           <p className="text-[11px] text-[var(--muted-2)] hidden sm:block">
-            No bios. No skills lists. No tailoring. Just verified work.
+            No active signup, marketplace, or standalone roadmap.
           </p>
         </div>
       </div>
