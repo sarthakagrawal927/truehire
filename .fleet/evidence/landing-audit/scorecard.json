@@ -1,0 +1,72 @@
+{
+  "$schema": "fleet.landing-audit.v1",
+  "project": "truehire",
+  "priority": "P4",
+  "decision": "Dropped",
+  "auditedAt": "2026-08-29",
+  "candidateUrl": "http://127.0.0.1:8790/",
+  "productionUrl": "https://truehire.rolepatch.com",
+  "releaseState": "Released and verified on the canonical production domain at commit d277672881b66219d81986f2bcbb6cb3d544c4e5. Current-main CI passed, the Worker is at 100% traffic with the exact Git SHA tag, all public archive and agent surfaces return HTTP 200, and the repository was restored to its archived state after release.",
+  "implementationAction": "repair-in-place",
+  "migrationCandidate": false,
+  "sharedSurface": "https://rolepatch.com/proof",
+  "gates": {
+    "contentPurpose": {
+      "score": 99,
+      "status": "pass",
+      "evidence": "The first viewport states that TrueHire is archived research, names the technical-candidate ranking question, identifies verified public GitHub evidence as the shipped mechanism, separates the single shipped signal from three proposals, explains the unresolved trust and marketplace limits, and routes active hiring work to RolePatch. Human and machine-readable surfaces carry the same contract with no signup, paid-plan, or live-marketplace claim."
+    },
+    "designQuality": {
+      "score": 95,
+      "status": "pass",
+      "evidence": "Fresh 390, 768, and 1440 pixel renders preserve a clear evidence-led hierarchy, readable sample profile, explicit observed-versus-proposed states, accessible contrast, focused CTAs, and the SaaS Maker Ask AI and project strip. Browser smoke found no horizontal overflow at any audited width."
+    },
+    "seo": {
+      "score": 100,
+      "status": "pass",
+      "evidence": "The candidate passes all 15 critical homepage checks: title, 135-character description, canonical, Open Graph and Twitter metadata, WebSite JSON-LD, one H1, valid heading hierarchy, content depth, clean rendered HTML, and link syntax. The two-page sitemap link graph has zero internal errors, redirects, orphan candidates, external errors, or external redirects after illustrative repositories were made non-links."
+    },
+    "geo": {
+      "score": 100,
+      "status": "pass",
+      "evidence": "The candidate is S-tier in the Fleet agent-index audit with real llms.txt and llms-full.txt, /api/ai, homepage Markdown negotiation, index.md, demo.md, same-origin sitemap and robots, valid JSON-LD, complete route Markdown coverage, and 2/2 catalog surfaces valid. Every agent surface describes the archived product state consistently."
+    },
+    "performance": {
+      "score": 96,
+      "status": "pass",
+      "evidence": "PSI Swarm completed five successful runs in each of four coverage profiles. P75 LCP was 2.19 seconds on slow 3G/low-end mobile, 956 milliseconds on mid mobile, 478 milliseconds on fast mobile, and 254 milliseconds on desktop. The weighted LCP was 727 milliseconds, CLS was 0, TBT was 0, and Lighthouse reported no actionable opportunities."
+    }
+  },
+  "verification": {
+    "passed": [
+      "public Cloudflare DNS and TLS origin checked",
+      "Astro static landing build passed",
+      "integrated OpenNext Cloudflare Worker build passed",
+      "TypeScript check passed",
+      "Vitest 7/7 passed",
+      "SEO homepage audit 15/15 passed",
+      "SEO link graph passed with 0 internal and external issues",
+      "Fleet GEO audit passed S-tier 100",
+      "PSI Swarm coverage completed 20/20 runs",
+      "responsive archive smoke passed at 390, 768, and 1440 pixels",
+      "demo archive boundary and retained-proof CTA verified",
+      "Ask AI footer and project strip rendered",
+      "current-main CI passed after source push",
+      "production Worker verified at 100% traffic with exact Git SHA tag",
+      "canonical archive and all agent surfaces returned HTTP 200"
+    ],
+    "reports": {
+      "performance": "performance.html",
+      "responsiveScreenshots": [
+        "screenshots/truehire-390.png",
+        "screenshots/truehire-768.png",
+        "screenshots/truehire-1440.png"
+      ]
+    },
+    "limitations": [
+      "The repository Playwright suite requires pinned browser binaries that are not currently installed; equivalent archive assertions passed against the integrated Worker using system Chrome.",
+      "The archived repository has no Cloudflare API token in GitHub Actions; the release used the authenticated desktop Wrangler account and retained exact-SHA tagging."
+    ]
+  },
+  "minimumObserved": 95
+}
