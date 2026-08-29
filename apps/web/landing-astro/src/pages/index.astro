@@ -17,9 +17,9 @@
 
 import Layout from '@/layouts/Layout.astro';
 
-const TITLE = 'TrueHire — the verified-candidate layer';
+const TITLE = 'TrueHire — archived verified-candidate research';
 const DESCRIPTION =
-  'Costly, verifiable signals instead of AI-tailored resumes. Your GitHub becomes a credential recruiters can trust.';
+  'An archived experiment in transparent candidate scoring from public GitHub evidence, preserved as research and superseded by RolePatch.';
 
 // Sample profile — same shape the live-hero-profile-demo.tsx falls back
 // to when the DB read returns nothing. We embed it directly: no fetch,
@@ -52,8 +52,8 @@ const FAQS = [
     a: 'Recognition credits only high-star repos and merged PRs into them. Depth requires sustained months of activity, not a recent burst. We detect and discount star-spikes. Gaming enough signals to materially move a score is substantially harder than real work.',
   },
   {
-    q: 'Is this free?',
-    a: 'Yes — public profiles and weekly score refresh will stay free. Paid tiers (manual refresh, private mode, verified PDF export, recruiter search) come later.',
+    q: 'Can I claim a profile or buy a recruiter plan?',
+    a: 'No. TrueHire is archived as a standalone product. Its methodology and sample evidence remain available for inspection, while active employment-product work continues in RolePatch.',
   },
 ];
 
@@ -79,32 +79,29 @@ const AUDITION_DAYS = Array.from({ length: 14 }, (_, i) => i);
       <div class="relative z-10">
         <span class="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-strong)] bg-transparent px-2.5 py-0.5 text-[11px] font-medium tracking-tight text-[var(--foreground)] mb-6">
           <span class="h-1.5 w-1.5 rounded-full bg-[var(--verified)]"></span>
-          Costly signals over cheap ones
+          Archived research artifact · no active signup
         </span>
 
         <h1 class="text-balance text-[44px] font-semibold leading-[1.02] tracking-[-0.025em] md:text-[72px]">
-          Your resume
+          A transparent
           <br />
-          <span class="text-[var(--muted)]">is gone.</span>
+          <span class="text-[var(--muted)]">hiring-signal</span>
           <br />
-          Your work still speaks.
+          experiment.
         </h1>
 
         <p class="mt-8 max-w-[34ch] text-[16px] leading-[1.55] text-[var(--muted)]">
-          AI tailors every resume into a 95% match. Recruiters stopped reading them.
-          TrueHire replaces the resume with signals that are too expensive to fake —
-          starting with years of verified public code.
+          TrueHire tested whether technical candidates could be ranked transparently from
+          verified public GitHub evidence. The standalone product is archived; this page
+          preserves the scoring thesis, sample profile, and limitations for inspection.
         </p>
 
         <div class="mt-10 flex flex-wrap items-center gap-3">
-          <a href="/login" class="inline-flex h-12 items-center justify-center gap-2 whitespace-nowrap rounded-[var(--radius-sm)] bg-[var(--accent)] px-6 text-base font-medium text-[var(--accent-contrast)] transition-opacity hover:opacity-90">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
-              <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.744.084-.729.084-.729 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.807 1.304 3.492.997.108-.775.418-1.305.762-1.605-2.665-.305-5.467-1.334-5.467-5.93 0-1.31.468-2.381 1.236-3.22-.124-.303-.536-1.524.118-3.176 0 0 1.007-.322 3.3 1.23a11.52 11.52 0 0 1 3-.404c1.02.005 2.046.137 3.006.404 2.29-1.552 3.296-1.23 3.296-1.23.654 1.652.242 2.873.118 3.176.77.839 1.236 1.91 1.236 3.22 0 4.61-2.807 5.624-5.48 5.921.43.372.816 1.102.816 2.22 0 1.604-.015 2.896-.015 3.29 0 .322.216.697.825.579C20.565 22.092 24 17.598 24 12.297c0-6.627-5.373-12-12-12" />
-            </svg>
-            Claim your profile
+          <a href="#how" class="inline-flex h-12 items-center justify-center gap-2 whitespace-nowrap rounded-[var(--radius-sm)] bg-[var(--accent)] px-6 text-base font-medium text-[var(--accent-contrast)] transition-opacity hover:opacity-90">
+            Inspect the methodology
           </a>
-          <a href="#how" class="inline-flex h-12 items-center justify-center gap-2 whitespace-nowrap rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-transparent px-6 text-base font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--surface-2)]">
-            How the score works
+          <a href="https://rolepatch.com/proof" class="inline-flex h-12 items-center justify-center gap-2 whitespace-nowrap rounded-[var(--radius-sm)] border border-[var(--border-strong)] bg-transparent px-6 text-base font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--surface-2)]">
+            See the retained proof in RolePatch
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </a>
         </div>
@@ -311,13 +308,13 @@ const AUDITION_DAYS = Array.from({ length: 14 }, (_, i) => i);
       </div>
 
       <div class="grid grid-cols-1 gap-0 overflow-hidden rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] md:grid-cols-2 lg:grid-cols-4">
-        {/* 01 — Public work · LIVE */}
+        {/* 01 — Public work · observed input */}
         <div class="relative flex flex-col gap-5 border-b border-r border-[var(--border)] p-6 last:border-r-0 md:[&:nth-child(2)]:border-r-0 lg:[&:nth-child(2)]:border-r lg:[&:nth-child(4)]:border-r-0 md:[&:nth-child(n+3)]:border-b-0 lg:[&:nth-child(n+2)]:border-b-0">
           <div class="flex items-center justify-between">
             <span class="num text-[11px] tracking-[0.14em] text-[var(--muted-2)]">01</span>
             <span class="inline-flex items-center gap-1.5 rounded-full border border-[color:color-mix(in_srgb,var(--verified)_40%,var(--border))] bg-[var(--verified-bg)] px-2.5 py-0.5 text-[11px] font-medium tracking-tight text-[var(--verified)]">
               <span class="h-1.5 w-1.5 rounded-full bg-[var(--verified)]"></span>
-              Live
+              Observed input
             </span>
           </div>
           <div class="h-24 w-full overflow-hidden rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-2)]">
@@ -338,11 +335,11 @@ const AUDITION_DAYS = Array.from({ length: 14 }, (_, i) => i);
           </div>
         </div>
 
-        {/* 02 — Employer verification · NEXT */}
+        {/* 02 — Employer verification · proposed */}
         <div class="relative flex flex-col gap-5 border-b border-r border-[var(--border)] p-6 last:border-r-0 md:[&:nth-child(2)]:border-r-0 lg:[&:nth-child(2)]:border-r lg:[&:nth-child(4)]:border-r-0 md:[&:nth-child(n+3)]:border-b-0 lg:[&:nth-child(n+2)]:border-b-0">
           <div class="flex items-center justify-between">
             <span class="num text-[11px] tracking-[0.14em] text-[var(--muted-2)]">02</span>
-            <span class="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-strong)] bg-transparent px-2.5 py-0.5 text-[11px] font-medium tracking-tight text-[var(--foreground)]">Next</span>
+            <span class="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-strong)] bg-transparent px-2.5 py-0.5 text-[11px] font-medium tracking-tight text-[var(--foreground)]">Proposed</span>
           </div>
           <div class="h-24 w-full overflow-hidden rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-2)]">
             <div class="flex h-full flex-col justify-center gap-1.5 px-4">
@@ -368,11 +365,11 @@ const AUDITION_DAYS = Array.from({ length: 14 }, (_, i) => i);
           </div>
         </div>
 
-        {/* 03 — Reputation bonds · ROADMAP */}
+        {/* 03 — Reputation bonds · proposed */}
         <div class="relative flex flex-col gap-5 border-b border-r border-[var(--border)] p-6 last:border-r-0 md:[&:nth-child(2)]:border-r-0 lg:[&:nth-child(2)]:border-r lg:[&:nth-child(4)]:border-r-0 md:[&:nth-child(n+3)]:border-b-0 lg:[&:nth-child(n+2)]:border-b-0">
           <div class="flex items-center justify-between">
             <span class="num text-[11px] tracking-[0.14em] text-[var(--muted-2)]">03</span>
-            <span class="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface-2)] px-2.5 py-0.5 text-[11px] font-medium tracking-tight text-[var(--muted)]">Roadmap</span>
+            <span class="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface-2)] px-2.5 py-0.5 text-[11px] font-medium tracking-tight text-[var(--muted)]">Proposed</span>
           </div>
           <div class="h-24 w-full overflow-hidden rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-2)]">
             <div class="relative flex h-full items-center justify-center">
@@ -397,11 +394,11 @@ const AUDITION_DAYS = Array.from({ length: 14 }, (_, i) => i);
           </div>
         </div>
 
-        {/* 04 — Paid audition · ROADMAP */}
+        {/* 04 — Paid audition · proposed */}
         <div class="relative flex flex-col gap-5 border-b border-r border-[var(--border)] p-6 last:border-r-0 md:[&:nth-child(2)]:border-r-0 lg:[&:nth-child(2)]:border-r lg:[&:nth-child(4)]:border-r-0 md:[&:nth-child(n+3)]:border-b-0 lg:[&:nth-child(n+2)]:border-b-0">
           <div class="flex items-center justify-between">
             <span class="num text-[11px] tracking-[0.14em] text-[var(--muted-2)]">04</span>
-            <span class="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface-2)] px-2.5 py-0.5 text-[11px] font-medium tracking-tight text-[var(--muted)]">Roadmap</span>
+            <span class="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface-2)] px-2.5 py-0.5 text-[11px] font-medium tracking-tight text-[var(--muted)]">Proposed</span>
           </div>
           <div class="h-24 w-full overflow-hidden rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-2)]">
             <div class="flex h-full items-center justify-center px-3">
@@ -506,17 +503,14 @@ const AUDITION_DAYS = Array.from({ length: 14 }, (_, i) => i);
     <div class="mx-auto flex w-full max-w-6xl flex-col items-start justify-between gap-6 px-6 py-16 md:flex-row md:items-center">
       <div>
         <h2 class="text-[24px] font-semibold tracking-tight md:text-[28px]">
-          Stop tailoring. Start being trusted.
+          Preserved as research, not presented as a live service.
         </h2>
         <p class="mt-2 max-w-xl text-[var(--muted)]">
-          Your profile takes 60 seconds. Then it works for you, forever.
+          There is no active profile claim, recruiter plan, paid tier, or standalone roadmap.
         </p>
       </div>
-      <a href="/login" class="inline-flex h-12 items-center justify-center gap-2 whitespace-nowrap rounded-[var(--radius-sm)] bg-[var(--accent)] px-6 text-base font-medium text-[var(--accent-contrast)] transition-opacity hover:opacity-90">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
-          <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.744.084-.729.084-.729 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.807 1.304 3.492.997.108-.775.418-1.305.762-1.605-2.665-.305-5.467-1.334-5.467-5.93 0-1.31.468-2.381 1.236-3.22-.124-.303-.536-1.524.118-3.176 0 0 1.007-.322 3.3 1.23a11.52 11.52 0 0 1 3-.404c1.02.005 2.046.137 3.006.404 2.29-1.552 3.296-1.23 3.296-1.23.654 1.652.242 2.873.118 3.176.77.839 1.236 1.91 1.236 3.22 0 4.61-2.807 5.624-5.48 5.921.43.372.816 1.102.816 2.22 0 1.604-.015 2.896-.015 3.29 0 .322.216.697.825.579C20.565 22.092 24 17.598 24 12.297c0-6.627-5.373-12-12-12" />
-        </svg>
-        Claim your profile
+      <a href="https://rolepatch.com/proof" class="inline-flex h-12 items-center justify-center gap-2 whitespace-nowrap rounded-[var(--radius-sm)] bg-[var(--accent)] px-6 text-base font-medium text-[var(--accent-contrast)] transition-opacity hover:opacity-90">
+        Open the retained proof
       </a>
     </div>
   </section>
