@@ -53,9 +53,7 @@ export function SiteHeader() {
             </>
           ) : (
             <Link href="https://rolepatch.com/proof">
-              <Button size="sm">
-                View archive
-              </Button>
+              <Button size="sm">View archive</Button>
             </Link>
           )}
 

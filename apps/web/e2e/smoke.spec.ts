@@ -3,7 +3,9 @@ import { expect, test } from '@playwright/test';
 test.describe('TrueHire smoke', () => {
   test('landing presents an archive instead of an active signup', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByRole('heading', { level: 1 })).toContainText(/hiring-signal experiment/i);
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(
+      /hiring-signal experiment/i
+    );
     await expect(page.getByText(/archived research artifact/i)).toBeVisible();
     await expect(page.getByRole('link', { name: /inspect the methodology/i })).toBeVisible();
     await expect(page.getByRole('link', { name: /claim your profile/i })).toHaveCount(0);

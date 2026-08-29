@@ -153,7 +153,8 @@ The profile and its data are illustrative. TrueHire is archived, so the sample d
     ],
     auth: {
       public: true,
-      notes: 'The archive is public. There is no active signup, marketplace, or standalone roadmap.',
+      notes:
+        'The archive is public. There is no active signup, marketplace, or standalone roadmap.',
     },
   },
 };

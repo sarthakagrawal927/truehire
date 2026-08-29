@@ -44,9 +44,7 @@ export default function LandingPage() {
 
             <div className="mt-10 flex flex-wrap items-center gap-3">
               <Link href="/#how">
-                <Button size="lg">
-                  Inspect the methodology
-                </Button>
+                <Button size="lg">Inspect the methodology</Button>
               </Link>
               <Link href="https://rolepatch.com/proof">
                 <Button size="lg" variant="ghost" rightIcon={<ArrowRight className="h-4 w-4" />}>
@@ -122,8 +120,8 @@ export default function LandingPage() {
             </h2>
             <p className="mt-5 text-[15px] leading-relaxed text-[var(--muted)]">
               Public GitHub work powered the shipped MVP. Employer verification, reputation bonds,
-              and paid auditions were explored as possible additions, but the standalone product
-              was archived before they shipped.
+              and paid auditions were explored as possible additions, but the standalone product was
+              archived before they shipped.
             </p>
           </div>
 
@@ -247,7 +245,8 @@ export default function LandingPage() {
               The experiment is archived.
             </h2>
             <p className="mt-2 max-w-xl text-[var(--muted)]">
-              Inspect the retained methodology here, or continue to RolePatch for active hiring work.
+              Inspect the retained methodology here, or continue to RolePatch for active hiring
+              work.
             </p>
           </div>
           <Link href="https://rolepatch.com/proof">
@@ -304,7 +303,9 @@ function SignalCard({
       <div className="flex items-center justify-between">
         <span className="num text-[11px] tracking-[0.14em] text-[var(--muted-2)]">{index}</span>
         <Badge tone={tone}>
-          {state === 'observed' && <span className="h-1.5 w-1.5 rounded-full bg-[var(--verified)]" />}
+          {state === 'observed' && (
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--verified)]" />
+          )}
           {label}
         </Badge>
       </div>
@@ -434,15 +435,15 @@ function HeroProfileDemoSkeleton() {
 const faqs = [
   {
     q: 'Why GitHub first?',
-    a: "GitHub was the one public signal the experiment could inspect without asking candidates or employers to provide new data. A long public history is harder to fabricate quickly than a tailored resume. Employer verification, reputation bonds, and paid auditions remained proposals.",
+    a: 'GitHub was the one public signal the experiment could inspect without asking candidates or employers to provide new data. A long public history is harder to fabricate quickly than a tailored resume. Employer verification, reputation bonds, and paid auditions remained proposals.',
   },
   {
     q: 'Can I edit my profile?',
-    a: "No. TrueHire derived profile claims from public evidence instead of candidate-written copy. Each score exposed its source so a recruiter could inspect how the number was produced.",
+    a: 'No. TrueHire derived profile claims from public evidence instead of candidate-written copy. Each score exposed its source so a recruiter could inspect how the number was produced.',
   },
   {
     q: "What if I don't have much GitHub history?",
-    a: "The MVP focused on engineers with public code, so it could not fairly represent people whose best work was private. The proposed employment, reference, and audition signals were not shipped in the standalone product.",
+    a: 'The MVP focused on engineers with public code, so it could not fairly represent people whose best work was private. The proposed employment, reference, and audition signals were not shipped in the standalone product.',
   },
   {
     q: 'How do you stop gaming (bot commits, bought stars)?',
