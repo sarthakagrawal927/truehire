@@ -3,6 +3,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import type { AiBuildDimensionId } from '@truehire/core';
+import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
+import { generateText } from 'ai';
 import { listJsonl, messageText } from './adapters/shared';
 import { CLAUDE_PROJECTS_DIR } from './config';
 
@@ -133,35 +135,25 @@ async function fetchJson(url: string, init: RequestInit, ms: number): Promise<un
 
 /** Grade via an OpenAI-compatible endpoint (LM Studio / Ollama). */
 async function openaiGrade(baseUrl: string, model: string, prompt: string): Promise<Raw | null> {
-  const data = (await fetchJson(
-    `${baseUrl}/chat/completions`,
-    {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        model,
-        messages: [
-          {
-            role: 'system',
-            content:
-              'You are a calibrated, slightly harsh grader. Respond ONLY with the requested JSON.',
-          },
-          { role: 'user', content: prompt },
-        ],
-        response_format: {
-          type: 'json_schema',
-          json_schema: { name: 'grade', strict: true, schema: SCHEMA },
-        },
-        // Deterministic: these scores get published, so avoid run-to-run drift.
-        temperature: 0,
-        max_tokens: 1200,
-      }),
-    },
-    120_000
-  )) as { choices?: { message?: { content?: string; reasoning_content?: string } }[] } | null;
-  const msg = data?.choices?.[0]?.message;
-  if (!msg) return null;
-  return extractJson(msg.content || msg.reasoning_content || '');
+  try {
+    const provider = createOpenAICompatible({
+      name: 'truehire-local',
+      baseURL: baseUrl,
+      apiKey: 'local',
+    });
+    const result = await generateText({
+      model: provider.chatModel(model),
+      system: 'You are a calibrated, slightly harsh grader. Respond ONLY with the requested JSON.',
+      prompt,
+      temperature: 0,
+      maxOutputTokens: 1200,
+      maxRetries: 0,
+      abortSignal: AbortSignal.timeout(120_000),
+    });
+    return extractJson(result.text);
+  } catch {
+    return null;
+  }
 }
 
 /** Grade via the local Codex CLI (cloud-backed). */

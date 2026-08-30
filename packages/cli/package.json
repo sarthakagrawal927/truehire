@@ -41,6 +41,8 @@
     "prepublishOnly": "tsup"
   },
   "dependencies": {
+    "@ai-sdk/openai-compatible": "2.0.41",
+    "ai": "6.0.168",
     "better-sqlite3": "12.2.0",
     "pdf-lib": "1.17.1"
   },
