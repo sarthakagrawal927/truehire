@@ -4,6 +4,7 @@ import { DrizzleAdapter } from '@auth/drizzle-adapter';
 import { eq } from 'drizzle-orm';
 import { db, schema } from '@truehire/db';
 import { trackSignup, trackReturned } from './analytics';
+import { ping } from './ping';
 
 declare module 'next-auth' {
   interface Session {
@@ -69,6 +70,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       // subsequent sign-in (a session by a user with prior activity).
       if (isNewUser) {
         trackSignup(user.id);
+        // Awaited: serverless runtimes may stop work once the callback returns.
+        await ping('signup', { title: user.email ?? user.id, props: { id: user.id, name: user.name } });
       } else {
         trackReturned(user.id);
       }
