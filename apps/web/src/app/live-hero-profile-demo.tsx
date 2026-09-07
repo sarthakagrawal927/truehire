@@ -84,6 +84,7 @@ export async function LiveHeroProfileDemo() {
   }
 
   const { user, score } = data;
+  const isSample = user.id === SAMPLE_PROFILE.user.id;
   const evidence: EvidenceEntry[] = JSON.parse(score.evidenceJson);
 
   return (
@@ -126,7 +127,8 @@ export async function LiveHeroProfileDemo() {
               <div className="truncate text-[12px] text-[var(--muted)]">@{user.githubUsername}</div>
             </div>
             <Badge tone="verified" className="ml-auto">
-              <ShieldCheck className="h-3 w-3" /> Verified
+              <ShieldCheck className="h-3 w-3" />{' '}
+              {isSample ? 'Synthetic sample' : 'GitHub snapshot'}
             </Badge>
           </div>
 
@@ -169,7 +171,9 @@ export async function LiveHeroProfileDemo() {
 
           <div className="mt-5 flex items-center gap-2 border-t border-[var(--border)] pt-4 text-[11px] text-[var(--muted-2)]">
             <Sparkles className="h-3 w-3" />
-            Derived weekly from GitHub · last verified {formatRelative(new Date(score.computedAt))}
+            {isSample
+              ? 'Fictional candidate · illustrative scores and contributions'
+              : `GitHub snapshot · computed ${formatRelative(new Date(score.computedAt))}`}
           </div>
         </div>
       </Card>

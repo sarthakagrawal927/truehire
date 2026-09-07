@@ -121,3 +121,20 @@ This section is maintained by the SaaS Maker Active-AI product/design loop so fu
 | `8b883594` truehire: add recruiter next-action comparison | done | medium | 2026-05-26 — recruiter takeaway card now ends with a "Next action" block offering two side-by-side CTAs: primary (filled) "Contact {handle} on GitHub" and secondary "Review evidence first" (anchors to `#top-evidence` on the evidence rail); replaces the prior single "View on GitHub" link |
 | `e3311861` truehire: add job-description paste evaluation demo | done | medium | 2026-05-26 — `JdEvaluator` client component added to `/recruiter/shortlist` empty state; recruiter pastes a JD, sees which of the 5 evaluation dimensions (Depth/Breadth/Recognition/Craft/Specialization) are signaled by the JD text via keyword detection, then can expand a sample @sample-dev comparison with real score breakdown; no model/auth/data changes |
 <!-- ACTIVE-AI-TASK-LOG:END -->
+
+
+## Shareability repair and retained work — 2026-09-07
+
+The retained candidate demonstration contains fictional scores and contributions.
+The Astro homepage, Next homepage fallback and sample profile now say so explicitly;
+the sample no longer claims a verification performed two hours ago. Its generated
+activity timeline is fixed through June 2026 rather than advancing with today's
+date. A real stored homepage profile is labelled a dated GitHub snapshot, without
+promising weekly refreshes. Scoring and archived repository history are unchanged.
+
+Remaining qualification: deploy the reviewed copy through the existing manual
+workflow, then verify the public landing-to-sample journey and inspect the evidence
+explanations. This does not establish candidate validity, prediction of job success,
+a working marketplace, or permission to restart signup. Keep the marketplace
+retired; preserve the scoring research as an explicitly synthetic demonstration.
+Task reconciliation found zero open GitHub issues; none were closed.

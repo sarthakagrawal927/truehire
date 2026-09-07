@@ -16,7 +16,7 @@ import type { EvidenceEntry } from '@truehire/core';
 export const metadata: Metadata = {
   title: 'Sample profile · TrueHire',
   description:
-    'See what a TrueHire verified score profile looks like — a transparent 0–100 score derived entirely from public GitHub data.',
+    'Illustrative TrueHire profile with synthetic scores and activity, retained to explain the archived scoring experiment.',
 };
 
 const SCORE = {
@@ -114,7 +114,7 @@ const LANGUAGES = [
 
 function makeMonths(): { month: string; commits: number }[] {
   const out: { month: string; commits: number }[] = [];
-  const now = new Date();
+  const now = new Date(2026, 5, 1);
   // Realistic 5-year activity pattern with gaps
   const gapMonths = new Set([3, 11, 19, 31, 47]);
   for (let i = 59; i >= 0; i--) {
@@ -140,8 +140,8 @@ export default function DemoPage() {
             Sample profile · Demo
           </div>
           <p className="mt-1 text-[14px] text-[var(--muted)]">
-            This archived sample shows how TrueHire derived a profile from GitHub data and exposed
-            the evidence behind each score.
+            This fictional candidate uses synthetic scores, repository contributions and activity.
+            It illustrates the archived methodology; it is not verified hiring evidence.
           </p>
         </div>
         <Link href="https://rolepatch.com/proof" className="shrink-0">
@@ -158,13 +158,13 @@ export default function DemoPage() {
           <div className="flex items-center gap-2">
             <h1 className="text-[28px] font-semibold tracking-tight">Sam Devlin</h1>
             <Badge tone="verified" className="ml-1">
-              <ShieldCheck className="h-3 w-3" /> Verified
+              <ShieldCheck className="h-3 w-3" /> Synthetic sample
             </Badge>
           </div>
           <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-[var(--muted)]">
             <span className="num">@sample-dev</span>
             <span className="inline-flex items-center gap-1">
-              <Clock className="h-3.5 w-3.5" /> last verified 2h ago
+              <Clock className="h-3.5 w-3.5" /> Illustrative activity through June 2026
             </span>
           </div>
         </div>
