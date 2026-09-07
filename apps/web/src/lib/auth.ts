@@ -71,7 +71,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (isNewUser) {
         trackSignup(user.id);
         // Awaited: serverless runtimes may stop work once the callback returns.
-        await ping('signup', { title: user.email ?? user.id, props: { id: user.id, name: user.name } });
+        await ping('signup', {
+          title: user.email ?? user.id,
+          props: { id: user.id, name: user.name },
+        });
       } else {
         trackReturned(user.id);
       }
