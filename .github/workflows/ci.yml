@@ -30,7 +30,16 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
-      - name: Test
+      - name: Test core
+        working-directory: packages/core
+        run: pnpm test
+
+      - name: Test CLI
+        working-directory: packages/cli
+        run: pnpm test
+
+      - name: Test web
+        working-directory: apps/web
         run: pnpm test
 
       - name: Build
